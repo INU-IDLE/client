@@ -1,0 +1,7 @@
+com.rushcutter.rushcutter.app-debug-0 C:\Users\heeyeon\rushcutter\android\app\src\debug\res
+com.rushcutter.rushcutter.app-main-1 C:\Users\heeyeon\rushcutter\android\app\src\main\res
+com.rushcutter.rushcutter.app-pngs-2 C:\Users\heeyeon\rushcutter\android\build\app\generated\res\pngs\debug
+com.rushcutter.rushcutter.app-resValues-3 C:\Users\heeyeon\rushcutter\android\build\app\generated\res\resValues\debug
+com.rushcutter.rushcutter.app-packageDebugResources-4 C:\Users\heeyeon\rushcutter\android\build\app\intermediates\incremental\debug\packageDebugResources\merged.dir
+com.rushcutter.rushcutter.app-packageDebugResources-5 C:\Users\heeyeon\rushcutter\android\build\app\intermediates\incremental\debug\packageDebugResources\stripped.dir
+com.rushcutter.rushcutter.app-merged_res-6 C:\Users\heeyeon\rushcutter\android\build\app\intermediates\merged_res\debug

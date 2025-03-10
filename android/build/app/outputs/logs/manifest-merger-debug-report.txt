@@ -1,0 +1,35 @@
+-- Merging decision tree log ---
+application
+INJECTED from C:\Users\heeyeon\rushcutter\android\app\src\main\AndroidManifest.xml:2:5-25:19
+INJECTED from C:\Users\heeyeon\rushcutter\android\app\src\debug\AndroidManifest.xml
+	android:extractNativeLibs
+		INJECTED from C:\Users\heeyeon\rushcutter\android\app\src\debug\AndroidManifest.xml
+	android:name
+		INJECTED from C:\Users\heeyeon\rushcutter\android\app\src\main\AndroidManifest.xml
+manifest
+ADDED from C:\Users\heeyeon\rushcutter\android\app\src\main\AndroidManifest.xml:1:1-26:12
+MERGED from C:\Users\heeyeon\rushcutter\android\app\src\main\AndroidManifest.xml:1:1-26:12
+INJECTED from C:\Users\heeyeon\rushcutter\android\app\src\debug\AndroidManifest.xml:1:1-7:12
+INJECTED from C:\Users\heeyeon\rushcutter\android\app\src\debug\AndroidManifest.xml:1:1-7:12
+INJECTED from C:\Users\heeyeon\rushcutter\android\app\src\debug\AndroidManifest.xml:1:1-7:12
+	package
+		ADDED from C:\Users\heeyeon\rushcutter\android\app\src\debug\AndroidManifest.xml:2:5-40
+		INJECTED from C:\Users\heeyeon\rushcutter\android\app\src\debug\AndroidManifest.xml
+	android:versionName
+		INJECTED from C:\Users\heeyeon\rushcutter\android\app\src\debug\AndroidManifest.xml
+	android:versionCode
+		INJECTED from C:\Users\heeyeon\rushcutter\android\app\src\debug\AndroidManifest.xml
+	xmlns:android
+		ADDED from C:\Users\heeyeon\rushcutter\android\app\src\main\AndroidManifest.xml:1:11-69
+uses-permission#android.permission.INTERNET
+ADDED from C:\Users\heeyeon\rushcutter\android\app\src\debug\AndroidManifest.xml:6:5-66
+	android:name
+		ADDED from C:\Users\heeyeon\rushcutter\android\app\src\debug\AndroidManifest.xml:6:22-64
+uses-sdk
+INJECTED from C:\Users\heeyeon\rushcutter\android\app\src\debug\AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from C:\Users\heeyeon\rushcutter\android\app\src\debug\AndroidManifest.xml
+INJECTED from C:\Users\heeyeon\rushcutter\android\app\src\debug\AndroidManifest.xml
+	android:targetSdkVersion
+		INJECTED from C:\Users\heeyeon\rushcutter\android\app\src\debug\AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from C:\Users\heeyeon\rushcutter\android\app\src\debug\AndroidManifest.xml

@@ -1,0 +1,4 @@
+com.rushcutter.rushcutter:style/NormalTheme = 0x7f030001
+com.rushcutter.rushcutter:style/LaunchTheme = 0x7f030000
+com.rushcutter.rushcutter:mipmap/ic_launcher = 0x7f020000
+com.rushcutter.rushcutter:drawable/launch_background = 0x7f010000
