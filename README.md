@@ -1,16 +1,10 @@
-# rushcutter
+# RushCutter - frontend
+  지하철 혼잡도 예측 어플리케이션 - 프론트
+  (based on 안드로이드 12)
 
-capstone design - IDLE
+## 사용 방법
+  flutter pub get // undefined
+  flutter run // 작동
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
