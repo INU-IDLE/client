@@ -5,6 +5,7 @@ import 'real_time_screen.dart';
 import 'saved_routes_screen.dart';
 import 'news_screen.dart';
 import 'my_page_screen.dart';
+import 'search_screen.dart'; // SearchScreen 추가
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -16,9 +17,14 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   String selectedCategory = 'HOME'; // 선택된 카테고리
   Offset? selectedStationPosition; // 선택된 역의 위치
+  String? departureStation;  // 출발역
+  String? arrivalStation;    // 도착역
 
   @override
   Widget build(BuildContext context) {
+    // 상태바 높이를 가져옴
+    final double statusBarHeight = MediaQuery.of(context).padding.top;
+
     Widget currentScreen;
 
     switch (selectedCategory) {
@@ -47,7 +53,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Positioned.fill(child: currentScreen),
           // 상단 검색창 및 알림 버튼
           Positioned(
-            top: 0,
+            top: statusBarHeight, // 상태바 바로 아래부터 시작
             left: 0,
             right: 0,
             child: Container(
@@ -76,14 +82,22 @@ class _HomeScreenState extends State<HomeScreen> {
                           const Icon(Icons.search, color: Colors.grey),
                           const SizedBox(width: 8),
                           Expanded(
-                            child: TextField(
-                              decoration: const InputDecoration(
-                                hintText: '지하철 역 검색',
-                                border: InputBorder.none,
-                              ),
+                            child: GestureDetector(
                               onTap: () {
-                                print('검색창 클릭');
+                                // 검색창 클릭 시 SearchScreen으로 이동
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const SearchScreen(
+                                      isSelectingDeparture: true, // 기본값 설정
+                                    ),
+                                  ),
+                                );
                               },
+                              child: const Text(
+                                '지하철 역 검색',
+                                style: TextStyle(color: Colors.black),
+                              ),
                             ),
                           ),
                         ],
@@ -131,8 +145,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      bottomNavigationBar:
-      BottomCategoryBar(
+      bottomNavigationBar: BottomCategoryBar(
         selectedCategory: selectedCategory,
         onCategorySelected: onCategorySelected,
       ),
@@ -147,8 +160,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildHomeContent() {
     return SvgPicture.asset(
-      "assets/images/mapimage.svg",
-      fit: BoxFit.cover,
+      "assets/images/mapimage.svg", // SVG 파일 경로
+      fit: BoxFit.cover, // 이미지 크기 맞추기
+      placeholderBuilder: (BuildContext context) => const CircularProgressIndicator(), // 로딩 중 표시
+      errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+        return const Center(child: Text("SVG 파일을 로드할 수 없습니다.")); // 오류 발생 시 메시지 출력
+      },
     );
   }
 }
