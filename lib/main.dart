@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:rushcutter/screen/home_screen.dart';
+import 'screen/home_screen.dart';
 
 void main() {
   runApp(const MyApp());

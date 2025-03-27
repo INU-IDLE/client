@@ -1,3 +1,4 @@
+// 경로 결과를 표시하는 화면, 출발지 - 도착지 경로를 시각적으로 표현
 import 'package:flutter/material.dart';
 
 class RouteResultScreen extends StatelessWidget {
@@ -61,22 +62,22 @@ class RouteResultScreen extends StatelessWidget {
                 children: [
                   _buildRouteStep(
                     "11:10",
-                    departure,
-                    "송도달빛축제공원역 승차",
+                    departure, // 출발역으로 전달받은 값을 사용
+                    "$departure 승차",
                     "인천1호선",
                     Icons.directions_subway,
                     Colors.blue,
                   ),
-                  _buildTransferStep("11:46", "부평역 하차", "도보 316m"),
+                  _buildTransferStep("11:46", "부평역", "도보 316m"),
                   _buildRouteStep(
                     "11:51",
-                    "1호선",
+                    "부평역", // 중간역으로 부평역을 사용
                     "부평역 승차",
                     "구로행",
                     Icons.directions_subway,
                     Colors.indigo,
                   ),
-                  _buildArrivalStep("12:13", arrival, "구일역 하차"),
+                  _buildArrivalStep("12:13", arrival, "$arrival 하차"), // 도착역으로 전달받은 값을 사용
                 ],
               ),
             ),

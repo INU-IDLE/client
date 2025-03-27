@@ -17,8 +17,36 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   String selectedCategory = 'HOME'; // 선택된 카테고리
   Offset? selectedStationPosition; // 선택된 역의 위치
-  String? departureStation;  // 출발역
-  String? arrivalStation;    // 도착역
+  String? departureStation; // 출발역
+  String? arrivalStation; // 도착역
+
+  final TransformationController _transformationController = TransformationController(); // transformation 추가
+
+  @override
+  void initState() {
+    super.initState();
+
+  // 초기 줌 상태 설정
+  _transformationController.value = Matrix4.identity()..scale(4.0); // 초기스케일
+}
+  void onCategorySelected(String category) {
+    setState(() {
+      selectedCategory = category;
+    });
+  }
+
+  // 검색 결과를 처리하는 메서드
+  void _handleSearchResult(String? result, bool isSelectingDeparture) {
+    if (result != null) {
+      setState(() {
+        if (isSelectingDeparture) {
+          departureStation = result;
+        } else {
+          arrivalStation = result;
+        }
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,9 +111,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           const SizedBox(width: 8),
                           Expanded(
                             child: GestureDetector(
-                              onTap: () {
+                              onTap: () async {
                                 // 검색창 클릭 시 SearchScreen으로 이동
-                                Navigator.push(
+                                final result = await Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => const SearchScreen(
@@ -93,10 +121,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                                   ),
                                 );
+                                // 검색 결과 처리
+                                _handleSearchResult(result, true);
                               },
-                              child: const Text(
-                                '지하철 역 검색',
-                                style: TextStyle(color: Colors.black),
+                              child: Text(
+                                departureStation ?? '지하철 역 검색',
+                                style: const TextStyle(color: Colors.black),
                               ),
                             ),
                           ),
@@ -152,20 +182,55 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void onCategorySelected(String category) {
-    setState(() {
-      selectedCategory = category;
-    });
-  }
 
   Widget _buildHomeContent() {
-    return SvgPicture.asset(
-      "assets/images/mapimage.svg", // SVG 파일 경로
-      fit: BoxFit.cover, // 이미지 크기 맞추기
-      placeholderBuilder: (BuildContext context) => const CircularProgressIndicator(), // 로딩 중 표시
-      errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
-        return const Center(child: Text("SVG 파일을 로드할 수 없습니다.")); // 오류 발생 시 메시지 출력
-      },
+    return Stack(
+      children: [
+        InteractiveViewer(
+          minScale: 2.0, // 최대 줌 아웃 비율
+          maxScale: 7.0, // 최소 줌 인 비율
+          boundaryMargin: const EdgeInsets.all(20), // 화면 경계 여백 설정
+          child: SvgPicture.asset(
+          "assets/images/metropolitan.svg", // SVG 파일 경로
+          fit: BoxFit.contain, // 이미지 크기 맞추기
+          allowDrawingOutsideViewBox: true,
+          placeholderBuilder: (BuildContext context) => const CircularProgressIndicator(), // 로딩 중 표시
+          errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+            return const Center(
+                child: Text("SVG 파일을 로드할 수 없습니다.")); // 오류 발생 시 메시지 출력\
+            },
+          ),
+        ),
+        // 출발역과 도착역 표시
+        if (departureStation != null || arrivalStation != null)
+          Positioned(
+            top: 20,
+            left: 20,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (departureStation != null)
+                  Text(
+                    '출발역: $departureStation',
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                if (arrivalStation != null)
+                  Text(
+                    '도착역: $arrivalStation',
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+      ],
     );
   }
 }
