@@ -1,10 +1,17 @@
+// 사용자가 출발역, 도착역 검색하는 화면
+// 검색한 역을 선택하면 이전 화면으로 값 전달 (featX)
 import 'package:flutter/material.dart';
 import 'subway_map_screen.dart';
 
 class SearchScreen extends StatefulWidget {
   final bool isSelectingDeparture; // 출발역 선택인지 도착역 선택인지 여부
+  final String? initialQuery;
 
-  const SearchScreen({required this.isSelectingDeparture}); // 기본값 반드시 필요
+  const SearchScreen({
+    required this.isSelectingDeparture,
+    this.initialQuery,
+    super.key,
+  }); // 기본값 반드시 필요
 
   @override
   _SearchScreenState createState() => _SearchScreenState();
@@ -19,6 +26,7 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   void initState() {
     super.initState();
+    searchController.text = widget.initialQuery ?? ''; // 초기값 설정
 
     // 앱이 실행된 직후 키보드가 자동으로 나타나게 설정
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -34,19 +42,21 @@ class _SearchScreenState extends State<SearchScreen> {
       recentSearches.remove(query); // 중복 방지
       recentSearches.insert(0, query);
     });
-
     searchController.clear();
 
-    // 선택한 역에 대한 이동을 SubwayMapScreen으로 처리
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => SubwayMapScreen(
-          searchQuery: query, // searchQuery를 정상적으로 전달
-          isSelectingDeparture: widget.isSelectingDeparture, // 출발역 또는 도착역 정보 전달
-        ),
+
+    if (widget.initialQuery == null) {
+      Navigator.pushReplacement(context, MaterialPageRoute(
+        builder: (context) =>
+            SubwayMapScreen(
+                searchQuery: query,
+                isSelectingDeparture: widget.isSelectingDeparture),
       ),
-    );
+      );
+    }
+    else {
+      Navigator.pop(context, query); // 검색 결과 이전 화면으로 반환
+    }
   }
 
   // 검색어 삭제
