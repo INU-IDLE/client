@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:rushcutter/screen/congestion_prediction_screen.dart';
 import 'package:rushcutter/screen/real_time_bottom_sheet.dart';
-import 'package:intl/intl.dart';
 import 'package:rushcutter/providers/saved_route_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:rushcutter/models/saved_route.dart';
-
-import 'package:intl/intl.dart'; // 💥 이거 꼭 있어야 함
 
   class RouteResultScreen extends StatefulWidget {
   final String departure;

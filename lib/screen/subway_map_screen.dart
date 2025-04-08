@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'route_result_screen.dart';
 import 'search_screen.dart';
-import 'package:intl/intl.dart';
-
 
 class SubwayMapScreen extends StatefulWidget {
   final String searchQuery;

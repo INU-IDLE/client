@@ -6,7 +6,6 @@ import '../screen2/saved_routes_screen.dart';
 import 'news_screen.dart';
 import 'my_page_screen.dart';
 import 'search_screen.dart';
-import 'package:rushcutter/screen2/saved_routes_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
