@@ -1,28 +1,12 @@
 import 'package:flutter/material.dart';
+import 'route_result_screen.dart';
+import 'search_screen.dart';
+import 'package:intl/intl.dart';
 
-void main() {
-  runApp(const MyApp());
-}
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Subway App',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const SubwayMapScreen(searchQuery: "송도달빛축제공원역", isSelectingDeparture: true),
-    );
-  }
-}
-
-// SubwayMapScreen 코드
 class SubwayMapScreen extends StatefulWidget {
   final String searchQuery;
-  final bool isSelectingDeparture; // 출발역 선택인지 도착역 선택인지 여부
+  final bool isSelectingDeparture;
 
   const SubwayMapScreen({
     required this.searchQuery,
@@ -34,36 +18,41 @@ class SubwayMapScreen extends StatefulWidget {
 }
 
 class _SubwayMapScreenState extends State<SubwayMapScreen> {
-  String? departureStation; // 출발역
-  String? arrivalStation;   // 도착역
-  String? searchedStation;  // 검색한 역
-  bool showButtons = false; // 버튼을 표시할지 여부
+  String? departureStation;
+  String? arrivalStation;
+  String? searchedStation;
 
   @override
   void initState() {
     super.initState();
-    searchedStation = widget.searchQuery; // 검색어로 초기화
+
+    // ✅ 초기 검색 값은 저장되지 않음 (출발지 도착지 버튼 누르기 전까지)
+    searchedStation = widget.searchQuery;
     if (widget.isSelectingDeparture) {
-      departureStation = "출발역"; // 출발역 기본 텍스트
-      arrivalStation = "도착역";   // 도착역 기본 텍스트
+      departureStation = null;
+      arrivalStation = null;
     }
   }
 
-  // 출발역 설정
+  // ✅ 출발역 설정
   void _setDeparture() {
-    setState(() {
-      departureStation = searchedStation;
-    });
+    if (searchedStation != null && searchedStation!.isNotEmpty) {
+      setState(() {
+        departureStation = searchedStation;
+      });
+    }
   }
 
-  // 도착역 설정
+  // ✅ 도착역 설정
   void _setArrival() {
-    setState(() {
-      arrivalStation = searchedStation;
-    });
+    if (searchedStation != null && searchedStation!.isNotEmpty) {
+      setState(() {
+        arrivalStation = searchedStation;
+      });
+    }
   }
 
-  // 출발역과 도착역을 교환
+  // ✅ 출발역과 도착역 교환
   void swapStations() {
     setState(() {
       String? temp = departureStation;
@@ -72,30 +61,124 @@ class _SubwayMapScreenState extends State<SubwayMapScreen> {
     });
   }
 
-  // 출발역과 도착역을 선택하는 UI
-  Widget _buildStationBox(String text) {
-    return Container(
-      height: 50,
-      alignment: Alignment.centerLeft,
-      decoration: BoxDecoration(
-        color: Colors.grey[300],
-        borderRadius: BorderRadius.circular(10),
-      ),
-      padding: EdgeInsets.symmetric(horizontal: 15),
-      child: Text(text, style: TextStyle(color: Colors.black87, fontSize: 18)),
+  // ✅ 팝업 표시 함수
+  void _showAlertDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("안내"),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text("확인"),
+            ),
+          ],
+        );
+      },
     );
   }
 
-  // 선택 버튼 UI
+  // ✅ 경로 결과 화면으로 이동
+  // ✅ 경로 결과 화면으로 이동
+  void _navigateToRouteResult() {
+    if (departureStation == null && arrivalStation == null) {
+      _showAlertDialog("출발역과 도착역을 지정해주세요!");
+    } else if (departureStation == null) {
+      _showAlertDialog("출발역을 지정해주세요!");
+    } else if (arrivalStation == null) {
+      _showAlertDialog("도착역을 지정해주세요!");
+    } else {
+      // ✅ 널 체크 추가
+      if (departureStation != null && arrivalStation != null) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => RouteResultScreen(
+              departure: departureStation ?? '',
+              arrival: arrivalStation ?? '',
+            ),
+          ),
+        );
+      }
+    }
+  }
+
+
+  // ✅ 출발역/도착역 회색 창 클릭 → SearchScreen으로 이동
+  Future<void> _selectStation(bool isDeparture) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SearchScreen(
+          isSelectingDeparture: isDeparture,
+        ),
+      ),
+    );
+
+    if (result != null) {
+      // ✅ 즉시 값 반영하도록 수정
+      setState(() {
+        if (isDeparture) {
+          departureStation = result; // ✅ 즉시 반영
+        } else {
+          arrivalStation = result; // ✅ 즉시 반영
+        }
+      });
+    }
+  }
+
+  // ✅ 출발역/도착역 표시 박스 (값 자동 반영)
+  Widget _buildStationBox(String? text, String placeholder, bool isDeparture) {
+    return GestureDetector(
+      onTap: () async {
+        // ✅ SearchScreen에서 값 받아오기
+        final result = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => SearchScreen(
+              isSelectingDeparture: isDeparture,
+            ),
+          ),
+        );
+
+        if (result != null) {
+          setState(() {
+            if (isDeparture) {
+              departureStation = result; // ✅ 즉시 반영
+            } else {
+              arrivalStation = result;
+            }
+          });
+        }
+      },
+      child: Container(
+        height: 44,
+        alignment: Alignment.centerLeft,
+        decoration: BoxDecoration(
+          color: Colors.grey[300],
+          borderRadius: BorderRadius.circular(8),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        child: Text(
+          text ?? placeholder,
+          style: const TextStyle(color: Colors.black87, fontSize: 16),
+        ),
+      ),
+    );
+  }
+
+  // ✅ 출발지/도착지 버튼 UI
   Widget _buildSelectButton(String text, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
-          boxShadow: [
+          boxShadow: const [
             BoxShadow(
               color: Colors.black26,
               blurRadius: 5,
@@ -103,7 +186,10 @@ class _SubwayMapScreenState extends State<SubwayMapScreen> {
             ),
           ],
         ),
-        child: Text(text, style: TextStyle(color: Colors.black, fontSize: 16)),
+        child: Text(
+          text,
+          style: const TextStyle(color: Colors.black, fontSize: 16),
+        ),
       ),
     );
   }
@@ -112,113 +198,99 @@ class _SubwayMapScreenState extends State<SubwayMapScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+
       body: Column(
         children: [
-          // 상단 검색 UI 제거 (SearchScreen에서만 검색창이 있어야 함)
-
-          // 출발역/도착역 설정 UI
+          // ✅ 상단 닫기 버튼 + 출발역/도착역 설정 UI
           Container(
             padding: EdgeInsets.only(
               top: MediaQuery.of(context).padding.top + 20,
               left: 15,
               right: 15,
-              bottom: 20,
+              bottom: 15,
             ),
             color: Colors.white,
             child: Row(
               children: [
                 GestureDetector(
                   onTap: () => Navigator.pop(context),
-                  child: Icon(Icons.close, size: 28, color: Colors.black),
+                  child: const Icon(Icons.close, size: 28, color: Colors.black),
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
 
+                // ✅ 출발역/도착역 표시 박스
                 Expanded(
                   child: Column(
                     children: [
-                      GestureDetector(
-                        onTap: _setDeparture,
-                        child: _buildStationBox(
-                          departureStation ?? "출발역", // 기본값 "출발역"
-                        ), // 버튼 클릭 시 출발역 설정
-                      ),
-                      SizedBox(height: 8),
-                      GestureDetector(
-                        onTap: _setArrival,
-                        child: _buildStationBox(
-                          arrivalStation ?? "도착역", // 기본값 "도착역"
-                        ), // 버튼 클릭 시 도착역 설정
-                      ),
+                      _buildStationBox(departureStation, "출발역", true),
+                      const SizedBox(height: 8),
+                      _buildStationBox(arrivalStation, "도착역", false),
                     ],
                   ),
                 ),
 
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
 
-                GestureDetector(
-                  onTap: swapStations,
-                  child: Icon(Icons.swap_vert, size: 28, color: Colors.black),
+                Column(
+                  children: [
+                    GestureDetector(
+                      onTap: swapStations,
+                      child: const Icon(Icons.swap_vert, size: 28, color: Colors.black),
+                    ),
+                    const SizedBox(height: 8),
+                    GestureDetector(
+                      onTap: _navigateToRouteResult,
+                      child: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: Colors.blue,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.search, color: Colors.white, size: 24),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
 
-          // 지하철 노선도 & 선택 버튼
+          // ✅ 출발지/도착지 버튼 추가
+          // ✅ 137줄 ~ Expanded 부분 수정
           Expanded(
-            child: Stack(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Positioned.fill(
+                _buildSelectButton("출발지", _setDeparture),
+                const SizedBox(height: 8),
+                _buildSelectButton("도착지", _setArrival),
+                const SizedBox(height: 30),
+
+                // ✅ 여기에 파란색 검색 버튼 추가
+                GestureDetector(
+                  onTap: _navigateToRouteResult,
                   child: Container(
-                    color: Colors.grey[200],
-                    child: Center(child: Text("🚇 지하철 노선도 표시")),
-                  ),
-                ),
-                // 버튼을 노선도 위에 고정
-                Positioned(
-                  left: 50,
-                  top: 150,
-                  child: Column(
-                    children: [
-                      _buildSelectButton("출발지", _setDeparture),
-                      SizedBox(height: 8),
-                      _buildSelectButton("도착지", _setArrival),
-                    ],
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      color: Colors.blue,
+                      shape: BoxShape.circle,
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 5,
+                          offset: Offset(2, 2),
+                        ),
+                      ],
+                    ),
+                    child: const Icon(Icons.search, color: Colors.white, size: 30),
                   ),
                 ),
               ],
             ),
           ),
-        ],
-      ),
-      bottomNavigationBar: _buildBottomNavBar(),
-    );
-  }
 
-  // 하단 네비게이션 바 UI
-  Widget _buildBottomNavBar() {
-    return Container(
-      height: 60,
-      color: Colors.white,
-      child: Row(
-        children: [
-          _buildNavItem(Icons.home, "HOME"),
-          _buildNavItem(Icons.directions_transit, "실시간"),
-          _buildNavItem(Icons.favorite_border, "저장"),
-          _buildNavItem(Icons.article, "소식"),
-          _buildNavItem(Icons.person, "마이페이지"),
-        ],
-      ),
-    );
-  }
-
-  // 네비게이션 아이템 UI
-  Widget _buildNavItem(IconData icon, String label) {
-    return Expanded(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, color: Colors.grey),
-          Text(label, style: TextStyle(fontSize: 12, color: Colors.grey)),
         ],
       ),
     );

@@ -27,27 +27,33 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   // 검색 실행 후 SubwayMapScreen으로 이동
-  void _searchAndNavigate(String query) {
-    if (query.isEmpty) return;
+  // ✅ searchQuery null 처리 추가
+  void _searchAndNavigate(String? query) {
+    if (query == null || query.isEmpty) return;
 
     setState(() {
-      recentSearches.remove(query); // 중복 방지
+      recentSearches.remove(query);
       recentSearches.insert(0, query);
     });
 
     searchController.clear();
 
-    // 선택한 역에 대한 이동을 SubwayMapScreen으로 처리
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => SubwayMapScreen(
-          searchQuery: query, // searchQuery를 정상적으로 전달
-          isSelectingDeparture: widget.isSelectingDeparture, // 출발역 또는 도착역 정보 전달
+    try {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SubwayMapScreen(
+            searchQuery: query,
+            isSelectingDeparture: widget.isSelectingDeparture,
+          ),
         ),
-      ),
-    );
+      );
+    } catch (e) {
+      print('Navigation Error: $e');
+    }
   }
+
+
 
   // 검색어 삭제
   void _deleteSearch(String query) {
