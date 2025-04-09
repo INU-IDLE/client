@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'bottom_category_bar.dart';
 import 'real_time_screen.dart';
-import 'saved_routes_screen.dart';
+import '../screen2/saved_routes_screen.dart';
 import 'news_screen.dart';
 import 'my_page_screen.dart';
 import 'search_screen.dart'; // SearchScreen 추가
@@ -26,9 +26,9 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
 
-  // 초기 줌 상태 설정
-  _transformationController.value = Matrix4.identity()..scale(4.0); // 초기스케일
-}
+    // 초기 줌 상태 설정
+    _transformationController.value = Matrix4.identity()..scale(4.0); // 초기스케일
+  }
   void onCategorySelected(String category) {
     setState(() {
       selectedCategory = category;
@@ -191,13 +191,13 @@ class _HomeScreenState extends State<HomeScreen> {
           maxScale: 7.0, // 최소 줌 인 비율
           boundaryMargin: const EdgeInsets.all(20), // 화면 경계 여백 설정
           child: SvgPicture.asset(
-          "assets/images/metropolitan.svg", // SVG 파일 경로
-          fit: BoxFit.contain, // 이미지 크기 맞추기
-          allowDrawingOutsideViewBox: true,
-          placeholderBuilder: (BuildContext context) => const CircularProgressIndicator(), // 로딩 중 표시
-          errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
-            return const Center(
-                child: Text("SVG 파일을 로드할 수 없습니다.")); // 오류 발생 시 메시지 출력\
+            "assets/images/metropolitan.svg", // SVG 파일 경로
+            fit: BoxFit.contain, // 이미지 크기 맞추기
+            allowDrawingOutsideViewBox: true,
+            placeholderBuilder: (BuildContext context) => const CircularProgressIndicator(), // 로딩 중 표시
+            errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+              return const Center(
+                  child: Text("SVG 파일을 로드할 수 없습니다.")); // 오류 발생 시 메시지 출력\
             },
           ),
         ),

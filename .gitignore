@@ -44,3 +44,38 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+
+# Android Gradle 캐시 관련
+/android/.gradle/
+/android/local.properties
+
+# Build 결과물 상세 지정 (더블 체크용)
+build/
+build/**
+
+# .idea 내부 변경되는 설정들
+.idea/workspace.xml
+.idea/libraries/
+
+# APK 등 바이너리
+*.apk
+*.ap_
+*.lock
+*.bin
+*.probe
+
+.vscode/  # VSCode 설정 무시하고 싶다면 이 줄도 주석 해제
+
+
+# DevTools, extension 등
+.dart_tool/extension_discovery/
+
+# Generated plugin 파일
+android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java
+.gradle/
+android/local.properties
+**/GeneratedPluginRegistrant.java
+
+
+
