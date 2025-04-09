@@ -65,3 +65,6 @@ build/**
 
 # Generated plugin 파일
 android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java
+.gradle/
+android/local.properties
+**/GeneratedPluginRegistrant.java
