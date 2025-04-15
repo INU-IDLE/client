@@ -58,7 +58,7 @@ class StationService {
   }
 
   // 이름 정확히 일치하는 역 찾기
-  Station? findByName(String name) {
+  Station? findByName(String name) {ls
     try {
       return _stations.firstWhere((station) => station.stationNm == name);
     } catch (_) {
