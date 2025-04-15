@@ -1,34 +1,71 @@
 import 'package:flutter/material.dart';
+import '../models/station.dart';
 import 'search_screen.dart';
 import 'route_result_screen.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:rushcutter/services/station_service.dart';
+import 'dart:ui';
+import 'package:rushcutter/shared/providers/station_provider.dart'; // StationProvider for managing state
+
 
 class SubwayMapScreen extends StatefulWidget {
   final String? searchQuery;
   final bool isSelectingDeparture;
+  final dynamic selectedStation;
+  final Matrix4? initialTransformation;
   // 출발역 도착역 빈칸 선택 여부, T = 출발역 빈칸, F = 도착역 빈칸
+  // final Station selectedStation;
 
   const SubwayMapScreen({
-    this.searchQuery,
+    // this.searchQuery,
     required this.isSelectingDeparture,
+    this.searchQuery,
+    required this.selectedStation,
+    this.initialTransformation,
     super.key,
   });
+
 
   @override
   State<SubwayMapScreen> createState() => _SubwayMapScreenState();
 }
 
 class _SubwayMapScreenState extends State<SubwayMapScreen> {
+  // late StationService _stationService;
+  Station? selectedStation;
   String? departureStation; // 출발역
   String? arrivalStation; // 도착역
   String? searchedStation; // 검색한 역
   bool showDepartureButton = true; // 출발지 버튼 표시 여부
   bool showArrivalButton = true; // 도착지 버튼 표시 여부
+  late TextEditingController _departureController;
+  late TextEditingController _arrivalController;
+
+  final List<Station> stations = [
+    Station(id: "234", cx: 505.35, cy: 500.06, r: 20, stationNm: "신도림", line: "02호선"),
+    Station(id: "208", cx: 822.85, cy: 386.29, r: 20, stationNm: "왕십리", line: "02호선"),
+    // ... 추가
+  ];
 
   @override
   void initState() {
     super.initState();
     searchedStation = widget.searchQuery; // 검색어로 초기화
+    // 출발역/도착역 초기화
+    if (widget.isSelectingDeparture) {
+      departureStation = widget.searchQuery ?? "";
+      _departureController = TextEditingController(text: departureStation);
+      _arrivalController = TextEditingController(text: "");
+    } else {
+      arrivalStation = widget.searchQuery ?? "";
+      _departureController = TextEditingController(text: "");
+      _arrivalController = TextEditingController(text: arrivalStation);
+    }
+
+    // 처음 selectedStation도 세팅해두면 추후 노선도 버튼 활성화 가능
+    selectedStation = widget.selectedStation;
   }
+
 
   // 출발지 버튼 클릭 시 searchQuery 값 출발역에 반영
   void _setDepartureFromButton(){
@@ -87,6 +124,13 @@ class _SubwayMapScreenState extends State<SubwayMapScreen> {
         arrivalStation = result; // 검색 결과를 도착역에 반영
       });
     }
+  }
+
+  // 노선도에서 역 클릭 시
+  void _onStationTap(Station station) {
+    setState(() {
+      selectedStation = station;
+    });
   }
 
   // 출발역과 도착역 교환
@@ -198,7 +242,7 @@ class _SubwayMapScreenState extends State<SubwayMapScreen> {
                   child: Column(
                     children: [
                       buildStationBox(
-                        departureStation ?? "출발역", _setDeparture),
+                          departureStation ?? "출발역", _setDeparture),
                       const SizedBox(height: 8),
                       buildStationBox(arrivalStation ?? "도착역", _setArrival),
                     ],
@@ -225,55 +269,61 @@ class _SubwayMapScreenState extends State<SubwayMapScreen> {
                 Positioned.fill(
                   child: Container(
                     color: Colors.grey[200],
-                    child: const Center(child: Text("🚇 지하철 노선도 표시")),
+                    child: Image.asset(
+                      "assets/images/metropolitan.png", // SVG 파일 경로
+                      width: 4500,
+                      height: 3800,
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
+                if (selectedStation != null)
                 Positioned(
-                  left: 50,
-                  top: 150,
+                  left: selectedStation?.cx,
+                  top: selectedStation?.cy,
                   child: Column(
                     children: [
-                      if (showArrivalButton)
-                      GestureDetector(
-                        onTap: _setDepartureFromButton,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black26,
-                                blurRadius: 5,
-                                offset: const Offset(3, 3),
-                              ),
-                            ],
-                          ),
-                          child: const Text("출발지", style: TextStyle(color: Colors.black, fontSize: 16),
-                        ),
-                      ),
-    ),
-                    const SizedBox(height: 8),
-                    if (showArrivalButton)
-                    GestureDetector(
-                      onTap: _setArrivalFromButtton,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black26,
-                              blurRadius: 5,
-                              offset: const Offset(3,3),
+                      if (selectedStation != null && showArrivalButton)
+                        GestureDetector(
+                          onTap: _setDepartureFromButton,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black26,
+                                  blurRadius: 5,
+                                  offset: const Offset(3, 3),
+                                ),
+                              ],
                             ),
-                          ],
+                            child: const Text("출발지", style: TextStyle(color: Colors.black, fontSize: 16),
+                            ),
+                          ),
                         ),
-                        child: const Text("도착지", style: TextStyle(color: Colors.black, fontSize: 16),
+                      const SizedBox(height: 8),
+                      if (selectedStation != null && showDepartureButton)
+                        GestureDetector(
+                          onTap: _setArrivalFromButtton,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black26,
+                                  blurRadius: 5,
+                                  offset: const Offset(3,3),
+                                ),
+                              ],
+                            ),
+                            child: const Text("도착지", style: TextStyle(color: Colors.black, fontSize: 16),
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
                     ],
                   ),
                 ),

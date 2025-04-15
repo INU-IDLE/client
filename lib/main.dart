@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
-import 'screen/home_screen.dart';
+import 'package:provider/provider.dart';
+import 'shared/providers/station_provider.dart';
+import 'features/home/home_screen.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+      ChangeNotifierProvider(
+        create: (_) => StationProvider(),
+        child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -13,7 +20,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Rushcutter', // 'title' 매개변수 정의
       theme: ThemeData(primarySwatch: Colors.blue), // 'theme' 매개변수 정의
-      home: const HomeScreen(), // 'home' 매개변수 정의
+      home: HomeScreen(), // 'home' 매개변수 정의
     );
   }
 }
+

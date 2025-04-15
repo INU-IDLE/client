@@ -20,6 +20,9 @@ dependencies:
   photo_view: ^0.15.0
   xml: ^6.5.0
   latlong2: ^0.9.1
+  flutter_svg_click_listener: ^0.0.8
+  interactable_svg: any
+  provider: ^6.1.1
 
 dev_dependencies:
   flutter_test:
@@ -32,3 +35,7 @@ flutter:
   assets:
     - assets/station_info.json
     - assets/images/metropolitan.svg
+    - assets/images/metropolitan_fixed.svg
+    - assets/info/station_positions.json
+    - assets/info/station_positions_merged.json
+    - assets/images/metropolitan.png

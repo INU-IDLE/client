@@ -15,7 +15,7 @@ class RouteResultScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("최소 혼잡"),
+        title: Text("길찾기"),
         actions: [
           IconButton(
             icon: Icon(Icons.star_border),
