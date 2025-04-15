@@ -1,11 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // For loading JSON files
-import 'package:flutter_svg/svg.dart';
 import 'package:rushcutter/models/station.dart';
 import 'dart:math';
 import 'dart:ui';
-import 'package:rushcutter/subway_map/subway_map_screen.dart';
 
 /*
 station_service.dart

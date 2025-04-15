@@ -1,10 +1,7 @@
 // 사용자가 출발역, 도착역 검색하는 화면
 import 'package:flutter/material.dart';
 import 'subway_map_screen.dart';
-import 'package:provider/provider.dart';
-import 'package:rushcutter/shared/providers/station_provider.dart';
-import 'package:rushcutter/models/station.dart';
-import 'package:rushcutter/features/home/home_screen.dart';
+
 
 class SearchScreen extends StatefulWidget {
   final bool isSelectingDeparture; // 출발역 선택인지 도착역 선택인지 여부

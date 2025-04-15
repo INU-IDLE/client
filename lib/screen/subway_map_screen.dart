@@ -126,12 +126,6 @@ class _SubwayMapScreenState extends State<SubwayMapScreen> {
     }
   }
 
-  // 노선도에서 역 클릭 시
-  void _onStationTap(Station station) {
-    setState(() {
-      selectedStation = station;
-    });
-  }
 
   // 출발역과 도착역 교환
   void swapStations() {
