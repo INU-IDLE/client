@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'screen/home_screen.dart';
 import 'package:provider/provider.dart';
-import 'package:rushcutter/screen/home_screen.dart';
 import 'package:rushcutter/screen/congestion_prediction_screen.dart';
 import 'package:rushcutter/providers/saved_route_provider.dart';
 

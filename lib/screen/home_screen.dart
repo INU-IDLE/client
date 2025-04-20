@@ -1,11 +1,16 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'bottom_category_bar.dart';
-import 'real_time_screen.dart';
-import '../screen2/saved_routes_screen.dart';
-import 'news_screen.dart';
-import 'my_page_screen.dart';
-import 'search_screen.dart'; // SearchScreen 추가
+import 'package:flutter/services.dart';
+import 'package:rushcutter/screen/bottom_category_bar.dart';
+import 'package:rushcutter/screen/real_time_screen.dart';
+import 'package:rushcutter/screen/saved_routes_screen.dart';
+import 'package:rushcutter/screen/news_screen.dart';
+import 'package:rushcutter/screen/my_page_screen.dart';
+import 'package:rushcutter/screen/search_screen.dart';
+import 'package:rushcutter/widgets/station_component.dart';
+import 'package:rushcutter/models/station.dart';
+import 'package:rushcutter/screen/subway_map_screen.dart';
+import 'package:rushcutter/data/station_data.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,20 +20,23 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+
+  String? selectedStationId;
+  Station? selectedStation; // 클릭된 역 객체
   String selectedCategory = 'HOME'; // 선택된 카테고리
-  Offset? selectedStationPosition; // 선택된 역의 위치
   String? departureStation; // 출발역
   String? arrivalStation; // 도착역
+  String? searchQuery; // 넘어가는 검색 값
 
-  final TransformationController _transformationController = TransformationController(); // transformation 추가
+  final TransformationController _transformationController =
+  TransformationController(); // transformation 추가
 
   @override
   void initState() {
     super.initState();
-
-    // 초기 줌 상태 설정
-    _transformationController.value = Matrix4.identity()..scale(4.0); // 초기스케일
+    _transformationController.value = Matrix4.identity()..scale(1.0);
   }
+
   void onCategorySelected(String category) {
     setState(() {
       selectedCategory = category;
@@ -44,13 +52,111 @@ class _HomeScreenState extends State<HomeScreen> {
         } else {
           arrivalStation = result;
         }
+        final station = stationData.firstWhere(
+              (s) => s.stationNm == result,
+          orElse: () => Station(
+            id: '',
+            cx: 0,
+            cy: 0,
+            r: 0,
+            stationNm: '',
+            line: '',
+          ),
+        );
+        if (station.id.isNotEmpty) {
+          final double cx = station.cx;
+          final double cy = station.cy;
+
+        }
       });
     }
   }
 
+  // 특정 위치로 View Point 이동
+  void _moveToViewPoint(double cx, double cy) {
+    final double scale = 1.3;
+    final Size screenSize = MediaQuery.of(context).size;
+    _transformationController.value = Matrix4.identity()
+      ..translate(-cx * scale + screenSize.width / 2,
+          -cy * scale + screenSize.height / 2)
+      ..scale(scale);
+  }
+
+  // 역 클릭 처리 (이제는 바로 이동하지 않고, selectedStation만 세팅)
+  void _handleStationTap(String id) {
+    final found = stationData.firstWhere(
+          (s) => s.id == id,
+      orElse: () => Station(
+        id: '',
+        cx: 0,
+        cy: 0,
+        r: 0,
+        stationNm: '',
+        line: '',
+      ),
+    );
+    setState(() {
+      selectedStationId = id;
+      selectedStation = found.id.isNotEmpty ? found : null;
+    });
+  }
+
+
+  // 출발지/도착지 버튼을 누르면 해당 값 입력
+  void _onSelectDeparture() async {
+    if (selectedStation == null || selectedStation!.id.isEmpty) return;
+
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SubwayMapScreen(
+          isSelectingDeparture: true,
+          searchQuery: selectedStation!.stationNm,
+          selectedStation: selectedStation!,
+          selectedStationId : selectedStation?.id,
+
+        ),
+      ),
+    );
+    if (result != null && result is String) {
+      setState(() {
+        departureStation = result;
+      });
+    }
+
+    setState(() {
+      selectedStation = null;
+      selectedStationId = null;
+    });
+  }
+
+  void _onSelectArrival() async {
+    if (selectedStation == null || selectedStation!.id.isEmpty) return;
+
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SubwayMapScreen(
+          isSelectingDeparture: false,
+          searchQuery: selectedStation!.stationNm,
+          selectedStation: selectedStation!,
+        ),
+      ),
+    );
+    if (result != null && result is String) {
+      setState(() {
+        arrivalStation = result;
+      });
+    }
+
+    setState(() {
+      selectedStation = null;
+      selectedStationId = null;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    // 상태바 높이를 가져옴
     final double statusBarHeight = MediaQuery.of(context).padding.top;
 
     Widget currentScreen;
@@ -182,55 +288,51 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-
   Widget _buildHomeContent() {
-    return Stack(
-      children: [
-        InteractiveViewer(
-          minScale: 2.0, // 최대 줌 아웃 비율
-          maxScale: 7.0, // 최소 줌 인 비율
-          boundaryMargin: const EdgeInsets.all(20), // 화면 경계 여백 설정
-          child: SvgPicture.asset(
-            "assets/images/metropolitan.svg", // SVG 파일 경로
-            fit: BoxFit.contain, // 이미지 크기 맞추기
-            allowDrawingOutsideViewBox: true,
-            placeholderBuilder: (BuildContext context) => const CircularProgressIndicator(), // 로딩 중 표시
-            errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
-              return const Center(
-                  child: Text("SVG 파일을 로드할 수 없습니다.")); // 오류 발생 시 메시지 출력\
-            },
-          ),
-        ),
-        // 출발역과 도착역 표시
-        if (departureStation != null || arrivalStation != null)
-          Positioned(
-            top: 20,
-            left: 20,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (departureStation != null)
-                  Text(
-                    '출발역: $departureStation',
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                if (arrivalStation != null)
-                  Text(
-                    '도착역: $arrivalStation',
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-              ],
+    return InteractiveViewer(
+      transformationController: _transformationController,
+      minScale: 0.3,
+      maxScale: 1.0,
+      boundaryMargin: const EdgeInsets.all(500),
+      constrained: false,
+      child: SizedBox(
+        width: 4500,
+        height: 3800,
+        child: Stack(
+          children: [
+            Image.asset(
+              'assets/images/metropolitan.png',
+              width: 4500,
+              height: 3800,
+              fit: BoxFit.cover,
             ),
-          ),
-      ],
+            StationComponent(
+              stations: stationData,
+              selectedId: selectedStationId,
+              onStationTap: _handleStationTap,
+            ),
+            // 선택된 역 위에 출발지/도착지 버튼 띄우기
+            if (selectedStation != null && selectedStation!.id.isNotEmpty)
+              Positioned(
+                left: selectedStation!.cx,
+                top: selectedStation!.cy - 80, // 살짝 위에 띄우기
+                child: Column(
+                  children: [
+                    ElevatedButton(
+                      onPressed: _onSelectDeparture,
+                      child: const Text("출발지"),
+                    ),
+                    const SizedBox(height: 8),
+                    ElevatedButton(
+                      onPressed: _onSelectArrival,
+                      child: const Text("도착지"),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 }

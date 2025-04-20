@@ -1,11 +1,12 @@
 // 사용자가 출발역, 도착역 검색하는 화면
-// 검색한 역을 선택하면 이전 화면으로 값 전달 (featX)
 import 'package:flutter/material.dart';
 import 'subway_map_screen.dart';
+
 
 class SearchScreen extends StatefulWidget {
   final bool isSelectingDeparture; // 출발역 선택인지 도착역 선택인지 여부
   final String? initialQuery;
+
 
   const SearchScreen({
     required this.isSelectingDeparture,
@@ -21,7 +22,9 @@ class _SearchScreenState extends State<SearchScreen> {
   List<String> recentSearches = []; // 최근 검색어 리스트
   TextEditingController searchController = TextEditingController();
   FocusNode searchFocusNode = FocusNode(); // 키보드 고정용 포커스 노드
-  String searchQuery = ''; // 상태 변수로 searchQuery를 선언
+  String searchQuery = '';
+
+  get stationData => null; // 상태 변수로 searchQuery를 선언
 
   @override
   void initState() {
@@ -47,10 +50,12 @@ class _SearchScreenState extends State<SearchScreen> {
 
     if (widget.initialQuery == null) {
       Navigator.pushReplacement(context, MaterialPageRoute(
-        builder: (context) =>
-            SubwayMapScreen(
-                searchQuery: query,
-                isSelectingDeparture: widget.isSelectingDeparture),
+        builder: (context) {
+          return SubwayMapScreen(
+            searchQuery: query,
+            isSelectingDeparture: widget.isSelectingDeparture,selectedStation: null,);
+
+        },
       ),
       );
     }
