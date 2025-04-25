@@ -78,7 +78,6 @@ class _MyInfoScreenState extends State<MyInfoScreen> {
                 ),
                 const SizedBox(height: 20),
 
-                // ✅ 성별 선택 리스트
                 ListTile(
                   title: const Center(child: Text('남성')),
                   onTap: () {
@@ -97,7 +96,6 @@ class _MyInfoScreenState extends State<MyInfoScreen> {
 
                 const SizedBox(height: 32),
 
-                // ✅ 취소 버튼
                 SizedBox(
                   width: double.infinity,
                   height: 50,
@@ -288,7 +286,6 @@ class _MyInfoScreenState extends State<MyInfoScreen> {
       ],
     );
   }
-
 
   Widget _buildInfoRow(String title, String value,
       {bool hasArrow = false, VoidCallback? onTap}) {

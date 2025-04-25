@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'real_time_bottom_sheet.dart';
 
-
-// ✅ 위젯 클래스: 비워두기
 class CongestionPredictionScreen extends StatefulWidget {
   const CongestionPredictionScreen({Key? key}) : super(key: key);
 
@@ -10,7 +8,6 @@ class CongestionPredictionScreen extends StatefulWidget {
   State<CongestionPredictionScreen> createState() => _CongestionPredictionScreenState();
 }
 
-// ✅ 상태 클래스 안에 넣기
 class _CongestionPredictionScreenState extends State<CongestionPredictionScreen> {
   late String line;
   late String station;
@@ -24,13 +21,13 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
   late bool isFavorite;
   late TimeOfDay departureTime;
   late TimeOfDay arrivalTime;
-  bool _isInitialized = false; // 🔥 최초 1회만 실행되게
+  bool _isInitialized = false;
 
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (_isInitialized) return; // ✅ 이미 초기화됐으면 return
+    if (_isInitialized) return;
 
     final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>? ?? {};
 
@@ -48,7 +45,7 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
     departureTime = _parseTimeOfDay(args['departureTime'] ?? '00:00');
     arrivalTime = _parseTimeOfDay(args['arrivalTime'] ?? '00:00');
 
-    _isInitialized = true; // ✅ 딱 한 번만 초기화
+    _isInitialized = true;
   }
 
 
@@ -121,11 +118,6 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
     }
   }
 
-  void _toggleFavorite() {
-    setState(() {
-      isFavorite = !isFavorite;
-    });
-  }
   String _getArrivalTimeFormatted24() {
     final depDate = DateTime(0, 1, 1, departureTime.hour, departureTime.minute);
     final durParts = duration.split(RegExp(r'[시간분\s]+')).where((e) => e.isNotEmpty).toList();
@@ -192,7 +184,6 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
             children: [
               const SizedBox(height: 4), // 또는 그냥 제거
 
-// ✅ 그리고 이 부분 수정
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -229,7 +220,6 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
               const SizedBox(height: 4),
 
 
-// ✅ 2. 출발/도착 시간 박스
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
@@ -237,7 +227,8 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
                   borderRadius: BorderRadius.circular(24),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
+                      color: Colors.black.withAlpha((0.1 * 255).toInt()),
+
                       spreadRadius: 1,
                       blurRadius: 6,
                       offset: const Offset(0, 2),
@@ -273,7 +264,6 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
 
               const SizedBox(height: 20),
 
-              // ✅ 시간 표시
 
               _buildRouteStep(
                 context: context,
@@ -288,13 +278,11 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
               _buildArrivalOrTransferStep(
                 line: line,
                 station: _getArrivalStation(),
-                time: _formatTime24(arrivalTime), // ✅ 수정됨
+                time: _formatTime24(arrivalTime),
               ),
 
 
 
-
-              // ✅ 혼잡도 범례 추가!
               const SizedBox(height: 75),
               _buildCongestionLegend(),
             ],
@@ -330,23 +318,6 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
     final hour = time.hour.toString().padLeft(2, '0');
     final minute = time.minute.toString().padLeft(2, '0');
     return '$hour:$minute';
-  }
-
-
-  String _getArrivalTime(String time, String duration) {
-    final depParts = time.split(':');
-    final durParts = duration.split(RegExp(r'[시간분\s]+')).where((e) => e.isNotEmpty).toList();
-
-    int depHour = int.parse(depParts[0]);
-    int depMin = int.parse(depParts[1]);
-    int durHour = durParts.length == 2 ? int.parse(durParts[0]) : 0;
-    int durMin = int.parse(durParts.length == 2 ? durParts[1] : durParts[0]);
-
-    int totalMin = depMin + durMin;
-    int totalHour = depHour + durHour + (totalMin ~/ 60);
-    totalMin = totalMin % 60;
-
-    return '${totalHour.toString().padLeft(2, '0')}:${totalMin.toString().padLeft(2, '0')}';
   }
 
 
@@ -573,13 +544,13 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildLegendCircle(color: Color(0xFFFB3030)), // 빨강
+              _buildLegendCircle(color: Color(0xFFFB3030)),
               const SizedBox(width: 8),
-              _buildLegendCircle(color: Color(0xFFFFE619)), // 노랑
+              _buildLegendCircle(color: Color(0xFFFFE619)),
               const SizedBox(width: 8),
-              _buildLegendCircle(color: Color(0xFF51E817)), // 초록
+              _buildLegendCircle(color: Color(0xFF51E817)),
               const SizedBox(width: 8),
-              _buildLegendCircle(color: Color(0xFF2E2FFB)), // 파랑
+              _buildLegendCircle(color: Color(0xFF2E2FFB)),
             ],
           ),
         ],
@@ -608,7 +579,6 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
       child: Stack(
         alignment: Alignment.topCenter,
         children: [
-          // 🚋 그래프 부분
           Padding(
             padding: const EdgeInsets.only(top: 12),
             child: Row(
@@ -624,10 +594,10 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
             ),
           ),
 
-          // 🕒 텍스트를 위에 오른쪽 정렬로 띄우기
+
           Positioned(
             top: -6,
-            right: 30, // ✅ 조절 가능
+            right: 30,
             child: Container(
               width: 60,
               height: 15,
@@ -657,7 +627,7 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
       margin: const EdgeInsets.symmetric(horizontal: 1),
       decoration: BoxDecoration(
         color: color,
-        borderRadius: BorderRadius.circular(5), // 👈 모든 모서리 5
+        borderRadius: BorderRadius.circular(5),
       ),
     );
   }
@@ -706,8 +676,8 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
     required String time,
     required String station,
     required String distance,
-    required IconData icon, // ✅ 추가
-    required Color color,   // ✅ 추가
+    required IconData icon,
+    required Color color,
   }) {
     return Stack(
       children: [
@@ -718,7 +688,7 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
             children: [
               Column(
                 children: [
-                  _buildCircularIcon(icon, color), // ✅ 도보가 아니라 원래 아이콘과 색상
+                  _buildCircularIcon(icon, color),
                   // 필요하다면 선도 추가 가능
                 ],
               ),
@@ -763,7 +733,6 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
     );
   }
 
-  // ✅ 원형 아이콘 생성 함수 복제
   Widget _buildCircularIcon(IconData icon, Color color) {
     return Container(
       padding: const EdgeInsets.all(6),

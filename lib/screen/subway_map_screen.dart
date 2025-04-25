@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'search_screen.dart';
 import 'route_result_screen.dart';
+import 'bottom_category_bar.dart';
 
 class SubwayMapScreen extends StatefulWidget {
   final String? searchQuery;
@@ -42,15 +43,26 @@ class _SubwayMapScreenState extends State<SubwayMapScreen> {
   }
 
   // 도착지 버튼 클릭 시 searchQuery 값 도착역에 반영
-  void _setArrivalFromButtton(){
+  void _setArrivalFromButtton() {
+    final newStation = widget.searchQuery?.replaceAll('역', '').trim();
+    final currentDeparture = departureStation?.replaceAll('역', '').trim();
+
+    if (newStation != null && newStation == currentDeparture) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("출발역과 도착역이 동일할 수 없습니다.")),
+      );
+      return;
+    }
+
     setState(() {
-      if (widget.searchQuery != null){
+      if (widget.searchQuery != null) {
         arrivalStation = widget.searchQuery;
         showDepartureButton = false;
         showArrivalButton = false;
       }
     });
   }
+
 
 
   // 출발역 설정 (빈칸 클릭 시)
@@ -99,7 +111,6 @@ class _SubwayMapScreenState extends State<SubwayMapScreen> {
     });
   }
 
-  // 검색 버튼 클릭 -> 결과 화면으로 이동
   void navigateToResult() {
     if (departureStation == null || arrivalStation == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -107,12 +118,17 @@ class _SubwayMapScreenState extends State<SubwayMapScreen> {
       );
       return;
     }
-    if (departureStation == arrivalStation){
+
+    final dep = departureStation!.replaceAll('역', '').trim();
+    final arr = arrivalStation!.replaceAll('역', '').trim();
+
+    if (dep == arr) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("출발역과 도착역이 동일할 수 없습니다.")),
       );
       return;
     }
+
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -123,6 +139,8 @@ class _SubwayMapScreenState extends State<SubwayMapScreen> {
       ),
     );
   }
+
+
 
   // 출발역과 도착역 빈칸 생성
   Widget buildStationBox(String text, VoidCallback onTap) {
@@ -282,39 +300,14 @@ class _SubwayMapScreenState extends State<SubwayMapScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: buildBottomNavBar(),
-    );
-  }
-
-
-  Widget buildBottomNavBar() {
-    return Container(
-      height: 60,
-      color: Colors.white,
-      child: Row(
-        children: [
-          buildNavItem(Icons.home, "HOME"),
-          buildNavItem(Icons.directions_transit, "실시간"),
-          buildNavItem(Icons.favorite_border, "저장"),
-          buildNavItem(Icons.article, "소식"),
-          buildNavItem(Icons.person, "마이페이지"),
-        ],
+      bottomNavigationBar: BottomCategoryBar(
+        selectedCategory: 'HOME', // 또는 현재 선택된 탭 이름
+        onCategorySelected: (selected) {
+          // 탭 선택 시 처리할 로직 (예: Navigator.push 등)
+        },
       ),
     );
   }
 
-  Widget buildNavItem(IconData icon, String label) {
-    return Expanded(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, color: Colors.grey),
-          Text(
-            label,
-            style: const TextStyle(fontSize: 12, color: Colors.grey),
-          ),
-        ],
-      ),
-    );
-  }
+
 }

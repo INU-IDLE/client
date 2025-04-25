@@ -28,7 +28,6 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
     DateTime arr = DateTime(0, 1, 1, arrivalTime.hour, arrivalTime.minute);
 
     if (arr.isBefore(dep)) {
-      // 도착 시간이 출발보다 이른 경우 → 다음날 도착으로 보정
       arr = arr.add(const Duration(days: 1));
     }
 
@@ -45,19 +44,18 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
     departureTime = TimeOfDay.now();
 
     final now = DateTime.now();
-    final estimatedArrival = DateTime(
-      now.year,
-      now.month,
-      now.day,
-      departureTime.hour,
-      departureTime.minute,
-    ).add(const Duration(minutes: 63)); // 🚆 예시: 도착 시간은 1시간 3분 후
+    final estimatedArrival = now.add(const Duration(minutes: 63));
+    arrivalTime = TimeOfDay(hour: estimatedArrival.hour, minute: estimatedArrival.minute);
 
-    arrivalTime = TimeOfDay(
-      hour: estimatedArrival.hour,
-      minute: estimatedArrival.minute,
+    // 🔽 즐겨찾기 여부 상태로 관리
+    final route = SavedRoute(
+      from: widget.departure,
+      to: widget.arrival,
+      details: '인천1호선, 1호선 (환승 1회)',
     );
+    isFavorite = context.read<SavedRouteProvider>().isSaved(route);
   }
+
 
 
   String _formatTime24(TimeOfDay time) {
@@ -67,15 +65,15 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
   }
 
   Widget build(BuildContext context) {
+    late bool isSaved;
     final route = SavedRoute(
       from: widget.departure,
       to: widget.arrival,
       details: '인천1호선, 1호선 (환승 1회)',
     );
     final provider = Provider.of<SavedRouteProvider>(context);
-    final isSaved = provider.isSaved(route);
     return Scaffold(
-      backgroundColor: Colors.white, // ✅ 페이지 전체 배경 흰색 적용
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -85,7 +83,7 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => Navigator.pop(context, isFavorite),
         ),
       ),
 
@@ -93,13 +91,13 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
       floatingActionButton: Container(
         width: 56,
         height: 56,
-        margin: const EdgeInsets.only(bottom: 16, right: 8), // 💡 여백 조절(선택)
+        margin: const EdgeInsets.only(bottom: 16, right: 8),
         child: FloatingActionButton(
           onPressed: () {
             final now = TimeOfDay.now();
             final nowDateTime = DateTime.now();
 
-            final estimatedArrival = nowDateTime.add(const Duration(minutes: 63)); // 🚆 다시 예시
+            final estimatedArrival = nowDateTime.add(const Duration(minutes: 63));
 
             setState(() {
               departureTime = now;
@@ -110,12 +108,12 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
             });
           },
 
-          backgroundColor: const Color(0xFF4262C5), // 💙 동일 색상
-          shape: const CircleBorder(), // ⭕ 완전한 원형
+          backgroundColor: const Color(0xFF4262C5),
+          shape: const CircleBorder(),
           child: const Icon(
             Icons.refresh,
             color: Colors.white,
-            size: 28, // 🎯 아이콘 크기도 통일
+            size: 28,
           ),
         ),
       ),
@@ -128,10 +126,8 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ✅ 상단 간격 줄이기
             const SizedBox(height: 4),
 
-            // ✅ 시간 + 환승 정보
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -162,12 +158,20 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
                 IconButton(
                   iconSize: 32,
                   icon: Icon(
-                    isSaved ? Icons.star : Icons.star_border,
-                    color: isSaved ? Colors.amber : Colors.grey,
+                    isFavorite ? Icons.star : Icons.star_border,
+                    color: isFavorite ? Colors.amber : Colors.grey,
                   ),
                   onPressed: () {
                     provider.toggle(route);
+                    setState(() {
+                      isFavorite = !isFavorite;
+                    });
+
+                    if (!isFavorite) {
+                    }
                   },
+
+
                 ),
               ],
             ),
@@ -182,7 +186,7 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withAlpha((0.05 * 255).toInt()),
                     spreadRadius: 1,
                     blurRadius: 6,
                     offset: const Offset(0, 2),
@@ -219,15 +223,12 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
 
             const SizedBox(height: 20),
 
-
-            // ✅ 노선 경로 표시
-            // ✅ 노선 경로 표시
             Expanded(
               child: ListView(
                 children: [
                   _buildRouteStep(
                     time: _formatTime24(departureTime),
-                    station: '송도달빛축제공원역 승차',
+                    station: '${widget.departure} 승차',
                     line: '인천1호선',
                     color: const Color(0xFF9CBCDD),
                     duration: durationText,
@@ -235,7 +236,7 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
                     destination: '계양행',
                     fastTransfer: '빠른 환승 4-4',
                     icon: Icons.directions_subway,
-                    context: context, // 👉 context 전달
+                    context: context,
                   ),
                   _buildTransferStep(
                     time: '11:46',
@@ -252,11 +253,11 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
                     destination: '구로행',
                     fastTransfer: '빠른 하차 1-1, 10-4',
                     icon: Icons.directions_subway,
-                    context: context, // 👉 context 전달
+                    context: context,
                   ),
                   _buildArrivalStep(
-                    time: _formatTime24(arrivalTime),// ✅ 도착 시간도 동적으로!
-                    station: '구일역 하차',
+                    time: _formatTime24(arrivalTime),
+                    station: '${widget.arrival} 하차',
                   ),
                 ],
               ),
@@ -282,7 +283,6 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
     return GestureDetector(
       onTap: () {
         if (line == '인천1호선') {
-          // ✅ 인천1호선은 팝업 띄우기
           showDialog(
             context: context,
             builder: (context) => AlertDialog(
@@ -305,7 +305,7 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
               actionsPadding: const EdgeInsets.only(bottom: 12),
               actionsAlignment: MainAxisAlignment.spaceEvenly,
               actions: [
-                // ✅ 실시간 버튼 → 모달 띄움
+                // 실시간 버튼 → 모달 띄움
                 ElevatedButton(
                   onPressed: () {
                     Navigator.pop(context); // 먼저 다이얼로그 닫고
@@ -333,7 +333,7 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
                   child: const Text('실시간', style: TextStyle(color: Colors.white)),
                 ),
 
-                // ✅ 확인 버튼 → 그냥 닫기
+                // 확인 버튼 → 그냥 닫기
                 ElevatedButton(
                   onPressed: () => Navigator.pop(context),
                   style: ElevatedButton.styleFrom(
@@ -349,7 +349,7 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
             ),
           );
         } else {
-          // ✅ 2~9호선은 바로 혼잡도 예측 화면으로 이동
+
           Navigator.pushNamed(
             context,
             '/congestion',
@@ -364,11 +364,11 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
               'iconCodePoint': icon.codePoint,
               'colorValue': color.value,
 
-              // 🔥 시간 전달
+              // 시간 전달
               'departureTime': departureTime.format(context),
               'arrivalTime': arrivalTime.format(context),
 
-              // ⭐ 즐겨찾기 여부도 전달
+              // 즐겨찾기 여부도 전달
               'isFavorite': isFavorite,
             },
           );
@@ -447,7 +447,7 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
     required String station,
     required String line,
     required Color color,
-    required String duration, // ✅ 이거 추가
+    required String duration,
     required String stationCount,
     required String destination,
     required String fastTransfer,
@@ -467,7 +467,7 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
                   _buildCircularIcon(icon, color),
                   Container(
                     width: 6,
-                    height: 80, // ✅ 아이콘 사이 거리 설정
+                    height: 80,
                     color: color,
                   ),
                 ],
@@ -489,7 +489,7 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
                     Text(destination, style: const TextStyle(fontSize: 14)),
                     Text(fastTransfer, style: const TextStyle(fontSize: 14)),
                     Text(
-                      '${durationText} ($stationCount)', // ✅ 자동 계산된 시간 사용
+                      '${durationText} ($stationCount)',
                       style: const TextStyle(fontSize: 12, color: Colors.grey),
                     ),
                   ],
@@ -499,7 +499,7 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
           ),
         ),
 
-        // ✅ 시간 → 아이콘 왼쪽 정중앙에 배치
+        // 시간
         Positioned(
           left: 10,
           top: 14,
@@ -513,12 +513,12 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
           ),
         ),
 
-        // ✅ 소요 시간 → 아이콘과 아이콘 사이의 정중앙 왼쪽에 배치
+        // 소요 시간
         Positioned(
           left: 3,
           top: 60,
           child: Text(
-            durationText, // ✅ 여기서도 자동 계산된 시간 사용
+            durationText, //
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -527,7 +527,7 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
           ),
         ),
 
-        // ✅ 혼잡도 예측 버튼
+        // 혼잡도 예측 버튼
         Positioned(
           right: 16,
           bottom: 0,
@@ -538,7 +538,7 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
             destination: destination,
             fastTransfer: fastTransfer,
             time: time,
-            duration: durationText, // ✅ 계산된 시간 전달
+            duration: durationText,
             stationCount: stationCount,
             icon: icon,
             color: color,
@@ -549,8 +549,6 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
   }
 
 
-
-// ✅ 환승 정보 위젯 (시간 + 소요 시간 정확히 위치)
   Widget _buildTransferStep({
     required String time,
     required String station,
@@ -568,7 +566,7 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
                   _buildCircularIcon(Icons.directions_walk, Colors.grey),
                   Container(
                     width: 6,
-                    height: 50, // ✅ 아이콘 사이 거리 설정
+                    height: 50,
                     color: Colors.grey[400],
                   ),
                 ],
@@ -590,10 +588,9 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
           ),
         ),
 
-        // ✅ 시간 → 아이콘의 정중앙 왼쪽에 배치
         Positioned(
           left: 10,
-          top: 14, // ✅ 정확한 중앙값 설정
+          top: 14,
           child: Text(
             time,
             style: const TextStyle(
@@ -604,10 +601,9 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
           ),
         ),
 
-        // ✅ 소요 시간 → 아이콘 사이 중앙값에 정확히 배치
         Positioned(
-          left: 40, // ✅ 아이콘의 중앙 왼쪽에 고정
-          top: 50, // ✅ 두 아이콘 사이의 중앙값 설정 (50의 절반)
+          left: 40,
+          top: 50,
           child: const Text(
             '5분',
             style: TextStyle(
@@ -621,7 +617,6 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
     );
   }
 
-// ✅ 도착 정보 위젯 (시간만 왼쪽에 고정)
   Widget _buildArrivalStep({
     required String time,
     required String station,
@@ -644,7 +639,6 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
           ),
         ),
 
-        // ✅ 시간 → 아이콘의 정중앙 왼쪽에 배치
         Positioned(
           left: 10,
           top: 14,
@@ -661,7 +655,7 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
     );
   }
 
-// ✅ 원형 아이콘 생성 함수
+// 원형 아이콘 생성 함수
   Widget _buildCircularIcon(IconData icon, Color color) {
     return Container(
       padding: const EdgeInsets.all(6),

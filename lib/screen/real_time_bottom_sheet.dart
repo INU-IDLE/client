@@ -12,7 +12,6 @@ class RealTimeBottomSheet extends StatefulWidget {
 
   final String nowTime = DateFormat('HH:mm').format(DateTime.now());
 
-
   RealTimeBottomSheet({
     Key? key,
     required this.color,
@@ -54,7 +53,7 @@ class _RealTimeBottomSheetState extends State<RealTimeBottomSheet> {
                 child: Container(
                   width: 40,
                   height: 4,
-                  margin: const EdgeInsets.only(top: 12, bottom: 24), // ⬅️ 여유 공간 줘서 전체 내려줌
+                  margin: const EdgeInsets.only(top: 12, bottom: 24),
                   decoration: BoxDecoration(
                     color: Colors.grey.shade300,
                     borderRadius: BorderRadius.circular(2),
@@ -181,14 +180,6 @@ class _RealTimeBottomSheetState extends State<RealTimeBottomSheet> {
 
     final resultTime = baseTime.add(Duration(hours: durHour, minutes: durMin));
     return '${resultTime.hour.toString().padLeft(2, '0')}:${resultTime.minute.toString().padLeft(2, '0')}';
-  }
-
-
-  String _getNowTimeFormatted24() {
-    final now = DateTime.now();
-    final hour = now.hour.toString().padLeft(2, '0');
-    final minute = now.minute.toString().padLeft(2, '0');
-    return '$hour:$minute';
   }
 
   String _getArrivalTimeFromNow(String duration) {

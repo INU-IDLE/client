@@ -8,7 +8,6 @@ import 'package:rushcutter/screen/route_result_screen.dart';
 class SavedRoutesScreen extends StatefulWidget {
   const SavedRoutesScreen({super.key});
 
-
   @override
   State<SavedRoutesScreen> createState() => _SavedRoutesScreenState();
 }
@@ -18,7 +17,6 @@ class _SavedRoutesScreenState extends State<SavedRoutesScreen> with TickerProvid
   bool isSearching = false;
   String searchQuery = '';
   late List<SavedRoute> localRoutes;
-  bool _initialized = false;
   Widget _buildRouteTile(SavedRoute route, int index) {
     return Container(
       key: ValueKey(route),
@@ -51,14 +49,14 @@ class _SavedRoutesScreenState extends State<SavedRoutesScreen> with TickerProvid
           onTap: () {
             context.read<SavedRouteProvider>().removeRoute(route);
             setState(() {
-              localRoutes.remove(route); // ⭐ localRoutes에서도 제거해야 반영됨
+              localRoutes.remove(route);
             });
           },
           child: const Icon(Icons.star, color: Colors.amber),
         ),
 
-        onTap: () {
-          Navigator.push(
+        onTap: () async {
+          final result = await Navigator.push<bool>(
             context,
             MaterialPageRoute(
               builder: (_) => RouteResultScreen(
@@ -67,7 +65,15 @@ class _SavedRoutesScreenState extends State<SavedRoutesScreen> with TickerProvid
               ),
             ),
           );
+
+          if (result == false) {
+            context.read<SavedRouteProvider>().removeRoute(route);
+            setState(() {
+              localRoutes.remove(route);
+            });
+          }
         },
+
       ),
     );
   }
@@ -193,28 +199,6 @@ class _SavedRoutesScreenState extends State<SavedRoutesScreen> with TickerProvid
 
           ],
         ),
-      ),
-    );
-
-  }
-
-  Widget _buildConnectedActionButton(String label, IconData icon) {
-    return TextButton(
-      onPressed: () {
-        print('$label 눌림');
-      },
-      style: TextButton.styleFrom(
-        foregroundColor: Colors.black87,
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-        alignment: Alignment.centerLeft,
-      ),
-      child: Row(
-        children: [
-          Icon(icon, size: 16, color: Colors.black),
-          const SizedBox(width: 8),
-          Text(label, style: const TextStyle(fontSize: 14)),
-        ],
       ),
     );
   }
