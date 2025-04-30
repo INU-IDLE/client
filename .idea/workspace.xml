@@ -9,21 +9,17 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6d4a1af6-36ce-4ad1-9e8d-acbeed608752" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/lib/models/saved_route.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/providers/saved_route_provider.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/screen/congestion_prediction_screen.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/screen/real_time_bottom_sheet.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/screen2/saved_routes_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_SDK.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_SDK.xml" afterDir="false" />
+    <list default="true" id="6d4a1af6-36ce-4ad1-9e8d-acbeed608752" name="Changes" comment="마이페이지, 문의페이지, 하단바 수정">
+      <change afterPath="$PROJECT_DIR$/lib/services/path_service.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/android/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/android/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/android/.gradle/buildOutputCleanup/outputFiles.bin" beforeDir="false" afterPath="$PROJECT_DIR$/android/.gradle/buildOutputCleanup/outputFiles.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/local.properties" beforeDir="false" afterPath="$PROJECT_DIR$/android/local.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/screen/home_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/home_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/.gradle/file-system.probe" beforeDir="false" afterPath="$PROJECT_DIR$/android/.gradle/file-system.probe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/practice_android.iml" beforeDir="false" afterPath="$PROJECT_DIR$/android/practice_android.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/screen/route_result_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/route_result_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/services/station_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/services/station_service.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
     </list>
@@ -52,12 +48,15 @@
     &quot;assignee&quot;: &quot;heeeopen&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/INU-IDLE/client.git",
-    "accountId": "0d859bf4-c4ba-40bf-abe4-c92fbecee90e"
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/INU-IDLE/client.git&quot;,
+    &quot;accountId&quot;: &quot;0d859bf4-c4ba-40bf-abe4-c92fbecee90e&quot;
   }
-}]]></component>
+}</component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 8
 }</component>
@@ -76,7 +75,7 @@
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
     &quot;com.google.services.firebase.aqiPopupShown&quot;: &quot;true&quot;,
     &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;fix/#16&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;feat/#26&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
     &quot;io.flutter.reload.alreadyRun&quot;: &quot;true&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,

@@ -13,4 +13,16 @@ class StationService {
       longitude: json['longitude'],
     )).toList();
   }
+
+  Future<String?> getFrCodeByStationName(String stationName) async {
+    final jsonString = await rootBundle.loadString('assets/station_info.json');
+    final Map<String, dynamic> jsonMap = jsonDecode(jsonString);
+
+    for (final station in jsonMap['DATA']) {
+      if (station['station_nm'] == stationName.replaceAll('역', '')) {
+        return station['fr_code'];
+      }
+    }
+    return null;
+  }
 }
