@@ -865,7 +865,7 @@ Color getLineColor(String line) {
     case '9호선': return Color(0xFFBDB092);
     case '인천1호선': return Color(0xFF79A0D4);
     case '인천2호선': return Color(0xFFF5A251);
-    case '수인분당선': return Color(0xFFFABD00);
+    case '수인.분당선': return Color(0xFFFABD00);
     case '신분당선': return Color(0xFFD31145);
     case '경의중앙선': return Color(0xFF77C4A3);
     case '서해선': return Color(0xFF8FC31F);

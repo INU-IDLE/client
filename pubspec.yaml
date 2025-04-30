@@ -35,5 +35,3 @@ flutter:
   assets:
     - assets/station_info.json
     - assets/images/metropolitan.svg
-
-
