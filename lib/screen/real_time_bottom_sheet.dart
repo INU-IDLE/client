@@ -54,7 +54,7 @@ class _RealTimeBottomSheetState extends State<RealTimeBottomSheet> {
                 child: Container(
                   width: 40,
                   height: 4,
-                  margin: const EdgeInsets.only(top: 12, bottom: 24), // ⬅️ 여유 공간 줘서 전체 내려줌
+                  margin: const EdgeInsets.only(top: 12, bottom: 24),
                   decoration: BoxDecoration(
                     color: Colors.grey.shade300,
                     borderRadius: BorderRadius.circular(2),

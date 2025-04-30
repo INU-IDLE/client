@@ -18,7 +18,6 @@ class _SavedRoutesScreenState extends State<SavedRoutesScreen> with TickerProvid
   bool isSearching = false;
   String searchQuery = '';
   late List<SavedRoute> localRoutes;
-  bool _initialized = false;
   Widget _buildRouteTile(SavedRoute route, int index) {
     return Container(
       key: ValueKey(route),
@@ -51,14 +50,14 @@ class _SavedRoutesScreenState extends State<SavedRoutesScreen> with TickerProvid
           onTap: () {
             context.read<SavedRouteProvider>().removeRoute(route);
             setState(() {
-              localRoutes.remove(route); // ⭐ localRoutes에서도 제거해야 반영됨
+              localRoutes.remove(route);
             });
           },
           child: const Icon(Icons.star, color: Colors.amber),
         ),
 
-        onTap: () {
-          Navigator.push(
+        onTap: () async {
+          final result = await Navigator.push<bool>(
             context,
             MaterialPageRoute(
               builder: (_) => RouteResultScreen(
@@ -67,10 +66,17 @@ class _SavedRoutesScreenState extends State<SavedRoutesScreen> with TickerProvid
               ),
             ),
           );
+          if (result == false) {
+            context.read<SavedRouteProvider>().removeRoute(route);
+            setState(() {
+              localRoutes.remove(route);
+            });
+          }
         },
       ),
     );
   }
+
 
   @override
   void initState() {
@@ -107,7 +113,6 @@ class _SavedRoutesScreenState extends State<SavedRoutesScreen> with TickerProvid
       body: SafeArea(
         child: Column(
           children: [
-            // 🔷 상단 헤더
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               color: Colors.white,

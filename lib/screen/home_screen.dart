@@ -27,6 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String? departureStation; // 출발역
   String? arrivalStation; // 도착역
   String? searchQuery; // 넘어가는 검색 값
+  Offset? selectedStationPosition;
 
   final TransformationController _transformationController =
   TransformationController(); // transformation 추가
@@ -174,7 +175,7 @@ class _HomeScreenState extends State<HomeScreen> {
       case '소식':
         currentScreen = const NewsScreen();
         break;
-      case '마이페이지':
+      case 'MY':
         currentScreen = const MyPageScreen();
         break;
       default:
@@ -186,6 +187,7 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           Positioned.fill(child: currentScreen),
           // 상단 검색창 및 알림 버튼
+          if (selectedCategory == 'HOME' || selectedCategory == '실시간')
           Positioned(
             top: statusBarHeight, // 상태바 바로 아래부터 시작
             left: 0,

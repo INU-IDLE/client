@@ -24,13 +24,13 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
   late bool isFavorite;
   late TimeOfDay departureTime;
   late TimeOfDay arrivalTime;
-  bool _isInitialized = false; // 🔥 최초 1회만 실행되게
+  bool _isInitialized = false;
 
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (_isInitialized) return; // ✅ 이미 초기화됐으면 return
+    if (_isInitialized) return;
 
     final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>? ?? {};
 
@@ -48,7 +48,7 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
     departureTime = _parseTimeOfDay(args['departureTime'] ?? '00:00');
     arrivalTime = _parseTimeOfDay(args['arrivalTime'] ?? '00:00');
 
-    _isInitialized = true; // ✅ 딱 한 번만 초기화
+    _isInitialized = true;
   }
 
 
@@ -121,11 +121,6 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
     }
   }
 
-  void _toggleFavorite() {
-    setState(() {
-      isFavorite = !isFavorite;
-    });
-  }
   String _getArrivalTimeFormatted24() {
     final depDate = DateTime(0, 1, 1, departureTime.hour, departureTime.minute);
     final durParts = duration.split(RegExp(r'[시간분\s]+')).where((e) => e.isNotEmpty).toList();
@@ -186,13 +181,12 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
 
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView( // 🔥 스크롤 추가
+        child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 4), // 또는 그냥 제거
+              const SizedBox(height: 4),
 
-// ✅ 그리고 이 부분 수정
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -288,10 +282,8 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
               _buildArrivalOrTransferStep(
                 line: line,
                 station: _getArrivalStation(),
-                time: _formatTime24(arrivalTime), // ✅ 수정됨
+                time: _formatTime24(arrivalTime),
               ),
-
-
 
 
               // ✅ 혼잡도 범례 추가!
@@ -304,7 +296,6 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
 
     );
   }
-// CongestionPredictionScreen 내부에 추가
   String _getArrivalStation() {
     if (line == '1호선') {
       return '구일역';
@@ -331,24 +322,6 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
     final minute = time.minute.toString().padLeft(2, '0');
     return '$hour:$minute';
   }
-
-
-  String _getArrivalTime(String time, String duration) {
-    final depParts = time.split(':');
-    final durParts = duration.split(RegExp(r'[시간분\s]+')).where((e) => e.isNotEmpty).toList();
-
-    int depHour = int.parse(depParts[0]);
-    int depMin = int.parse(depParts[1]);
-    int durHour = durParts.length == 2 ? int.parse(durParts[0]) : 0;
-    int durMin = int.parse(durParts.length == 2 ? durParts[1] : durParts[0]);
-
-    int totalMin = depMin + durMin;
-    int totalHour = depHour + durHour + (totalMin ~/ 60);
-    totalMin = totalMin % 60;
-
-    return '${totalHour.toString().padLeft(2, '0')}:${totalMin.toString().padLeft(2, '0')}';
-  }
-
 
   Widget _buildArrivalOrTransferStep({
     required String line,
@@ -436,7 +409,6 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
             ),
           ),
         ),
-
       ],
     );
   }
@@ -473,7 +445,6 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // 🔹 여기에 라인 + 실시간 버튼 한 줄로 정렬
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -627,7 +598,7 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
           // 🕒 텍스트를 위에 오른쪽 정렬로 띄우기
           Positioned(
             top: -6,
-            right: 30, // ✅ 조절 가능
+            right: 30,
             child: Container(
               width: 60,
               height: 15,
@@ -706,8 +677,8 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
     required String time,
     required String station,
     required String distance,
-    required IconData icon, // ✅ 추가
-    required Color color,   // ✅ 추가
+    required IconData icon,
+    required Color color,
   }) {
     return Stack(
       children: [
@@ -718,8 +689,7 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
             children: [
               Column(
                 children: [
-                  _buildCircularIcon(icon, color), // ✅ 도보가 아니라 원래 아이콘과 색상
-                  // 필요하다면 선도 추가 가능
+                  _buildCircularIcon(icon, color),
                 ],
               ),
               const SizedBox(width: 12),

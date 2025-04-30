@@ -7,6 +7,7 @@ import 'home_screen.dart';
 import 'package:rushcutter/widgets/station_component.dart';
 import 'package:rushcutter/data/station_data.dart';
 import 'package:rushcutter/screen/home_screen.dart';
+import 'bottom_category_bar.dart';
 
 class SubwayMapScreen extends StatefulWidget {
   final String? searchQuery;
@@ -168,6 +169,7 @@ class _SubwayMapScreenState extends State<SubwayMapScreen> {
       );
       return;
     }
+
     if (departureStation == arrivalStation){
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("출발역과 도착역이 동일할 수 없습니다.")),
