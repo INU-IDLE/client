@@ -10,22 +10,35 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6d4a1af6-36ce-4ad1-9e8d-acbeed608752" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/lib/models/saved_route.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/providers/saved_route_provider.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/screen/congestion_prediction_screen.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/screen/real_time_bottom_sheet.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/screen2/saved_routes_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/data/station_data.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/providers/station_provider.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/widgets/map_interaction.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/widgets/station_component.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/widgets/station_map_painter.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_SDK.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_SDK.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/android/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/android/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/android/.gradle/buildOutputCleanup/outputFiles.bin" beforeDir="false" afterPath="$PROJECT_DIR$/android/.gradle/buildOutputCleanup/outputFiles.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/.gradle/file-system.probe" beforeDir="false" afterPath="$PROJECT_DIR$/android/.gradle/file-system.probe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/.cxx/Debug/4c683z42/arm64-v8a/configure_fingerprint.bin" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/.cxx/Debug/4c683z42/arm64-v8a/configure_fingerprint.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/.cxx/Debug/4c683z42/armeabi-v7a/configure_fingerprint.bin" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/.cxx/Debug/4c683z42/armeabi-v7a/configure_fingerprint.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/.cxx/Debug/4c683z42/x86/configure_fingerprint.bin" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/.cxx/Debug/4c683z42/x86/configure_fingerprint.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/.cxx/Debug/4c683z42/x86_64/configure_fingerprint.bin" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/.cxx/Debug/4c683z42/x86_64/configure_fingerprint.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/android/local.properties" beforeDir="false" afterPath="$PROJECT_DIR$/android/local.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/images/metropolitan.svg" beforeDir="false" afterPath="$PROJECT_DIR$/assets/images/metropolitan.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client" beforeDir="false" afterPath="$PROJECT_DIR$/client" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/lib/screen/bottom_category_bar.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/lib/widgets/AlertDialog.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/lib/widgets/category_button.dart" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/main.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/models/station.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/models/station.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/screen/home_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/home_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/screen/route_result_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/route_result_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/search_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/search_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/subway_map_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/subway_map_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/services/station_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/services/station_service.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/widget_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/test/widget_test.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,6 +56,7 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_COMMON_BRANCH" value="feat/#9" />
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
     <option name="ROOT_SYNC" value="SYNC" />
   </component>
@@ -52,46 +66,53 @@
     &quot;assignee&quot;: &quot;heeeopen&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/INU-IDLE/client.git",
-    "accountId": "0d859bf4-c4ba-40bf-abe4-c92fbecee90e"
+  <component name="GithubProjectSettings">
+    <option name="branchProtectionPatterns">
+      <list>
+        <option value="main" />
+        <option value="develop" />
+      </list>
+    </option>
+  </component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/INU-IDLE/client.git&quot;,
+    &quot;accountId&quot;: &quot;32513c29-8b7b-485e-8d56-ae059a47f6de&quot;
   }
-}]]></component>
+}</component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 8
 }</component>
   <component name="ProjectId" id="2tAApdUIL9RBp1lpgezgeeJPrXS" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Flutter.main.dart.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
-    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
-    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;com.google.services.firebase.aqiPopupShown&quot;: &quot;true&quot;,
-    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;fix/#16&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;io.flutter.reload.alreadyRun&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/rushcutter/assets/images&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;AndroidSdkUpdater&quot;,
-    &quot;show.migrate.to.gradle.popup&quot;: &quot;false&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Flutter.main.dart.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "com.google.services.firebase.aqiPopupShown": "true",
+    "dart.analysis.tool.window.visible": "false",
+    "git-widget-placeholder": "feat/#21",
+    "ignore.virus.scanning.warn.message": "true",
+    "io.flutter.reload.alreadyRun": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/rushcutter/backend-server",
+    "settings.editor.selected.configurable": "AndroidSdkUpdater",
+    "show.migrate.to.gradle.popup": "false"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\rushcutter\assets\images" />
-    </key>
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="D:\Computer\client\lib\screen" />
-      <recent name="D:\Computer\client\lib\models" />
     </key>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
@@ -135,8 +156,12 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="Dart">
+          <url>file://$PROJECT_DIR$/lib/main.dart</url>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="Dart">
           <url>file://$PROJECT_DIR$/lib/screen/subway_map_screen.dart</url>
-          <line>200</line>
+          <line>261</line>
           <option name="timeStamp" value="2" />
         </line-breakpoint>
       </breakpoints>
