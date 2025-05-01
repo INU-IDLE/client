@@ -9,13 +9,9 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6d4a1af6-36ce-4ad1-9e8d-acbeed608752" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/lib/data/station_data.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/providers/station_provider.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/widgets/map_interaction.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/widgets/station_component.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/widgets/station_map_painter.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_SDK.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_SDK.xml" afterDir="false" />
+    <list default="true" id="6d4a1af6-36ce-4ad1-9e8d-acbeed608752" name="Changes" comment="Feat: 역 검색 후 화면 전환">
+      <change afterPath="$PROJECT_DIR$/assets/completed.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/android/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/android/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/android/.gradle/buildOutputCleanup/outputFiles.bin" beforeDir="false" afterPath="$PROJECT_DIR$/android/.gradle/buildOutputCleanup/outputFiles.bin" afterDir="false" />
@@ -24,21 +20,17 @@
       <change beforePath="$PROJECT_DIR$/android/app/.cxx/Debug/4c683z42/armeabi-v7a/configure_fingerprint.bin" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/.cxx/Debug/4c683z42/armeabi-v7a/configure_fingerprint.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/android/app/.cxx/Debug/4c683z42/x86/configure_fingerprint.bin" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/.cxx/Debug/4c683z42/x86/configure_fingerprint.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/android/app/.cxx/Debug/4c683z42/x86_64/configure_fingerprint.bin" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/.cxx/Debug/4c683z42/x86_64/configure_fingerprint.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/build.gradle" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/local.properties" beforeDir="false" afterPath="$PROJECT_DIR$/android/local.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/images/metropolitan.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/images/metropolitan.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/assets/images/metropolitan.svg" beforeDir="false" afterPath="$PROJECT_DIR$/assets/images/metropolitan.svg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client" beforeDir="false" afterPath="$PROJECT_DIR$/client" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/lib/screen/bottom_category_bar.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/lib/widgets/AlertDialog.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/lib/widgets/category_button.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/models/station.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/models/station.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/data/station_data.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/data/station_data.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/screen/home_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/home_screen.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/screen/search_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/search_screen.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/screen/subway_map_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/subway_map_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/services/station_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/services/station_service.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/widgets/station_component.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/widgets/station_component.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/practice.iml" beforeDir="false" afterPath="$PROJECT_DIR$/practice.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/widget_test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/test/widget_test.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -56,6 +48,11 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="feat/#23" />
+      </map>
+    </option>
     <option name="RECENT_COMMON_BRANCH" value="feat/#9" />
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
     <option name="ROOT_SYNC" value="SYNC" />
@@ -65,6 +62,17 @@
     &quot;state&quot;: &quot;OPEN&quot;,
     &quot;assignee&quot;: &quot;heeeopen&quot;
   }
+}</component>
+  <component name="GitHubPullRequestState">{
+  &quot;prStates&quot;: [
+    {
+      &quot;id&quot;: {
+        &quot;id&quot;: &quot;PR_kwDONrdPDM6Sqc4-&quot;,
+        &quot;number&quot;: 22
+      },
+      &quot;lastSeen&quot;: 1745158019792
+    }
+  ]
 }</component>
   <component name="GithubProjectSettings">
     <option name="branchProtectionPatterns">
@@ -101,11 +109,14 @@
     "cidr.known.project.marker": "true",
     "com.google.services.firebase.aqiPopupShown": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "feat/#21",
+    "git-widget-placeholder": "feat/#31",
     "ignore.virus.scanning.warn.message": "true",
     "io.flutter.reload.alreadyRun": "true",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/rushcutter/backend-server",
+    "last_opened_file_path": "C:/rushcutter/assets/images",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
     "settings.editor.selected.configurable": "AndroidSdkUpdater",
     "show.migrate.to.gradle.popup": "false"
   }
@@ -113,6 +124,10 @@
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\rushcutter\assets\images" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\rushcutter\assets\images" />
+      <recent name="C:\rushcutter\assets" />
     </key>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
@@ -124,6 +139,15 @@
       <option name="presentableId" value="Default" />
       <updated>1739784694690</updated>
     </task>
+    <task id="LOCAL-00001" summary="Feat: subway Line 2 작업">
+      <option name="closed" value="true" />
+      <created>1745158333864</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1745158333864</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -150,7 +174,8 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <option name="LAST_COMMIT_MESSAGE" value="" />
+    <MESSAGE value="Feat: subway Line 2 작업" />
+    <option name="LAST_COMMIT_MESSAGE" value="Feat: subway Line 2 작업" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -161,8 +186,17 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="Dart">
           <url>file://$PROJECT_DIR$/lib/screen/subway_map_screen.dart</url>
-          <line>261</line>
+          <line>281</line>
           <option name="timeStamp" value="2" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="Dart">
+          <url>file://$PROJECT_DIR$/lib/data/station_data.dart</url>
+          <line>4075</line>
+          <option name="timeStamp" value="3" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="Dart">
+          <url>file://$PROJECT_DIR$/lib/screen/search_screen.dart</url>
+          <option name="timeStamp" value="4" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

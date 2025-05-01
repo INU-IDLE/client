@@ -35,8 +35,10 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _transformationController.value = Matrix4.identity()..scale(1.0);
+    _transformationController.value = Matrix4.identity()
+      ..scale(1.0);
   }
+
 
   void onCategorySelected(String category) {
     setState(() {
@@ -45,38 +47,45 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   // 검색 결과를 처리하는 메서드
-  void _handleSearchResult(String? result, bool isSelectingDeparture) {
-    if (result != null) {
-      setState(() {
-        if (isSelectingDeparture) {
-          departureStation = result;
-        } else {
-          arrivalStation = result;
-        }
-        final station = stationData.firstWhere(
-              (s) => s.stationNm == result,
-          orElse: () => Station(
-            id: '',
-            cx: 0,
-            cy: 0,
-            r: 0,
-            stationNm: '',
-            line: '',
-          ),
-        );
-        if (station.id.isNotEmpty) {
-          final double cx = station.cx;
-          final double cy = station.cy;
+  void _handleSearchResult(dynamic result, bool isSelectingDeparture) {
+    if (result == null || result['id'] == null) return;
 
-        }
+    final station = stationData.firstWhere(
+          (s) => s.id == result['id'],
+      orElse: () => Station(
+          id: '',
+          cx: 0,
+          cy: 0,
+          r: 0,
+          stationNm: '',
+          line: ''
+      ),
+    );
+
+    if (station.id.isNotEmpty) {
+      setState(() {
+        selectedStationId = station.id; // ★ 추가: 선택 상태 동기화
+        selectedStation = station;       // ★ 추가
+        _moveToViewPoint(station.cx, station.cy);
+        // 즉시 버튼 표시를 위한 추가 처리
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          setState(() {
+            if (isSelectingDeparture) {
+              departureStation = station.stationNm;
+            } else {
+              arrivalStation = station.stationNm;
+            }
+          });
+        });
       });
     }
   }
-
   // 특정 위치로 View Point 이동
   void _moveToViewPoint(double cx, double cy) {
     final double scale = 1.3;
-    final Size screenSize = MediaQuery.of(context).size;
+    final Size screenSize = MediaQuery
+        .of(context)
+        .size;
     _transformationController.value = Matrix4.identity()
       ..translate(-cx * scale + screenSize.width / 2,
           -cy * scale + screenSize.height / 2)
@@ -84,17 +93,18 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   // 역 클릭 처리 (이제는 바로 이동하지 않고, selectedStation만 세팅)
-  void _handleStationTap(String id) {
+  void _handleStationTap(String? id) {
     final found = stationData.firstWhere(
           (s) => s.id == id,
-      orElse: () => Station(
-        id: '',
-        cx: 0,
-        cy: 0,
-        r: 0,
-        stationNm: '',
-        line: '',
-      ),
+      orElse: () =>
+          Station(
+            id: '',
+            cx: 0,
+            cy: 0,
+            r: 0,
+            stationNm: '',
+            line: '',
+          ),
     );
     setState(() {
       selectedStationId = id;
@@ -105,18 +115,18 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // 출발지/도착지 버튼을 누르면 해당 값 입력
   void _onSelectDeparture() async {
-    if (selectedStation == null || selectedStation!.id.isEmpty) return;
+    // if (selectedStation == null || selectedStation!.id.isEmpty) return;
 
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => SubwayMapScreen(
-          isSelectingDeparture: true,
-          searchQuery: selectedStation!.stationNm,
-          selectedStation: selectedStation!,
-          selectedStationId : selectedStation?.id,
-
-        ),
+        builder: (context) =>
+            SubwayMapScreen(
+              isSelectingDeparture: true,
+              selectedStation: selectedStation, // ★ 현재 선택된 역 전달
+              initialTransformation: _transformationController.value,
+              searchQuery: selectedStation!.stationNm,
+            ),
       ),
     );
     if (result != null && result is String) {
@@ -137,11 +147,14 @@ class _HomeScreenState extends State<HomeScreen> {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => SubwayMapScreen(
-          isSelectingDeparture: false,
-          searchQuery: selectedStation!.stationNm,
-          selectedStation: selectedStation!,
-        ),
+        builder: (context) =>
+            SubwayMapScreen(
+              initialTransformation: _transformationController.value, // 추가
+              isSelectingDeparture: false,
+              searchQuery: selectedStation!.stationNm,
+              selectedStation: selectedStation, // ★ 현재 선택된 역 전달
+
+            ),
       ),
     );
     if (result != null && result is String) {
@@ -158,7 +171,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final double statusBarHeight = MediaQuery.of(context).padding.top;
+    final double statusBarHeight = MediaQuery
+        .of(context)
+        .padding
+        .top;
 
     Widget currentScreen;
 
@@ -224,7 +240,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 final result = await Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => const SearchScreen(
+                                    builder: (context) =>
+                                    const SearchScreen(
                                       isSelectingDeparture: true, // 기본값 설정
                                     ),
                                   ),
@@ -251,7 +268,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Stack(
                       alignment: Alignment.center,
                       children: [
-                        const Icon(Icons.notifications, size: 30, color: Colors.black),
+                        const Icon(
+                            Icons.notifications, size: 30, color: Colors.black),
                         Positioned(
                           top: 5,
                           right: 5,
@@ -291,48 +309,57 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildHomeContent() {
-    return InteractiveViewer(
-      transformationController: _transformationController,
-      minScale: 0.3,
-      maxScale: 1.0,
-      boundaryMargin: const EdgeInsets.all(500),
-      constrained: false,
-      child: SizedBox(
-        width: 4500,
-        height: 3800,
-        child: Stack(
-          children: [
-            Image.asset(
-              'assets/images/metropolitan.png',
-              width: 4500,
-              height: 3800,
-              fit: BoxFit.cover,
-            ),
-            StationComponent(
-              stations: stationData,
-              selectedId: selectedStationId,
-              onStationTap: _handleStationTap,
-            ),
-            // 선택된 역 위에 출발지/도착지 버튼 띄우기
-            if (selectedStation != null && selectedStation!.id.isNotEmpty)
-              Positioned(
-                left: selectedStation!.cx,
-                top: selectedStation!.cy - 80, // 살짝 위에 띄우기
-                child: Column(
-                  children: [
-                    ElevatedButton(
-                      onPressed: _onSelectDeparture,
-                      child: const Text("출발지"),
-                    ),
-                    const SizedBox(height: 8),
-                    ElevatedButton(
-                      onPressed: _onSelectArrival,
-                      child: const Text("도착지"),
-                    ),
-                  ],
-                ),
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque, // 빈 공간 클릭 감지를 위해 필수!
+      onTap: () {
+        // 빈 공간 클릭 시 버튼 숨김
+        setState(() {
+          selectedStation = null;
+          selectedStationId = null;
+        });
+      },
+      child: InteractiveViewer(
+        transformationController: _transformationController,
+        minScale: 0.3,
+        maxScale: 1.0,
+        boundaryMargin: const EdgeInsets.all(500),
+        constrained: false,
+        child: SizedBox(
+          width: 4500,
+          height: 3800,
+          child: Stack(
+            children: [
+              Image.asset(
+                'assets/images/metropolitan.png',
+                width: 4500,
+                height: 3800,
+                fit: BoxFit.cover,
               ),
-          ],
+              StationComponent(
+                stations: stationData,
+                selectedId: selectedStationId,
+                onStationTap: _handleStationTap,
+              ),
+              if (selectedStation != null && selectedStation!.id.isNotEmpty)
+                Positioned(
+                  left: selectedStation!.cx,
+                  top: selectedStation!.cy - 80,
+                  child: Column(
+                    children: [
+                      ElevatedButton(
+                        onPressed: _onSelectDeparture,
+                        child: const Text("출발지"),
+                      ),
+                      const SizedBox(height: 8),
+                      ElevatedButton(
+                        onPressed: _onSelectArrival,
+                        child: const Text("도착지"),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );

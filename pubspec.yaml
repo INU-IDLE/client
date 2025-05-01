@@ -38,6 +38,5 @@ flutter:
   uses-material-design: true
   assets:
     - assets/station_info.json
-    - assets/images/metropolitan.svg
     - assets/images/metropolitan.png
 
