@@ -13,10 +13,11 @@ class SubwayMapScreen extends StatefulWidget {
   final String? searchQuery;
   final bool isSelectingDeparture;
   final dynamic selectedStation;
-  final Matrix4? initialTransformation;
+  final Matrix4? initialTransformation; // 필수 파라미터로 변경
   final String? selectedStationId;
   // 출발역 도착역 빈칸 선택 여부, T = 출발역 빈칸, F = 도착역 빈칸
   // final Station selectedStation;
+
 
   const SubwayMapScreen({
     // this.searchQuery,
@@ -34,6 +35,7 @@ class SubwayMapScreen extends StatefulWidget {
 }
 
 class _SubwayMapScreenState extends State<SubwayMapScreen> {
+  late final TransformationController _transformationController; // 추가
   // late StationService _stationService;
   Station? selectedStation;
   String? departureStation; // 출발역
@@ -49,45 +51,61 @@ class _SubwayMapScreenState extends State<SubwayMapScreen> {
   @override
   void initState() {
     super.initState();
+    _transformationController = TransformationController(
+      widget.initialTransformation ?? Matrix4.identity(),
+    );
     searchedStation = widget.searchQuery; // 검색어로 초기화
+    // 검색 결과 기반 초기 설정
+    if (widget.searchQuery != null) {
+      final station = stationData.firstWhere(
+            (s) => s.stationNm == widget.searchQuery,
+        orElse: () => Station(id: '', cx: 0, cy: 0, r: 0, stationNm: '', line: ''),
+      );
 
-    // 출발역/도착역 초기화
-    if (widget.isSelectingDeparture) {
-      departureStation = widget.searchQuery ?? "";
-      _departureController = TextEditingController(text: departureStation);
-      _arrivalController = TextEditingController(text: "");
-    } else {
-      arrivalStation = widget.searchQuery ?? "";
-      _departureController = TextEditingController(text: "");
-      _arrivalController = TextEditingController(text: arrivalStation);
+      if (station.id.isNotEmpty) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _transformationController.value = Matrix4.identity()
+            ..translate(
+                -station.cx * 1.3 + MediaQuery.of(context).size.width / 2,
+                -station.cy * 1.3 + MediaQuery.of(context).size.height / 2
+            )
+            ..scale(1.3);
+
+          setState(() {
+            selectedStationId = station.id; // ★ 추가
+            selectedStation = station; // ★ 추가
+          });
+        });
+      }
     }
-
-    // 처음 selectedStation도 세팅해두면 추후 노선도 버튼 활성화 가능
-    selectedStation = widget.selectedStation;
-    selectedStationId = widget.selectedStationId;
   }
-
 
   void _onSelectDeparture() {
     setState(() {
       departureStation = selectedStation?.stationNm;
-      showDepartureButton = false;
-      showArrivalButton = false;
+      //showDepartureButton = false;
+      //showArrivalButton = false;
+      //selectedStation = null; // 선택 해제
+      //selectedStationId = null;
     });
   }
 
   void _onSelectArrival() {
     setState(() {
       arrivalStation = selectedStation?.stationNm;
-      showDepartureButton = false;
-      showArrivalButton = false;
+      //showDepartureButton = false;
+      //showArrivalButton = false;
+      //selectedStation = null; // 선택 해제
+      //selectedStationId = null;
     });
   }
 
-  void _handleStationTap(String stationId) {
+  void _handleStationTap(String? stationId) {
     setState(() {
-      selectedStation = stationData.firstWhere((s) => s.id == stationId);
       selectedStationId = stationId;
+      selectedStation = stationId != null
+          ? stationData.firstWhere((s) => s.id == stationId)
+          : null;
     });
   }
 
@@ -120,7 +138,7 @@ class _SubwayMapScreenState extends State<SubwayMapScreen> {
       context,
       MaterialPageRoute(
         builder: (context) => SearchScreen(
-          isSelectingDeparture: true,
+          isSelectingDeparture: false,
           initialQuery: departureStation ?? "", // 이전 입력값 전달 (null이면 빈 문자열)
         ),
       ),
@@ -283,56 +301,62 @@ class _SubwayMapScreenState extends State<SubwayMapScreen> {
 
           // 지하철 노선도 & 선택 버튼
           Expanded(
-            child: Stack(
-              children: [
-                Positioned.fill(
-                  child: Container(
-                    color: Colors.grey[200],
-    child: SizedBox(
-    width: 4500,
-    height: 3800,
-    child: Stack(
-    children: [
-    Image.asset(
-    'assets/images/metropolitan.png',
-    width: 4500,
-    height: 3800,
-    fit: BoxFit.cover,
-    ),
-    StationComponent(
-    stations: stationData,
-    selectedId: selectedStationId,
-    onStationTap: _handleStationTap,
-    ),
-    // 선택된 역 위에 출발지/도착지 버튼 띄우기
-    if (selectedStation != null && selectedStation!.id.isNotEmpty)
-    Positioned(
-    left: selectedStation!.cx,
-    top: selectedStation!.cy - 80, // 살짝 위에 띄우기
-    child: Column(
-    children: [
-    ElevatedButton(
-    onPressed: _onSelectDeparture,
-    child: const Text("출발지"),
-    ),
-    const SizedBox(height: 8),
-    ElevatedButton(
-    onPressed: _onSelectArrival,
-    child: const Text("도착지"),
-
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque, // 빈 공간 터치 인식!
+              onTap: () {
+                setState(() {
+                  selectedStation = null;
+                  selectedStationId = null;
+                });
+              },
+              child: InteractiveViewer(
+                transformationController: _transformationController,
+                minScale: 0.3,
+                maxScale: 1.0,
+                boundaryMargin: const EdgeInsets.all(500),
+                constrained: false,
+                child: SizedBox(
+                  width: 4500,
+                  height: 3800,
+                  child: Stack(
+                    children: [
+                      Image.asset(
+                        'assets/images/metropolitan.png',
+                        width: 4500,
+                        height: 3800,
+                        fit: BoxFit.cover,
+                      ),
+                      StationComponent(
+                        stations: stationData,
+                        selectedId: selectedStationId,
+                        onStationTap: _handleStationTap
+                      ),
+                      if (selectedStation != null &&
+                          selectedStation!.id.isNotEmpty)
+                        Positioned(
+                          left: selectedStation!.cx,
+                          top: selectedStation!.cy - 80,
+                          child: Column(
+                            children: [
+                              ElevatedButton(
+                                onPressed: _onSelectDeparture,
+                                child: const Text("출발지"),
                               ),
-  ],
-                  ),
-                          ),
-                      ],
-                    ),
-                  ),
-                    ),
-                    ),
-            ],
+                              const SizedBox(height: 8),
+                              ElevatedButton(
+                                onPressed: _onSelectArrival,
+                                child: const Text("도착지"),
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
+              ),
             ),
           ),
-        ],
+          ),
+          ],
       ),
       bottomNavigationBar: buildBottomNavBar(),
     );

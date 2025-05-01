@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'subway_map_screen.dart';
 import 'dart:convert';
 
-
 class SearchScreen extends StatefulWidget {
   final bool isSelectingDeparture;
   final String? initialQuery;
@@ -32,7 +31,7 @@ class _SearchScreenState extends State<SearchScreen> {
     searchController.text = widget.initialQuery ?? '';
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      FocusScope.of(context).requestFocus(searchFocusNode); // 키보드 포커스
+      FocusScope.of(context).requestFocus(searchFocusNode); // // 키보드 포커스
 
       // JSON 불러오기
       final jsonString = await DefaultAssetBundle.of(context).loadString('assets/station_info.json');
