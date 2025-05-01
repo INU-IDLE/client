@@ -9,7 +9,7 @@ void main() {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => SavedRouteProvider()), // ✅ 등록
+        ChangeNotifierProvider(create: (_) => SavedRouteProvider()),
       ],
       child: const MyApp(),
     ),

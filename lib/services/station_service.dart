@@ -29,6 +29,23 @@ _subway_map_screen.dart
 
 // 이름 일치하는 역 찾는 service 의미
 class StationService {
+  Future<String?> getFrCodeByStationName(String stationName) async {
+    final jsonString = await rootBundle.loadString('assets/station_info.json');
+    final Map<String, dynamic> jsonMap = jsonDecode(jsonString);
+    final List<dynamic> stationList = jsonMap['DATA'];
+
+    final trimmedName = stationName.replaceAll('역', '');
+
+    final match = stationList.firstWhere(
+            (station) =>
+        station['station_nm'].toString().trim().replaceAll('역', '') ==
+            stationName.toString().trim().replaceAll('역', '')
+
+    );
+
+    return match?['fr_code']?.toString();
+  }
+
   final List<Station> _stations;
 
   StationService(this._stations);

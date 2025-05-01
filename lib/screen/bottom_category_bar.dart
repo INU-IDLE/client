@@ -12,13 +12,33 @@ class BottomCategoryBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final categories = [
-      {'icon': Icons.home, 'label': 'HOME'},
-      {'icon': Icons.timer, 'label': '실시간'},
-      {'icon': Icons.save, 'label': '저장'},
-      {'icon': Icons.newspaper, 'label': '소식'},
-      {'icon': Icons.person, 'label': '마이페이지'},
-    ];
+    Widget buildNavItem(IconData icon, String label) {
+      final isSelected = selectedCategory == label;
+      return Expanded(
+        child: GestureDetector(
+          onTap: () => onCategorySelected(label),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                size: MediaQuery.of(context).size.height * 0.04,
+                color: isSelected ? const Color(0xFF007AFF) : const Color(0xFF999999),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: MediaQuery.of(context).size.width * 0.03,
+                  color: isSelected ? const Color(0xFF007AFF) : const Color(0xFF999999),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
     return Container(
       height: MediaQuery.of(context).size.height * 0.1,
@@ -27,35 +47,17 @@ class BottomCategoryBar extends StatelessWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10)],
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: categories.map((category) {
-          final isSelected = selectedCategory == category['label'];
-          return GestureDetector(
-            onTap: () => onCategorySelected(category['label'] as String),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  category['icon'] as IconData,
-                  size: MediaQuery.of(context).size.height * 0.04,
-                  color:
-                  isSelected ? const Color(0xFF007AFF) : const Color(0xFF999999),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  category['label'] as String,
-                  style: TextStyle(
-                    fontSize: MediaQuery.of(context).size.width * 0.03,
-                    color:
-                    isSelected ? const Color(0xFF007AFF) : const Color(0xFF999999),
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          );
-        }).toList(),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
+          children: [
+            buildNavItem(Icons.home, "HOME"),
+            buildNavItem(Icons.directions_transit, "실시간"),
+            buildNavItem(Icons.favorite_border, "저장"),
+            buildNavItem(Icons.article, "소식"),
+            buildNavItem(Icons.person, "MY"),
+          ],
+        ),
       ),
     );
   }
