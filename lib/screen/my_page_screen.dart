@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../screen2/my_info_screen.dart';
 import '../screen2/inquiry_list_screen.dart';
+import '../screen2/subway_line_select_screen.dart';
 
 class MyPageScreen extends StatelessWidget {
   const MyPageScreen({super.key});
@@ -59,7 +60,18 @@ class MyPageScreen extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 6),
+
+          ListTile(
+            leading: const Icon(Icons.access_time, color: Colors.blue),
+            title: const Text('지하철 시간표'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const SubwayLineSelectScreen()),
+              );
+            },
+          ),
 
           // 설정/피드백/앱 정보 (임시 레이아웃)
           const Text('설정', style: TextStyle(fontWeight: FontWeight.bold)),
