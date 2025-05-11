@@ -114,39 +114,54 @@ class _SavedRoutesScreenState extends State<SavedRoutesScreen> with TickerProvid
         child: Column(
           children: [
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: const EdgeInsets.fromLTRB(16, 20, 16, 12), // 위 여백 확보
               color: Colors.white,
-              child: Row(
+              child: isSearching
+                  ? Row(
                 children: [
-                  if (isSearching)
-                    Expanded(
-                      child: TextField(
-                        autofocus: true,
-                        onChanged: (value) {
-                          setState(() {
-                            searchQuery = value;
-                          });
-                        },
-                        decoration: const InputDecoration(
-                          hintText: '경로 검색',
-                          border: InputBorder.none,
-                          isDense: true,
-                        ),
+                  Expanded(
+                    child: TextField(
+                      autofocus: true,
+                      onChanged: (value) {
+                        setState(() {
+                          searchQuery = value;
+                        });
+                      },
+                      decoration: const InputDecoration(
+                        hintText: '경로 검색',
+                        border: InputBorder.none,
+                        isDense: true,
                       ),
-                    )
-                  else ...[
-                    const Text(
-                      '자주 찾는 경로',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
-                  ],
-                  const Spacer(),
+                  ),
                   IconButton(
-                    icon: Icon(isSearching ? Icons.close : Icons.search),
+                    icon: const Icon(Icons.close),
                     onPressed: () {
                       setState(() {
-                        isSearching = !isSearching;
+                        isSearching = false;
                         searchQuery = '';
+                      });
+                    },
+                  ),
+                ],
+              )
+                  : Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: Text(
+                      '자주 찾는 경로',
+                      style: const TextStyle(
+                        fontSize: 25,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.search),
+                    onPressed: () {
+                      setState(() {
+                        isSearching = true;
                       });
                     },
                   ),
@@ -169,7 +184,6 @@ class _SavedRoutesScreenState extends State<SavedRoutesScreen> with TickerProvid
                 itemCount: filteredRoutes.length,
                 itemBuilder: (context, index) =>
                     _buildRouteTile(filteredRoutes[index], index),
-
               ))
                   : (localRoutes.isEmpty
                   ? const Center(
@@ -194,8 +208,7 @@ class _SavedRoutesScreenState extends State<SavedRoutesScreen> with TickerProvid
                     _buildRouteTile(localRoutes[i], i),
                 ],
               )),
-            )
-
+            ),
           ],
         ),
       ),

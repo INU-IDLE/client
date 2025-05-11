@@ -24,7 +24,7 @@ class _SubwayTimetableScreenState extends State<SubwayTimetableScreen> {
   List<dynamic> upTrains = [];
   List<dynamic> downTrains = [];
 
-  String selectedDay = 'WEEKDAY'; // 기본 값 평일
+  String selectedDay = 'WEEKDAY';
   bool expressOnly = false;
 
   @override
@@ -43,8 +43,8 @@ class _SubwayTimetableScreenState extends State<SubwayTimetableScreen> {
       final data = jsonDecode(utf8.decode(response.bodyBytes));
       final result = data['result'];
       setState(() {
-        upTrains = result['up']; // 시청 방향
-        downTrains = result['down']; // 남영 방향
+        upTrains = result['up'];
+        downTrains = result['down'];
       });
     } else {
       print('API 호출 실패: ${response.statusCode}');
@@ -76,13 +76,10 @@ class _SubwayTimetableScreenState extends State<SubwayTimetableScreen> {
                   ),
                   if (isExpress)
                     const Padding(
-                      padding: EdgeInsets.only(left: 12), // 오른쪽으로 2mm 정도 이동
+                      padding: EdgeInsets.only(left: 12),
                       child: Text(
                         '급행',
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
                       ),
                     ),
                 ],
@@ -103,86 +100,129 @@ class _SubwayTimetableScreenState extends State<SubwayTimetableScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        elevation: 0,
-        title: Text('${widget.stationName}역 ${widget.lineName}'),
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 요일 선택 라디오 & 급행 체크
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  _buildDayRadio('평일'),
-                  const SizedBox(width: 8),
-                  _buildDayRadio('토요일'),
-                  const SizedBox(width: 8),
-                  _buildDayRadio('공휴일'),
-                  const Spacer(),
-                  Transform.translate(
-                    offset: const Offset(0, -12),
-                    child: Row(
-                      children: [
-                        const Text('급행'),
-                        Checkbox(
-                          value: expressOnly,
-                          onChanged: (val) {
-                            setState(() {
-                              expressOnly = val ?? false;
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+      body: Stack(
+        children: [
+          // ✅ 스크롤 가능한 본문 (열차 시간만)
+          Padding(
+            padding: const EdgeInsets.only(top: 136), // 전체 상단 고정 영역만큼 여백
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(child: _buildTrainList(downTrains)),
+                    const SizedBox(width: 16),
+                    Expanded(child: _buildTrainList(upTrains)),
+                  ],
+                ),
               ),
-              const SizedBox(height: 10),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          downTrains.isNotEmpty && downTrains[0].containsKey('prevStationName')
-                              ? downTrains[0]['prevStationName']
-                              : '시청 방향',
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 4),
-                        _buildTrainList(downTrains),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          upTrains.isNotEmpty && upTrains[0].containsKey('nextStationName')
-                              ? upTrains[0]['nextStationName']
-                              : '남영 방향',
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 4),
-                        _buildTrainList(upTrains),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ],
+            ),
           ),
-        ),
+
+          // ✅ 상단 고정 영역 (역 이름 + 필터 + 방향)
+          SafeArea(
+            bottom: false,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // ⬆ AppBar 대체
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(13, 12, 16, 8), // ← 여백 추가
+                  child: Row(
+                    children: [
+                      InkWell(
+                        onTap: () => Navigator.pop(context),
+                        borderRadius: BorderRadius.circular(32),
+                        child: const Padding(
+                          padding: EdgeInsets.all(4),
+                          child: Icon(Icons.arrow_back, size: 24, color: Colors.black),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        '${widget.stationName}역 ${widget.lineName}',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+
+                // ⬇ 필터 바
+                Container(
+                  height: 50,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  color: Colors.white,
+                  child: Row(
+                    children: [
+                      _buildDayRadio('평일'),
+                      const SizedBox(width: 8),
+                      _buildDayRadio('토요일'),
+                      const SizedBox(width: 8),
+                      _buildDayRadio('공휴일'),
+                      const Spacer(),
+                      Transform.translate(
+                        offset: const Offset(0, -8),
+                        child: Row(
+                          children: [
+                            const Text('급행'),
+                            Checkbox(
+                              value: expressOnly,
+                              onChanged: (val) {
+                                setState(() {
+                                  expressOnly = val ?? false;
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // ⬇ 방향 바
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  color: Colors.white,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            downTrains.isNotEmpty && downTrains[0].containsKey('prevStationName')
+                                ? downTrains[0]['prevStationName']
+                                : '시청 방향',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: Align(
+                          alignment: Alignment.centerLeft, // ⬅ 여기 중요
+                          child: Text(
+                            upTrains.isNotEmpty && upTrains[0].containsKey('nextStationName')
+                                ? upTrains[0]['nextStationName']
+                                : '남영 방향',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                ),
+
+                const Divider(height: 1, thickness: 1, color: Color(0xFFE0E0E0)),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -200,10 +240,7 @@ class _SubwayTimetableScreenState extends State<SubwayTimetableScreen> {
             });
           },
         ),
-        Text(
-          day,
-          style: const TextStyle(fontSize: 14),
-        ),
+        Text(day, style: const TextStyle(fontSize: 14)),
       ],
     );
   }

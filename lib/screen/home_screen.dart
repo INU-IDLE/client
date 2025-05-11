@@ -11,6 +11,7 @@ import 'package:rushcutter/widgets/station_component.dart';
 import 'package:rushcutter/models/station.dart';
 import 'package:rushcutter/screen/subway_map_screen.dart';
 import 'package:rushcutter/data/station_data.dart';
+import '../screen2/subway_line_select_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -45,6 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
       selectedCategory = category;
     });
   }
+
 
   // 검색 결과를 처리하는 메서드
   void _handleSearchResult(dynamic result, bool isSelectingDeparture) {
@@ -182,8 +184,8 @@ class _HomeScreenState extends State<HomeScreen> {
       case 'HOME':
         currentScreen = _buildHomeContent();
         break;
-      case '실시간':
-        currentScreen = const RealTimeScreen();
+      case '시간표':
+        currentScreen = const SubwayLineSelectScreen();
         break;
       case '저장':
         currentScreen = const SavedRoutesScreen();
@@ -203,108 +205,101 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           Positioned.fill(child: currentScreen),
           // 상단 검색창 및 알림 버튼
-          if (selectedCategory == 'HOME' || selectedCategory == '실시간')
-          Positioned(
-            top: statusBarHeight, // 상태바 바로 아래부터 시작
-            left: 0,
-            right: 0,
-            child: Container(
-              height: 60,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(color: Colors.black12, blurRadius: 10),
-                ],
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // 검색창
-                  Expanded(
-                    child: Container(
-                      height: 40,
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE7E7E7),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.search, color: Colors.grey),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: GestureDetector(
-                              onTap: () async {
-                                // 검색창 클릭 시 SearchScreen으로 이동
-                                final result = await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                    const SearchScreen(
-                                      isSelectingDeparture: true, // 기본값 설정
-                                    ),
+          if (selectedCategory == 'HOME')
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                padding: EdgeInsets.only(
+                  top: MediaQuery.of(context).padding.top, // 상태바 높이만큼 패딩
+                  left: 16,
+                  right: 16,
+                ),
+                color: Colors.white, // ← 상태바와 검색창 연결 배경
+                child: Container(
+                  height: 60,
+                  alignment: Alignment.center,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // 검색창
+                      Expanded(
+                        child: Container(
+                          height: 40,
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFE7E7E7),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.search, color: Colors.grey),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: () async {
+                                    final result = await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => const SearchScreen(
+                                          isSelectingDeparture: true,
+                                        ),
+                                      ),
+                                    );
+                                    _handleSearchResult(result, true);
+                                  },
+                                  child: Text(
+                                    departureStation ?? '지하철 역 검색',
+                                    style: const TextStyle(color: Colors.black),
                                   ),
-                                );
-                                // 검색 결과 처리
-                                _handleSearchResult(result, true);
-                              },
-                              child: Text(
-                                departureStation ?? '지하철 역 검색',
-                                style: const TextStyle(color: Colors.black),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(width: 16),
+
+                      // 알림 아이콘
+                      Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          const Icon(Icons.notifications, size: 30, color: Colors.black),
+                          Positioned(
+                            top: 5,
+                            right: 5,
+                            child: Container(
+                              width: 15,
+                              height: 15,
+                              decoration: const BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Center(
+                                child: Text(
+                                  '99+',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
                         ],
                       ),
-                    ),
+                    ],
                   ),
-                  const SizedBox(width: 16),
-                  // 알림 버튼
-                  GestureDetector(
-                    onTap: () {
-                      print('알림 클릭');
-                    },
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        const Icon(
-                            Icons.notifications, size: 30, color: Colors.black),
-                        Positioned(
-                          top: 5,
-                          right: 5,
-                          child: Container(
-                            width: 15,
-                            height: 15,
-                            decoration: BoxDecoration(
-                              color: Colors.red,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Center(
-                              child: Text(
-                                '99+',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
-          ),
+
         ],
       ),
-      bottomNavigationBar: BottomCategoryBar(
-        selectedCategory: selectedCategory,
-        onCategorySelected: onCategorySelected,
-      ),
+
     );
   }
 

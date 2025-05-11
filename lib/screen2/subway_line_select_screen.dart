@@ -35,18 +35,19 @@ class _SubwayLineSelectScreenState extends State<SubwayLineSelectScreen> {
       lines = grouped.keys.map((lineNum) {
         final matched = subwayLines.firstWhere(
               (m) => m.lineNum == lineNum,
-          orElse: () => LineInfo(
-            lineNum: lineNum,
-            lineCode: 'UNKNOWN',
-            name: lineNumToName[lineNum] ?? lineNum,
-            color: Colors.grey,
-          ),
+          orElse: () =>
+              LineInfo(
+                lineNum: lineNum,
+                lineCode: 'UNKNOWN',
+                name: lineNumToName[lineNum] ?? lineNum,
+                color: Colors.grey,
+              ),
         );
 
         return {
-          'line_num': matched.lineNum,    // JSON의 line_num (ex: '01호선')
-          'line_code': matched.lineCode,  // API 호출용
-          'name': matched.name,           // 사용자에게 보여줄 이름
+          'line_num': matched.lineNum, // JSON의 line_num (ex: '01호선')
+          'line_code': matched.lineCode, // API 호출용
+          'name': matched.name, // 사용자에게 보여줄 이름
           'color': matched.color,
         };
       }).toList();
@@ -56,33 +57,56 @@ class _SubwayLineSelectScreenState extends State<SubwayLineSelectScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('노선 선택')),
       backgroundColor: Colors.white,
-      body: lines.isEmpty
-          ? const Center(child: CircularProgressIndicator())
-          : ListView.builder(
-        itemCount: lines.length,
-        itemBuilder: (_, i) {
-          final line = lines[i];
-          return ListTile(
-            leading: CircleAvatar(
-              radius: 5,
-              backgroundColor: line['color'],
-            ),
-            title: Text(line['name']),
-            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => StationSelectScreen(
-                    line: line['line_num'],
-                  ),
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ✅ "노선 선택" 타이틀
+            const Padding(
+              padding: EdgeInsets.fromLTRB(18, 30, 16, 8),
+              child: Text(
+                '노선 선택',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
                 ),
-              );
-            },
-          );
-        },
+              ),
+            ),
+            const Divider(height: 1),
+
+            // ✅ 노선 목록
+            Expanded(
+              child: lines.isEmpty
+                  ? const Center(child: CircularProgressIndicator())
+                  : ListView.builder(
+                itemCount: lines.length,
+                itemBuilder: (_, i) {
+                  final line = lines[i];
+                  return ListTile(
+                    leading: CircleAvatar(
+                      radius: 5,
+                      backgroundColor: line['color'],
+                    ),
+                    title: Text(line['name']),
+                    trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              StationSelectScreen(
+                                line: line['line_num'],
+                              ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -9,6 +9,9 @@ class RealTimeBottomSheet extends StatefulWidget {
   final String fastTransfer;
   final IconData icon;
   final String duration;
+  final String arrivalStation;
+  final String arrivalTime;
+  final List<int> sectionDurations;
 
   final String nowTime = DateFormat('HH:mm').format(DateTime.now());
 
@@ -21,6 +24,9 @@ class RealTimeBottomSheet extends StatefulWidget {
     required this.fastTransfer,
     required this.icon,
     required this.duration,
+    required this.arrivalStation,
+    required this.arrivalTime,
+    required this.sectionDurations,
   }) : super(key: key);
 
   @override
@@ -33,7 +39,7 @@ class _RealTimeBottomSheetState extends State<RealTimeBottomSheet> {
   void initState() {
     super.initState();
     final now = DateTime.now();
-    nowTime = '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
+    nowTime = DateFormat('hh:mm a').format(DateTime.now());
   }
 
   @override
@@ -85,7 +91,7 @@ class _RealTimeBottomSheetState extends State<RealTimeBottomSheet> {
                   children: [
                     Text('출발 $nowTime',
                         style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-                    Text('도착 ${_getArrivalTimeFrom(nowTime, widget.duration)}',
+                    Text('도착 ${_calculateArrivalTimeFromDurationString(widget.duration).format(context)}',
                         style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
                   ],
                 ),
@@ -133,6 +139,7 @@ class _RealTimeBottomSheetState extends State<RealTimeBottomSheet> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    SizedBox(height: 6.5),
                     Text(
                       widget.line,
                       style: TextStyle(
@@ -141,7 +148,15 @@ class _RealTimeBottomSheetState extends State<RealTimeBottomSheet> {
                         color: widget.color,
                       ),
                     ),
-                    Text(widget.station, style: const TextStyle(fontSize: 14)),
+                    Text(
+                      '${widget.station} 승차',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+
                     Text(widget.fastTransfer, style: const TextStyle(fontSize: 14)),
                     const SizedBox(height: 12),
                     _buildCongestionGraph(),
@@ -152,10 +167,22 @@ class _RealTimeBottomSheetState extends State<RealTimeBottomSheet> {
           ),
         ),
         Positioned(
-          left: 10,
-          top: 14,
+          left: 35,
+          top: 170,
           child: Text(
-            nowTime,
+            widget.duration,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+          ),
+        ),
+        Positioned(
+          left: 10,
+          top: 6.5,
+          child: Text(
+            DateFormat('HH:mm').format(DateTime.now()),
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -167,21 +194,35 @@ class _RealTimeBottomSheetState extends State<RealTimeBottomSheet> {
       ],
     );
   }
-
-  String _getArrivalTimeFrom(String time, String duration) {
-    final timeParts = time.split(':');
-    final hour = int.parse(timeParts[0]);
-    final minute = int.parse(timeParts[1]);
-
-    final baseTime = DateTime(0, 1, 1, hour, minute);
-
-    final durParts = duration.split(RegExp(r'[시간분\s]+')).where((e) => e.isNotEmpty).toList();
-    final durHour = durParts.length == 2 ? int.parse(durParts[0]) : 0;
-    final durMin = durParts.length == 2 ? int.parse(durParts[1]) : int.parse(durParts[0]);
-
-    final resultTime = baseTime.add(Duration(hours: durHour, minutes: durMin));
-    return '${resultTime.hour.toString().padLeft(2, '0')}:${resultTime.minute.toString().padLeft(2, '0')}';
+  String _calculateArrivalTimeFromDurations() {
+    final now = DateTime.now();
+    final totalMinutes = widget.sectionDurations.fold(0, (sum, value) => sum + value);
+    final arrival = now.add(Duration(minutes: totalMinutes));
+    return DateFormat('HH:mm').format(arrival);
   }
+  TimeOfDay _calculateArrivalTimeFromDurationString(String duration) {
+    final now = TimeOfDay.now();
+    final nowDateTime = DateTime(0, 1, 1, now.hour, now.minute);
+
+    final regex = RegExp(r'(?:(\d+)시간)?\s*(\d+)분');
+    final match = regex.firstMatch(duration);
+
+    int hour = 0;
+    int minute = 0;
+
+    if (match != null) {
+      if (match.group(1) != null) {
+        hour = int.parse(match.group(1)!);
+      }
+      minute = int.parse(match.group(2)!);
+    }
+
+    final totalMinutes = hour * 60 + minute;
+    final arrival = nowDateTime.add(Duration(minutes: totalMinutes));
+
+    return TimeOfDay.fromDateTime(arrival);
+  }
+
 
 
   String _getNowTimeFormatted24() {
@@ -215,21 +256,20 @@ class _RealTimeBottomSheetState extends State<RealTimeBottomSheet> {
             children: [
               Column(
                 children: [
-                  _buildCircularIcon(Icons.directions_walk, Colors.grey),
+                  _buildCircularIcon(Icons.location_on, Colors.redAccent),
                 ],
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text(
-                      '부평역 하차',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      '도보 316m',
-                      style: TextStyle(fontSize: 14, color: Colors.grey),
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 6.5),
+                      child: Text(
+                        '${widget.arrivalStation} 하차',
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
                     ),
                   ],
                 ),
@@ -237,59 +277,16 @@ class _RealTimeBottomSheetState extends State<RealTimeBottomSheet> {
             ],
           ),
         ),
-        const Positioned(
-          left: 10,
-          top: 14,
-          child: Text(
-            '11:46',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-  Widget _buildArrivalOrTransferStep() {
-    if (widget.line == '1호선') {
-      return _buildArrivalStep(
-        time: '12:13',
-        station: '구일역 하차',
-      );
-    } else {
-      return _buildTransferStep();
-    }
-  }
-
-  Widget _buildArrivalStep({
-    required String time,
-    required String station,
-  }) {
-    return Stack(
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 60, right: 16),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildCircularIcon(Icons.location_on, Colors.red),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  station,
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-              ),
-            ],
-          ),
-        ),
         Positioned(
           left: 10,
-          top: 14,
+          top: 10,
           child: Text(
-            _getArrivalTimeFromNow(widget.duration),
+            DateFormat('HH:mm').format(
+                DateTime(0, 1, 1,
+                    _calculateArrivalTimeFromDurationString(widget.duration).hour,
+                    _calculateArrivalTimeFromDurationString(widget.duration).minute
+                )
+            ),
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -300,6 +297,63 @@ class _RealTimeBottomSheetState extends State<RealTimeBottomSheet> {
       ],
     );
   }
+
+  Widget _buildArrivalOrTransferStep() {
+    if (widget.line == '1호선') {
+      return _buildArrivalStep(
+        time: widget.arrivalTime,
+        station: '${widget.arrivalStation} 하차',
+      );
+    } else {
+      return _buildTransferStep(); // 고정된 텍스트 '부평역 하차' 등 사용 중
+    }
+  }
+
+  Widget _buildArrivalStep({
+    required String time,
+    required String station,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 60, right: 16, top: 8),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          // 시간 텍스트 위로 올리기
+          Positioned(
+            left: -50, // 왼쪽으로 조금 이동
+            top: -6,   // 위로 올리기 (원하면 -10까지도 가능)
+            child: Text(
+              time,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+            ),
+          ),
+          // 아이콘과 역명
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildCircularIcon(Icons.location_on, Colors.red),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  station,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+
 
   Widget _buildCongestionGraph() {
     return Column(
