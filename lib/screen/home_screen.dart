@@ -11,6 +11,7 @@ import 'package:rushcutter/widgets/station_component.dart';
 import 'package:rushcutter/models/station.dart';
 import 'package:rushcutter/screen/subway_map_screen.dart';
 import 'package:rushcutter/data/station_data.dart';
+import 'package:rushcutter/screen/real_time_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -28,6 +29,8 @@ class _HomeScreenState extends State<HomeScreen> {
   String? arrivalStation; // 도착역
   String? searchQuery; // 넘어가는 검색 값
   Offset? selectedStationPosition;
+  bool showButtons = false; // 버튼 표시 상태
+  Station? _lastStationForButton; // 상태변수 (위치 기억하려고)
 
   final TransformationController _transformationController =
   TransformationController(); // transformation 추가
@@ -52,20 +55,21 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final station = stationData.firstWhere(
           (s) => s.id == result['id'],
-      orElse: () => Station(
-          id: '',
-          cx: 0,
-          cy: 0,
-          r: 0,
-          stationNm: '',
-          line: ''
-      ),
+      orElse: () =>
+          Station(
+              id: '',
+              cx: 0,
+              cy: 0,
+              r: 0,
+              stationNm: '',
+              line: ''
+          ),
     );
 
     if (station.id.isNotEmpty) {
       setState(() {
-        selectedStationId = station.id; // ★ 추가: 선택 상태 동기화
-        selectedStation = station;       // ★ 추가
+        selectedStationId = station.id;
+        selectedStation = station;
         _moveToViewPoint(station.cx, station.cy);
         // 즉시 버튼 표시를 위한 추가 처리
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -80,6 +84,7 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     }
   }
+
   // 특정 위치로 View Point 이동
   void _moveToViewPoint(double cx, double cy) {
     final double scale = 1.3;
@@ -92,23 +97,58 @@ class _HomeScreenState extends State<HomeScreen> {
       ..scale(scale);
   }
 
-  // 역 클릭 처리 (이제는 바로 이동하지 않고, selectedStation만 세팅)
+
+  // 역 클릭 처리, 바로 이동 X, 애니메이션 재생
   void _handleStationTap(String? id) {
+    if (id == null) {
+      setState(() {
+        selectedStation = null;
+        selectedStationId = null;
+        showButtons = false;
+      });
+      return;
+    }
     final found = stationData.firstWhere(
           (s) => s.id == id,
       orElse: () =>
-          Station(
-            id: '',
-            cx: 0,
-            cy: 0,
-            r: 0,
-            stationNm: '',
-            line: '',
-          ),
+          Station(id: '',
+              cx: 0,
+              cy: 0,
+              r: 0,
+              stationNm: '',
+              line: ''),
     );
+    if (found.id.isNotEmpty) {
+      // 역이 바뀔 때 애니메이션 자연스럽게 재생
+      if (selectedStationId != id) {
+        setState(() {
+          showButtons = false;
+        });
+        Future.delayed(const Duration(milliseconds: 200), () {
+          setState(() {
+            selectedStationId = id;
+            selectedStation = found;
+            _lastStationForButton = found;
+            showButtons = true;
+          });
+        });
+      }
+    }
+  }
+
+  void _hideButtons() {
+    if (!showButtons) return; // 이미 숨김 상태면 무시
     setState(() {
-      selectedStationId = id;
-      selectedStation = found.id.isNotEmpty ? found : null;
+      showButtons = false;
+    });
+    Future.delayed(const Duration(milliseconds: 200), () {
+      // 애니메이션이 끝난 뒤에만 selectedStation을 null로!
+      if (!showButtons) {
+        setState(() {
+          selectedStation = null;
+          selectedStationId = null;
+        });
+      }
     });
   }
 
@@ -129,15 +169,22 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
       ),
     );
+
+    setState(() {
+      showButtons = false;
+    });
+
+
     if (result != null && result is String) {
       setState(() {
         departureStation = result;
       });
     }
-
-    setState(() {
-      selectedStation = null;
-      selectedStationId = null;
+    Future.delayed(const Duration(milliseconds: 350), () {
+      setState(() {
+        selectedStation = null;
+        selectedStationId = null;
+      });
     });
   }
 
@@ -157,6 +204,9 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
       ),
     );
+    setState(() {
+      showButtons = false;
+    });
     if (result != null && result is String) {
       setState(() {
         arrivalStation = result;
@@ -203,102 +253,104 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           Positioned.fill(child: currentScreen),
           // 상단 검색창 및 알림 버튼
-          if (selectedCategory == 'HOME' || selectedCategory == '실시간')
-          Positioned(
-            top: statusBarHeight, // 상태바 바로 아래부터 시작
-            left: 0,
-            right: 0,
-            child: Container(
-              height: 60,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(color: Colors.black12, blurRadius: 10),
-                ],
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // 검색창
-                  Expanded(
-                    child: Container(
-                      height: 40,
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE7E7E7),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.search, color: Colors.grey),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: GestureDetector(
-                              onTap: () async {
-                                // 검색창 클릭 시 SearchScreen으로 이동
-                                final result = await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                    const SearchScreen(
-                                      isSelectingDeparture: true, // 기본값 설정
+          if (selectedCategory ==
+              'HOME') // || selectedCategory == '실시간' 실시간일 때는 검색창 안뜨게
+            Positioned(
+              top: statusBarHeight, // 상태바 바로 아래부터 시작
+              left: 0,
+              right: 0,
+              child: Container(
+                height: 60,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(color: Colors.black12, blurRadius: 10),
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // 검색창
+                    Expanded(
+                      child: Container(
+                        height: 40,
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE7E7E7),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.search, color: Colors.grey),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () async {
+                                  // 검색창 클릭 시 SearchScreen으로 이동
+                                  final result = await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                      const SearchScreen(
+                                        isSelectingDeparture: true, // 기본값 설정
+                                      ),
                                     ),
+                                  );
+                                  // 검색 결과 처리
+                                  _handleSearchResult(result, true);
+                                },
+                                child: Text(
+                                  departureStation ?? '지하철 역 검색',
+                                  style: const TextStyle(color: Colors.black),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    // 알림 버튼
+                    GestureDetector(
+                      onTap: () {
+                        print('알림 클릭');
+                      },
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          const Icon(
+                              Icons.notifications, size: 30,
+                              color: Colors.black),
+                          Positioned(
+                            top: 5,
+                            right: 5,
+                            child: Container(
+                              width: 15,
+                              height: 15,
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  '99+',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
                                   ),
-                                );
-                                // 검색 결과 처리
-                                _handleSearchResult(result, true);
-                              },
-                              child: Text(
-                                departureStation ?? '지하철 역 검색',
-                                style: const TextStyle(color: Colors.black),
+                                ),
                               ),
                             ),
                           ),
                         ],
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 16),
-                  // 알림 버튼
-                  GestureDetector(
-                    onTap: () {
-                      print('알림 클릭');
-                    },
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        const Icon(
-                            Icons.notifications, size: 30, color: Colors.black),
-                        Positioned(
-                          top: 5,
-                          right: 5,
-                          child: Container(
-                            width: 15,
-                            height: 15,
-                            decoration: BoxDecoration(
-                              color: Colors.red,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Center(
-                              child: Text(
-                                '99+',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
         ],
       ),
       bottomNavigationBar: BottomCategoryBar(
@@ -309,19 +361,12 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildHomeContent() {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque, // 빈 공간 클릭 감지를 위해 필수!
-      onTap: () {
-        // 빈 공간 클릭 시 버튼 숨김
-        setState(() {
-          selectedStation = null;
-          selectedStationId = null;
-        });
-      },
-      child: InteractiveViewer(
+    final Station? buttonStation = selectedStation ?? _lastStationForButton;
+
+      return InteractiveViewer(
         transformationController: _transformationController,
         minScale: 0.3,
-        maxScale: 1.0,
+        maxScale: 2.0,
         boundaryMargin: const EdgeInsets.all(500),
         constrained: false,
         child: SizedBox(
@@ -339,29 +384,67 @@ class _HomeScreenState extends State<HomeScreen> {
                 stations: stationData,
                 selectedId: selectedStationId,
                 onStationTap: _handleStationTap,
+                  transformationController: _transformationController
               ),
-              if (selectedStation != null && selectedStation!.id.isNotEmpty)
+              // 버튼은 buttonStation이 있을 때만 표시!
+              if (buttonStation != null && buttonStation.id.isNotEmpty)
                 Positioned(
-                  left: selectedStation!.cx,
-                  top: selectedStation!.cy - 80,
-                  child: Column(
-                    children: [
-                      ElevatedButton(
-                        onPressed: _onSelectDeparture,
-                        child: const Text("출발지"),
+                  left: (buttonStation.cx) - 40,
+                  top: (buttonStation.cy) - 120,
+                  child: AnimatedSlide(
+                    offset: (showButtons)
+                        ? Offset.zero
+                        : const Offset(0, 0.2),
+                    duration: const Duration(milliseconds: 200),
+                    curve: Curves.easeInOutCubic,
+                    child: AnimatedOpacity(
+                      opacity: showButtons ? 1.0 : 0.0,
+                      duration: const Duration(milliseconds: 200),
+                      curve: Curves.easeInOutCubic,
+                      onEnd: () {
+                        if (!showButtons) {
+                          setState(() {
+                            selectedStation = null;
+                            selectedStationId = null;
+                          });
+                        }
+                      },
+                      child: IgnorePointer(
+                        ignoring: !showButtons,
+                        child: Column(
+                          children: [
+                            ElevatedButton(
+                              onPressed: _onSelectDeparture,
+                              child: const Text("출발지"),
+                              style: ElevatedButton.styleFrom(
+                                shape: const StadiumBorder(),
+                                elevation: 4,
+                                backgroundColor: Colors.white,
+                                foregroundColor: Colors.black,
+                                shadowColor: Colors.black26,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            ElevatedButton(
+                              onPressed: _onSelectArrival,
+                              child: const Text("도착지"),
+                              style: ElevatedButton.styleFrom(
+                                shape: const StadiumBorder(),
+                                elevation: 4,
+                                backgroundColor: Colors.white,
+                                foregroundColor: Colors.black,
+                                shadowColor: Colors.black26,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      const SizedBox(height: 8),
-                      ElevatedButton(
-                        onPressed: _onSelectArrival,
-                        child: const Text("도착지"),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
+                )
             ],
           ),
         ),
-      ),
-    );
+      );
   }
 }

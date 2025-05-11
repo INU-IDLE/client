@@ -3,9 +3,12 @@ import 'screen/home_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:rushcutter/screen/congestion_prediction_screen.dart';
 import 'package:rushcutter/providers/saved_route_provider.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env"); // .env 파일 로드
 
-void main() {
   runApp(
     MultiProvider(
       providers: [
@@ -17,29 +20,19 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key}); // 'key' 매개변수 추가
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Rushcutter', // 'title' 매개변수 정의
-      theme: ThemeData(primarySwatch: Colors.blue), // 'theme' 매개변수 정의
-      home: const HomeScreen(), // 'home' 매개변수 정의
+      title: 'Rushcutter',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const HomeScreen(),
       routes: {
         '/congestion': (context) {
-          final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>? ?? {};
           return const CongestionPredictionScreen();
         },
       },
     );
   }
 }
-
-
-
-
-
-
-
-
-

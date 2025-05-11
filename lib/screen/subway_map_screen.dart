@@ -6,6 +6,7 @@ import 'dart:ui';
 import 'home_screen.dart';
 import 'package:rushcutter/widgets/station_component.dart';
 import 'package:rushcutter/data/station_data.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:rushcutter/screen/home_screen.dart';
 import 'bottom_category_bar.dart';
 
@@ -46,34 +47,81 @@ class _SubwayMapScreenState extends State<SubwayMapScreen> {
   late TextEditingController _departureController;
   late TextEditingController _arrivalController;
   String? selectedStationId;
+  bool showButtons = false; // 선택 후 버튼 사라지게
+  Station? _lastStationForButton; // 상태변수 (위치 기억하려고)
 
 
   @override
   void initState() {
     super.initState();
     _transformationController = TransformationController(
-      widget.initialTransformation ?? Matrix4.identity(),
+      widget.initialTransformation ?? Matrix4.identity(), // 시점 유지
     );
     searchedStation = widget.searchQuery; // 검색어로 초기화
-    // 검색 결과 기반 초기 설정
-    if (widget.searchQuery != null) {
-      final station = stationData.firstWhere(
-            (s) => s.stationNm == widget.searchQuery,
-        orElse: () => Station(id: '', cx: 0, cy: 0, r: 0, stationNm: '', line: ''),
-      );
 
+    // HomeScreen에서 전달된 selectedStation 처리 - 버튼 클릭하는 것에 따라 결과값 반영
+    if (widget.selectedStation != null && widget.selectedStation is Station) {
+      final station = widget.selectedStation as Station;
+      showButtons = false; // 초기값 false 지정
       if (station.id.isNotEmpty) {
+        selectedStationId = station.id;
+        selectedStation = station;
+        // 출발/도착역에 자동 입력
+        if (widget.isSelectingDeparture) {
+          departureStation = station.stationNm;
+        } else {
+          arrivalStation = station.stationNm;
+        }
+        // 화면 중앙 세팅
         WidgetsBinding.instance.addPostFrameCallback((_) {
           _transformationController.value = Matrix4.identity()
             ..translate(
-                -station.cx * 1.3 + MediaQuery.of(context).size.width / 2,
-                -station.cy * 1.3 + MediaQuery.of(context).size.height / 2
+              -station.cx * 1.3 + MediaQuery
+                  .of(context)
+                  .size
+                  .width / 2,
+              -station.cy * 1.3 + MediaQuery
+                  .of(context)
+                  .size
+                  .height / 2,
+            )
+            ..scale(1.3);
+        });
+      }
+    }
+    // 검색 쿼리 + 기본값 설정
+    else if (widget.searchQuery != null) {
+      final station = stationData.firstWhere(
+            (s) => s.stationNm == widget.searchQuery,
+        orElse: () =>
+            Station(id: '',
+                cx: 0,
+                cy: 0,
+                r: 0,
+                stationNm: '',
+                line: ''),
+      );
+
+      if (station.id.isNotEmpty) {
+        // 화면 중앙 이동 동일
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _transformationController.value = Matrix4.identity()
+            ..translate(
+                -station.cx * 1.3 + MediaQuery
+                    .of(context)
+                    .size
+                    .width / 2,
+                -station.cy * 1.3 + MediaQuery
+                    .of(context)
+                    .size
+                    .height / 2
             )
             ..scale(1.3);
 
           setState(() {
-            selectedStationId = station.id; // ★ 추가
-            selectedStation = station; // ★ 추가
+            // 기본 정보 제공
+            selectedStationId = station.id;
+            selectedStation = station;
           });
         });
       }
@@ -83,50 +131,64 @@ class _SubwayMapScreenState extends State<SubwayMapScreen> {
   void _onSelectDeparture() {
     setState(() {
       departureStation = selectedStation?.stationNm;
-      //showDepartureButton = false;
-      //showArrivalButton = false;
-      //selectedStation = null; // 선택 해제
-      //selectedStationId = null;
+      showButtons = false; // 역 선택 후 버튼 숨기기
     });
   }
 
   void _onSelectArrival() {
     setState(() {
       arrivalStation = selectedStation?.stationNm;
-      //showDepartureButton = false;
-      //showArrivalButton = false;
-      //selectedStation = null; // 선택 해제
-      //selectedStationId = null;
+      showButtons = false; // 역 선택 후 버튼 숨기기
     });
   }
 
-  void _handleStationTap(String? stationId) {
-    setState(() {
-      selectedStationId = stationId;
-      selectedStation = stationId != null
-          ? stationData.firstWhere((s) => s.id == stationId)
-          : null;
-    });
+  void _handleStationTap(String? id) {
+    final found = stationData.firstWhere(
+          (s) => s.id == id,
+      orElse: () =>
+          Station(id: '',
+              cx: 0,
+              cy: 0,
+              r: 0,
+              stationNm: '',
+              line: ''),
+    );
+    if (found.id.isNotEmpty) {
+      // 역이 바뀔 때 애니메이션 자연스럽게 재생
+      if (selectedStationId != id) {
+        setState(() {
+          showButtons = false;
+        });
+        Future.delayed(const Duration(milliseconds: 200), () {
+          setState(() {
+            selectedStationId = id;
+            selectedStation = found;
+            _lastStationForButton = found;
+            showButtons = true;
+          });
+        });
+      }
+    }
   }
 
   // 출발지 버튼 클릭 시 searchQuery 값 출발역에 반영
-  void _setDepartureFromButton(){
+  void _setDepartureFromButton() {
     setState(() {
-      if (widget.searchQuery != null){
+      if (widget.searchQuery != null) {
         departureStation = widget.searchQuery;
-        showDepartureButton = false;
-        showArrivalButton = false;
+        // showDepartureButton = false;
+        // showArrivalButton = false;
       }
     });
   }
 
   // 도착지 버튼 클릭 시 searchQuery 값 도착역에 반영
-  void _setArrivalFromButtton(){
+  void _setArrivalFromButtton() {
     setState(() {
-      if (widget.searchQuery != null){
+      if (widget.searchQuery != null) {
         arrivalStation = widget.searchQuery;
-        showDepartureButton = false;
-        showArrivalButton = false;
+        // showDepartureButton = false;
+        // showArrivalButton = false;
       }
     });
   }
@@ -137,10 +199,11 @@ class _SubwayMapScreenState extends State<SubwayMapScreen> {
     final result = await Navigator.push<String>(
       context,
       MaterialPageRoute(
-        builder: (context) => SearchScreen(
-          isSelectingDeparture: false,
-          initialQuery: departureStation ?? "", // 이전 입력값 전달 (null이면 빈 문자열)
-        ),
+        builder: (context) =>
+            SearchScreen(
+              isSelectingDeparture: false,
+              initialQuery: departureStation ?? "", // 이전 입력값 전달 (null이면 빈 문자열)
+            ),
       ),
     );
     if (result != null) {
@@ -155,10 +218,11 @@ class _SubwayMapScreenState extends State<SubwayMapScreen> {
     final result = await Navigator.push<String>(
       context,
       MaterialPageRoute(
-        builder: (context) => SearchScreen(
-          isSelectingDeparture: false,
-          initialQuery: arrivalStation ?? "", // 이전 입력값 전달 (null이면 빈 문자열)
-        ),
+        builder: (context) =>
+            SearchScreen(
+              isSelectingDeparture: false,
+              initialQuery: arrivalStation ?? "", // 이전 입력값 전달 (null이면 빈 문자열)
+            ),
       ),
     );
     if (result != null) {
@@ -171,7 +235,7 @@ class _SubwayMapScreenState extends State<SubwayMapScreen> {
 
   // 출발역과 도착역 교환
   void swapStations() {
-    if (departureStation == null || arrivalStation == null) return;
+    // if (departureStation == null || arrivalStation == null) return;
     setState(() {
       String? temp = departureStation;
       departureStation = arrivalStation;
@@ -188,7 +252,7 @@ class _SubwayMapScreenState extends State<SubwayMapScreen> {
       return;
     }
 
-    if (departureStation == arrivalStation){
+    if (departureStation == arrivalStation) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("출발역과 도착역이 동일할 수 없습니다.")),
       );
@@ -197,12 +261,29 @@ class _SubwayMapScreenState extends State<SubwayMapScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => RouteResultScreen(
-          departure: departureStation!,
-          arrival: arrivalStation!,
-        ),
+        builder: (context) =>
+            RouteResultScreen(
+              departure: departureStation!,
+              arrival: arrivalStation!,
+            ),
       ),
     );
+  }
+
+  void _hideButtons() {
+    if (!showButtons) return; // 이미 숨김 상태면 무시
+    setState(() {
+      showButtons = false;
+    });
+    Future.delayed(const Duration(milliseconds: 200), () {
+      // 애니메이션이 끝난 뒤에만 selectedStation을 null로!
+      if (!showButtons) {
+        setState(() {
+          selectedStation = null;
+          selectedStationId = null;
+        });
+      }
+    });
   }
 
   // 출발역과 도착역 빈칸 생성
@@ -255,110 +336,243 @@ class _SubwayMapScreenState extends State<SubwayMapScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final Station? buttonStation = selectedStation ?? _lastStationForButton;
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Column(
-        children: [
-          // 출발역/도착역 설정 UI
-          Container(
-            padding: EdgeInsets.only(
-              top: MediaQuery.of(context).padding.top + 20,
-              left: 15,
-              right: 15,
-              bottom: 20,
-            ),
-            color: Colors.white,
-            child: Row(
-              children: [
-                GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: const Icon(Icons.close, size: 28, color: Colors.black),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
+      body: SafeArea(
+        child: Column(
+          children: [
+            // 상단바 + 출발/도착역: 인스타그램/애플 느낌, 고정 높이
+            Container(
+              color: Colors.white,
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // 상단 네비 (뒤로가기 + 타이틀 + 변환 + 검색)
+                  Row(
                     children: [
-                      buildStationBox(
-                          departureStation ?? "출발역", _setDeparture),
-                      const SizedBox(height: 8),
-                      buildStationBox(arrivalStation ?? "도착역", _setArrival),
+                      GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: const Icon(Icons.arrow_back_ios_new, size: 24, color: Colors.black),
+                      ),
+                      const Spacer(),
+                      Text(
+                        "노선도",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                          color: Colors.black,
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                      const Spacer(),
+                      GestureDetector(
+                        onTap: swapStations,
+                        child: const Icon(Icons.swap_horiz, size: 24, color: Colors.black),
+                      ),
+                      const SizedBox(width: 8),
+                      // 검색 버튼을 swap 아이콘 오른쪽에 배치
+                      CupertinoButton.filled(
+                        borderRadius: BorderRadius.circular(10),
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+                        onPressed: navigateToResult,
+                        child: const Text(
+                          "검색",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 17,
+                            letterSpacing: -0.5,
+                          ),
+                        ),
+                      ),
                     ],
                   ),
-                ),
-                const SizedBox(width: 10),
-                ElevatedButton(
-                  onPressed: navigateToResult,
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
-                  child: const Text("검색"),
-                ),
-                GestureDetector(
-                  onTap: swapStations,
-                  child: const Icon(Icons.swap_vert, size: 28, color: Colors.black),
-                ),
-              ],
-            ),
-          ),
-
-          // 지하철 노선도 & 선택 버튼
-          Expanded(
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque, // 빈 공간 터치 인식!
-              onTap: () {
-                setState(() {
-                  selectedStation = null;
-                  selectedStationId = null;
-                });
-              },
-              child: InteractiveViewer(
-                transformationController: _transformationController,
-                minScale: 0.3,
-                maxScale: 1.0,
-                boundaryMargin: const EdgeInsets.all(500),
-                constrained: false,
-                child: SizedBox(
-                  width: 4500,
-                  height: 3800,
-                  child: Stack(
+                  const SizedBox(height: 16),
+                  // 출발역/도착역 입력 박스 (X 버튼 포함)
+                  Row(
                     children: [
-                      Image.asset(
-                        'assets/images/metropolitan.png',
-                        width: 4500,
-                        height: 3800,
-                        fit: BoxFit.cover,
-                      ),
-                      StationComponent(
-                        stations: stationData,
-                        selectedId: selectedStationId,
-                        onStationTap: _handleStationTap
-                      ),
-                      if (selectedStation != null &&
-                          selectedStation!.id.isNotEmpty)
-                        Positioned(
-                          left: selectedStation!.cx,
-                          top: selectedStation!.cy - 80,
-                          child: Column(
-                            children: [
-                              ElevatedButton(
-                                onPressed: _onSelectDeparture,
-                                child: const Text("출발지"),
+                      Expanded(
+                        child: Stack(
+                          alignment: Alignment.centerRight,
+                          children: [
+                            GestureDetector(
+                              onTap: _setDeparture,
+                              child: Container(
+                                height: 44,
+                                alignment: Alignment.centerLeft,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFF6F6F6),
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                padding: const EdgeInsets.symmetric(horizontal: 16),
+                                child: Text(
+                                  departureStation ?? "출발역",
+                                  style: TextStyle(
+                                    color: departureStation == null ? Colors.grey[500] : Colors.black,
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
                               ),
-                              const SizedBox(height: 8),
-                              ElevatedButton(
-                                onPressed: _onSelectArrival,
-                                child: const Text("도착지"),
                             ),
+                            // X 버튼 (출발역 있을 때만)
+                            if (departureStation != null)
+                              IconButton(
+                                icon: const Icon(Icons.close, size: 20, color: Colors.grey),
+                                onPressed: () => setState(() => departureStation = null),
+                              ),
                           ],
                         ),
                       ),
-                  ],
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Stack(
+                          alignment: Alignment.centerRight,
+                          children: [
+                            GestureDetector(
+                              onTap: _setArrival,
+                              child: Container(
+                                height: 44,
+                                alignment: Alignment.centerLeft,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFF6F6F6),
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                padding: const EdgeInsets.symmetric(horizontal: 16),
+                                child: Text(
+                                  arrivalStation ?? "도착역",
+                                  style: TextStyle(
+                                    color: arrivalStation == null ? Colors.grey[500] : Colors.black,
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            // X 버튼 (도착역 있을 때만)
+                            if (arrivalStation != null)
+                              IconButton(
+                                icon: const Icon(Icons.close, size: 20, color: Colors.grey),
+                                onPressed: () => setState(() => arrivalStation = null),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            // 노선도+버튼 (남은 공간만 차지, 아래로 스크롤 없음)
+            Expanded(
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () {
+                  setState(() {
+                    showButtons = false;
+                  });
+                  Future.delayed(const Duration(milliseconds: 350), () {
+                    if (!showButtons) {
+                      setState(() {
+                        selectedStation = null;
+                        selectedStationId = null;
+                      });
+                    }
+                  });
+                },
+                child: InteractiveViewer(
+                  transformationController: _transformationController,
+                  minScale: 0.3,
+                  maxScale: 2.0,
+                  boundaryMargin: const EdgeInsets.all(500),
+                  constrained: false,
+                  child: SizedBox(
+                    width: 4500,
+                    height: 3800,
+                    child: Stack(
+                      children: [
+                        Image.asset(
+                          'assets/images/metropolitan.png',
+                          width: 4500,
+                          height: 3800,
+                          fit: BoxFit.cover,
+                        ),
+                        StationComponent(
+                          stations: stationData,
+                          selectedId: selectedStationId,
+                          onStationTap: _handleStationTap,
+                          transformationController: _transformationController,
+                        ),
+                        if (buttonStation != null && buttonStation.id.isNotEmpty)
+                          Positioned(
+                            left: (buttonStation.cx) - 40,
+                            top: (buttonStation.cy) - 120,
+                            child: AnimatedSlide(
+                              offset: (showButtons)
+                                  ? Offset.zero
+                                  : const Offset(0, 0.2),
+                              duration: const Duration(milliseconds: 200),
+                              curve: Curves.easeInOutCubic,
+                              child: AnimatedOpacity(
+                                        opacity: showButtons ? 1.0 : 0.0,
+                                        duration: const Duration(milliseconds: 200),
+                                        curve: Curves.easeInOutCubic,
+                                        child: Column(
+                                          children: [
+                                            TextButton(
+                                              onPressed: _onSelectDeparture,
+                                              style: TextButton.styleFrom(
+                                                backgroundColor: Colors.white,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(30),
+                                                ),
+                                                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                                                elevation: 0,
+                                              ),
+                                              child: const Text(
+                                                "출발지",
+                                                style: TextStyle(
+                                                  color: Colors.black,
+                                                  fontWeight: FontWeight.w600,
+                                                  fontSize: 16,
+                                                ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    TextButton(
+                                      onPressed: _onSelectArrival,
+                                      style: TextButton.styleFrom(
+                                        backgroundColor: Colors.white,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(30),
+                                        ),
+                                        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                                        elevation: 0,
+                                      ),
+                                      child: const Text(
+                                        "도착지",
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
-          ),
           ],
+        ),
       ),
-      bottomNavigationBar: buildBottomNavBar(),
     );
   }
 
