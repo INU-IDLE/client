@@ -52,7 +52,7 @@ class BottomCategoryBar extends StatelessWidget {
         child: Row(
           children: [
             buildNavItem(Icons.home, "HOME"),
-            buildNavItem(Icons.directions_transit, "실시간"),
+            buildNavItem(Icons.directions_transit, "시간표"),
             buildNavItem(Icons.favorite_border, "저장"),
             buildNavItem(Icons.article, "소식"),
             buildNavItem(Icons.person, "MY"),

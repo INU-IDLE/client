@@ -63,18 +63,31 @@ class _StationSelectScreenState extends State<StationSelectScreen> {
     }
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text('$lineName 역 선택'),
+        titleSpacing: 0,
+        title: Text(
+          ('$lineName 역 선택'),
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
+        surfaceTintColor: Colors.white,
+        scrolledUnderElevation: 0,
       ),
       body: ListView.builder(
         itemCount: stations.length,
         itemBuilder: (context, index) {
           final station = stations[index];
           return ListTile(
-            title: Text(station['station_nm']),
-
+            title: Text(
+              station['station_nm'],
+              style: const TextStyle(fontSize: 16),
+            ),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
             onTap: () {
               Navigator.push(
                 context,
@@ -91,6 +104,7 @@ class _StationSelectScreenState extends State<StationSelectScreen> {
           );
         },
       ),
+
     );
   }
 }

@@ -39,6 +39,13 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
   String? minTransferEndName;
   int? minTransferTravelTime;
 
+  int getTravelTimeTo(String untilStationName) {
+    final target = stations.firstWhere(
+          (s) => s['endName'] == untilStationName,
+      orElse: () => null,
+    );
+    return target != null ? target['travelTime'] : 0;
+  }
 
   String formatWithoutAmPm(TimeOfDay time) {
     final hour = time.hour.toString().padLeft(2, '0');
@@ -283,7 +290,6 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
     required SavedRoute route,
   }) {
 
-    int accumulatedMinutes = 0;
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -400,15 +406,14 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
               return ListView.builder(
                 itemCount: routeList.length + 1,
                 itemBuilder: (context, index) {
+                  List<int> sectionDurations = [];
                   if (index < routeList.length) {
                     final route = routeList[index];
                     final station = route['startName'];
                     final line = route['laneName'];
                     final stationCount = '${route['stationCount']}개 역 이동';
                     final destination = '${route['wayName']}행';
-
                     int sectionTotalTime = 0;
-
                     if (index == 0) {
                       if (routeList.length > 1) {
                         final firstTransferStation = stationList.firstWhere(
@@ -445,7 +450,7 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
                         sectionTotalTime = curr['travelTime'] - prev['travelTime'];
                       }
                     }
-
+                    sectionDurations.add(sectionTotalTime);
                     final stepTime = getCumulativeTime(departureTime, accumulatedMinutes);
                     accumulatedMinutes += sectionTotalTime;
 
@@ -457,7 +462,8 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
                     final fastTransfer = transfer != null
                         ? '빠른 환승 ${transfer['fastTrainCar']}'
                         : '일반 승차';
-
+                    final arrivalTimeFormatted =
+                    formatWithoutAmPm(getCumulativeTime(departureTime, accumulatedMinutes));
                     List<Widget> steps = [];
 
                     steps.add(_buildRouteStep(
@@ -467,12 +473,20 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
                       color: getLineColor(line),
                       duration: '$sectionTotalTime분',
                       stationCount: stationCount,
-                      destination: destination,
+                      destination: route['wayName'],
                       fastTransfer: fastTransfer,
                       icon: Icons.directions_subway,
                       context: context,
+                      endName: (index == routeList.length - 1)
+                          ? endName
+                          : route['endName']?.toString() ?? transfer?['exName']?.toString() ?? '',
+                      arrivalTime: arrivalTimeFormatted,
+                      departureTime: stepTime,
+                      sectionDurations: sectionDurations,
                     ));
-
+                    if (route['endName'] == null) {
+                      print('⚠️ 경고: route["endName"]가 null입니다. route: $route');
+                    }
                     if (transfer != null) {
                       final walkMinutes = (((transfer['exWalkTime'] ?? 0) as num) / 60).ceil();
                       final walkTime = getCumulativeTime(departureTime, accumulatedMinutes);
@@ -516,6 +530,10 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
     required String stationCount,
     required IconData icon,
     required Color color,
+    required String endName,
+    required String arrivalTime,
+    required TimeOfDay departureTime,
+    required List<int> sectionDurations,
   }) {
     return GestureDetector(
       onTap: () {
@@ -558,6 +576,9 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
                         fastTransfer: fastTransfer,
                         icon: icon,
                         duration: duration,
+                        arrivalStation: endName,
+                        arrivalTime: arrivalTime,
+                        sectionDurations: sectionDurations.toList(),
                       ),
                     );
                   },
@@ -601,13 +622,12 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
               'stationCount': stationCount,
               'iconCodePoint': icon.codePoint,
               'colorValue': color.value,
-
-              // 🔥 시간 전달
               'departureTime': departureTime.format(context),
-              'arrivalTime': arrivalTime.format(context),
-
-              // ⭐ 즐겨찾기 여부도 전달
+              'arrivalTime': arrivalTime,
               'isFavorite': isFavorite,
+              'actualArrival': endName,
+              'sectionDurations': sectionDurations,
+
             },
           );
 
@@ -685,12 +705,16 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
     required String station,
     required String line,
     required Color color,
-    required String duration, // ✅ 이거 추가
+    required String duration,
     required String stationCount,
     required String destination,
     required String fastTransfer,
     required IconData icon,
     required BuildContext context,
+    required String endName,
+    required String arrivalTime,
+    required TimeOfDay departureTime,
+    required List<int> sectionDurations,
   }) {
 
     return Stack(
@@ -715,6 +739,7 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    const SizedBox(height: 5.5),
                     Text(
                       line,
                       style: TextStyle(
@@ -723,7 +748,14 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
                         color: color,
                       ),
                     ),
-                    Text(station, style: const TextStyle(fontSize: 14)),
+                    Text(
+                      station,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
                     Text(destination, style: const TextStyle(fontSize: 14)),
                     Text(fastTransfer, style: const TextStyle(fontSize: 14)),
                     Text(
@@ -740,7 +772,7 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
         // ✅ 시간 → 아이콘 왼쪽 정중앙에 배치
         Positioned(
           left: 10,
-          top: 6,
+          top: 6.5,
           child: Text(
             time,
             style: const TextStyle(
@@ -783,16 +815,19 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
             destination: destination,
             fastTransfer: fastTransfer,
             time: time,
-            duration: durationText, // ✅ 계산된 시간 전달
+            duration: duration,
             stationCount: stationCount,
             icon: icon,
             color: color,
+            endName: endName,
+            arrivalTime: arrivalTime,
+            departureTime: departureTime,
+            sectionDurations: sectionDurations.toList(),
           ),
         ),
       ],
     );
   }
-
 
 
 // ✅ 환승 정보 위젯 (시간 + 소요 시간 정확히 위치)
@@ -823,14 +858,17 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(station,
+                    const SizedBox(height: 6), // 👈 전체를 아래로 내림
+                    Text('$station 하차',
                         style: const TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold)),
-                    Text('도보 이동 약 10m',
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold)),
+                    Text('',
                         style: const TextStyle(fontSize: 14, color: Colors.grey)),
                   ],
                 ),
               ),
+
             ],
           ),
         ),
@@ -838,7 +876,7 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
         // ✅ 시간 → 아이콘의 정중앙 왼쪽에 배치
         Positioned(
           left: 10,
-          top: 6,
+          top: 6.5,
           child: Text(
             time,
             style: const TextStyle(
@@ -881,9 +919,19 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
               _buildCircularIcon(Icons.location_on, Colors.red),
               const SizedBox(width: 12),
               Expanded(
-                child: Text(station,
-                    style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.bold)),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 5.5),
+                    Text(
+                      station,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -892,7 +940,7 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
         // ✅ 시간 → 아이콘의 정중앙 왼쪽에 배치
         Positioned(
           left: 10,
-          top: 6,
+          top: 6.5,
           child: Text(
             time,
             style: const TextStyle(
@@ -935,7 +983,7 @@ Color getLineColor(String line) {
     case '수인.분당선': return Color(0xFFFABD00);
     case '신분당선': return Color(0xFFD31145);
     case '경의중앙선': return Color(0xFF77C4A3);
-    case '서해선': return Color(0xFF8FC31F);
+    case '서해선': return Color(0xFF8FC31F14);
     default: return Colors.grey;
   }
 }
