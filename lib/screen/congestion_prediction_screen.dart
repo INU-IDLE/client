@@ -653,6 +653,18 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
             ),
           ),
         ),
+        Positioned(
+          left: 32,
+          top: 160,
+          child: Text(
+            duration,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+          ),
+        ),
       ],
     );
   }

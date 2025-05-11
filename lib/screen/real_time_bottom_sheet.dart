@@ -167,7 +167,7 @@ class _RealTimeBottomSheetState extends State<RealTimeBottomSheet> {
           ),
         ),
         Positioned(
-          left: 25,
+          left: 35,
           top: 170,
           child: Text(
             widget.duration,
