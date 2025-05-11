@@ -678,10 +678,10 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
       return carKeys.map((key) {
         print('🚈 $key: ${congestionData[key]}');
         switch (congestionData[key]) {
-          case 'RELAXED': return const Color(0xFF2E2FFB); // 여유
-          case 'NORMAL': return const Color(0xFF51E817); // 보통
-          case 'CROWDED': return const Color(0xFFFFE619); // 주의
-          case 'CONGESTED': return const Color(0xFFFB3030); // 혼잡
+          case 'RELAXED': return const Color(0xFF4863EC); // 여유
+          case 'NORMAL': return const Color(0xFF52B93E); // 보통
+          case 'CROWDED': return const Color(0xFFEED906); // 주의
+          case 'CONGESTED': return const Color(0xFFF70505); // 혼잡
           default: return Colors.grey.shade300; // 예측 안 된 경우
         }
       }).toList();
@@ -715,13 +715,13 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildLegendCircle(color: Color(0xFFFB3030)), // 빨강
+              _buildLegendCircle(color: Color(0xFFF70505)), // 빨강
               const SizedBox(width: 8),
-              _buildLegendCircle(color: Color(0xFFFFE619)), // 노랑
+              _buildLegendCircle(color: Color(0xFFEED906)), // 노랑
               const SizedBox(width: 8),
-              _buildLegendCircle(color: Color(0xFF51E817)), // 초록
+              _buildLegendCircle(color: Color(0xFF52B93E)), // 초록
               const SizedBox(width: 8),
-              _buildLegendCircle(color: Color(0xFF2E2FFB)), // 파랑
+              _buildLegendCircle(color: Color(0xFF4863EC)), // 파랑
             ],
           ),
         ],

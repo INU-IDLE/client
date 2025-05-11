@@ -363,18 +363,18 @@ class _RealTimeBottomSheetState extends State<RealTimeBottomSheet> {
         _buildTrainRow(
           label: '5분 후',
           seatColors: [
-            Color(0xFFFFE619), Color(0xFFFB3030), Color(0xFFFB3030),
-            Color(0xFFFFE619), Color(0xFF51E817), Color(0xFF51E817),
-            Color(0xFF2E2FFB), Color(0xFF2E2FFB), Color(0xFFFFE619),
+            Color(0xFFF70505), Color(0xFFEED906), Color(0xFF52B93E),
+            Color(0xFF4863EC), Color(0xFF4863EC), Color(0xFFEED906),
+            Color(0xFF52B93E), Color(0xFFF70505), Color(0xFFEED906),
           ],
         ),
         const SizedBox(height: 15),
         _buildTrainRow(
           label: '10분 후',
           seatColors: [
-            Color(0xFFFFE619), Color(0xFFFFE619), Color(0xFFFB3030),
-            Color(0xFF51E817), Color(0xFF51E817), Color(0xFF51E817),
-            Color(0xFF2E2FFB), Color(0xFF2E2FFB), Color(0xFFFFE619),
+            Color(0xFFF70505), Color(0xFFEED906), Color(0xFF52B93E),
+            Color(0xFF4863EC), Color(0xFF52B93E), Color(0xFF52B93E),
+            Color(0xFF4863EC), Color(0xFF4863EC), Color(0xFFEED906),
           ],
         ),
       ],
@@ -483,13 +483,13 @@ class _RealTimeBottomSheetState extends State<RealTimeBottomSheet> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: const [
-            _LegendDot(color: Color(0xFFFB3030)),
+            _LegendDot(color: Color(0xFFF70505)),
             SizedBox(width: 8),
-            _LegendDot(color: Color(0xFFFFE619)),
+            _LegendDot(color: Color(0xFFEED906)),
             SizedBox(width: 8),
-            _LegendDot(color: Color(0xFF51E817)),
+            _LegendDot(color: Color(0xFF52B93E)),
             SizedBox(width: 8),
-            _LegendDot(color: Color(0xFF2E2FFB)),
+            _LegendDot(color: Color(0xFF4863EC)),
           ],
         ),
       ],
