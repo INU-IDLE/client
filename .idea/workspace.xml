@@ -11,7 +11,9 @@
   <component name="ChangeListManager">
     <list default="true" id="6d4a1af6-36ce-4ad1-9e8d-acbeed608752" name="Changes" comment="Feat: 노선도 최종 구현, 화면 연결">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/main.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/data/line_mapping.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/home_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/home_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/real_time_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/real_time_screen.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -31,7 +33,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="feat/#23" />
+        <entry key="$PROJECT_DIR$" value="feat/#33" />
       </map>
     </option>
     <option name="RECENT_COMMON_BRANCH" value="feat/#9" />
@@ -90,8 +92,7 @@
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
     "com.google.services.firebase.aqiPopupShown": "true",
-    "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "feat/#33",
+    "git-widget-placeholder": "feat/#34",
     "ignore.virus.scanning.warn.message": "true",
     "io.flutter.reload.alreadyRun": "true",
     "kotlin-language-version-configured": "true",

@@ -11,7 +11,6 @@ import 'package:rushcutter/widgets/station_component.dart';
 import 'package:rushcutter/models/station.dart';
 import 'package:rushcutter/screen/subway_map_screen.dart';
 import 'package:rushcutter/data/station_data.dart';
-import 'package:rushcutter/screen/real_time_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
