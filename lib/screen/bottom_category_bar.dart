@@ -67,6 +67,7 @@ class BottomCategoryBar extends StatelessWidget {
             buildNavItem(CupertinoIcons.heart, "저장"),
             buildNavItem(CupertinoIcons.news, "소식"),
             buildNavItem(CupertinoIcons.person, "MY"),
+
           ],
         ),
       ),

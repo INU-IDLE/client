@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 
 class PathService {
   Future<Map<String, dynamic>?> getShortestPath(String startFrCode, String endFrCode) async {
-    final url = Uri.parse('http://10.0.2.2:8080/api/v1/path/shortest?start=$startFrCode&end=$endFrCode');
+    final url = Uri.parse('http://43.200.50.230/api/v1/path/shortest?start=$startFrCode&end=$endFrCode');
 
     try {
       final response = await http.get(url);
@@ -21,7 +21,7 @@ class PathService {
     }
   }
   Future<Map<String, dynamic>?> getMinTransferPath(String startFrCode, String endFrCode) async {
-    final url = Uri.parse('http://10.0.2.2:8080/api/v1/path/min-transfer?start=$startFrCode&end=$endFrCode');
+    final url = Uri.parse('http://43.200.50.230/api/v1/path/min-transfer?start=$startFrCode&end=$endFrCode');
 
     try {
       final response = await http.get(url);

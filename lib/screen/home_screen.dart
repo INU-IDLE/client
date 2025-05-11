@@ -12,6 +12,7 @@ import 'package:rushcutter/models/station.dart';
 import 'package:rushcutter/screen/subway_map_screen.dart';
 import 'package:rushcutter/data/station_data.dart';
 import 'package:rushcutter/screen/real_time_screen.dart';
+import '../screen2/subway_line_select_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -48,6 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
       selectedCategory = category;
     });
   }
+
 
   // 검색 결과를 처리하는 메서드
   void _handleSearchResult(dynamic result, bool isSelectingDeparture) {
@@ -232,8 +234,8 @@ class _HomeScreenState extends State<HomeScreen> {
       case 'HOME':
         currentScreen = _buildHomeContent();
         break;
-      case '실시간':
-        currentScreen = const RealTimeScreen();
+      case '시간표':
+        currentScreen = const SubwayLineSelectScreen();
         break;
       case '저장':
         currentScreen = const SavedRoutesScreen();
@@ -322,41 +324,38 @@ class _HomeScreenState extends State<HomeScreen> {
                           const Icon(
                               Icons.notifications, size: 30,
                               color: Colors.black),
+
                           Positioned(
                             top: 5,
                             right: 5,
                             child: Container(
                               width: 15,
                               height: 15,
+
                               decoration: BoxDecoration(
                                 color: Colors.red,
                                 shape: BoxShape.circle,
                               ),
                               child: Center(
-                                child: Text(
-                                  '99+',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
+
+                              decoration: const BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
                               ),
-                            ),
-                          ),
-                        ],
-                      ),
+                              child: const Center(
                     ),
                   ],
                 ),
               ),
             ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
-      bottomNavigationBar: BottomCategoryBar(
-        selectedCategory: selectedCategory,
-        onCategorySelected: onCategorySelected,
-      ),
+
     );
   }
 

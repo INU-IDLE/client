@@ -14,7 +14,16 @@ class MyPageScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('마이러쉬'),
+        title: Padding(
+          padding: const EdgeInsets.only(top: 30), // ← 여기를 조절 (4~8 추천)
+          child: Text(
+            '마이러쉬',
+            style: const TextStyle(
+              fontSize: 21,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         elevation: 0,
@@ -59,7 +68,7 @@ class MyPageScreen extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 6),
 
           // 설정/피드백/앱 정보 (임시 레이아웃)
           const Text('설정', style: TextStyle(fontWeight: FontWeight.bold)),

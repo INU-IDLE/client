@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'screen/home_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:rushcutter/layout/main_layout.dart';
 import 'package:rushcutter/screen/congestion_prediction_screen.dart';
 import 'package:rushcutter/providers/saved_route_provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,6 +19,8 @@ Future<void> main() async {
       statusBarBrightness: Brightness.light,    // iOS: 아이콘 검정
     ),
   );
+
+void main() {
   runApp(
     MultiProvider(
       providers: [
@@ -37,11 +41,13 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
         scaffoldBackgroundColor: Colors.white,
         ),
-      home: const HomeScreen(),
+      home: const MainLayout(), // 🔁 여기서 MainLayout 사용
       routes: {
-        '/congestion': (context) {
-          return const CongestionPredictionScreen();
-        },
+        '/timetable': (context) => const MainLayout(initialCategory: '시간표'),
+        '/news': (context) => const MainLayout(initialCategory: '소식'),
+        '/saved': (context) => const MainLayout(initialCategory: '저장'),
+        '/mypage': (context) => const MainLayout(initialCategory: 'MY'),
+        '/congestion': (context) => const CongestionPredictionScreen(),
       },
     );
   }
