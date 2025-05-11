@@ -1,8 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'screen/home_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:rushcutter/layout/main_layout.dart';
 import 'package:rushcutter/screen/congestion_prediction_screen.dart';
 import 'package:rushcutter/providers/saved_route_provider.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env"); // .env 파일 로드
+
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.white, // 상태바 배경 흰색
+      statusBarIconBrightness: Brightness.dark, // 안드로이드: 아이콘 검정
+      statusBarBrightness: Brightness.light,    // iOS: 아이콘 검정
+    ),
+  );
 
 void main() {
   runApp(
@@ -22,7 +38,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Rushcutter',
-      theme: ThemeData(primarySwatch: Colors.blue),
+        theme: ThemeData(
+        scaffoldBackgroundColor: Colors.white,
+        ),
       home: const MainLayout(), // 🔁 여기서 MainLayout 사용
       routes: {
         '/timetable': (context) => const MainLayout(initialCategory: '시간표'),

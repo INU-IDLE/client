@@ -1,5 +1,6 @@
 name: rushcutter
-description: A Flutter project for subway navigation.
+description:  A project for real-time prediction of subway car-by-car congestion.
+
 
 version: 1.0.0+1
 
@@ -27,16 +28,39 @@ dependencies:
   intl: ^0.19.0
   easy_localization: ^3.0.1
   http: ^1.3.0
+  dio: ^5.4.3
+  flutter_dotenv: ^5.2.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
   vector_graphics_compiler: ^1.1.16
+  flutter_launcher_icons: ^0.14.3
 
 flutter:
   uses-material-design: true
   assets:
     - assets/station_info.json
     - assets/images/metropolitan.png
+    - assets/images/line1.png
+    - assets/images/line2.png
+    - .env
 
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: assets/images/my_icon.png
+  min_sdk_android: 21
+  web:
+    generate: true
+    image_path: assets/images/my_icon.png
+    background_color: "#hexcode"
+    theme_color: "#hexcode"
+  windows:
+    generate: true
+    image_path: assets/images/my_icon.png
+    icon_size: 1024
+  macos:
+    generate: true
+    image_path: assets/images/my_icon.png

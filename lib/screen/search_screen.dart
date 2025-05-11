@@ -31,10 +31,11 @@ class _SearchScreenState extends State<SearchScreen> {
     searchController.text = widget.initialQuery ?? '';
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      FocusScope.of(context).requestFocus(searchFocusNode); // // 키보드 포커스
+      FocusScope.of(context).requestFocus(searchFocusNode); // 키보드 포커스
 
       // JSON 불러오기
-      final jsonString = await DefaultAssetBundle.of(context).loadString('assets/station_info.json');
+      final jsonString = await DefaultAssetBundle.of(context).loadString(
+          'assets/station_info.json');
       final Map<String, dynamic> jsonMap = jsonDecode(jsonString);
       setState(() {
         stationList = jsonMap['DATA'];
@@ -51,7 +52,8 @@ class _SearchScreenState extends State<SearchScreen> {
     if (query.isEmpty) return;
 
     // 변경된 경로
-    final jsonString = await DefaultAssetBundle.of(context).loadString('assets/station_info.json');
+    final jsonString = await DefaultAssetBundle.of(context).loadString(
+        'assets/station_info.json');
     final Map<String, dynamic> jsonMap = jsonDecode(jsonString);
     final List<dynamic> stationList = jsonMap['DATA'];
     final queryTrimmed = query.replaceAll('역', '');
@@ -73,23 +75,26 @@ class _SearchScreenState extends State<SearchScreen> {
         return name == query || name == queryTrimmed;
       },
     )['station_nm'];
-
-
-    setState(() {
-      recentSearches.remove(query);
-      recentSearches.insert(0, query);
-    });
-    searchController.clear();
+// 최근 검색어 업데이트
+    if (mounted) {
+      setState(() {
+        recentSearches.remove(displayQuery);
+        recentSearches.insert(0, displayQuery);
+        if (recentSearches.length > 10)
+          recentSearches = recentSearches.sublist(0, 10);
+      });
+    }
 
     if (widget.initialQuery == null) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => SubwayMapScreen(
-            searchQuery: displayQuery,
-            isSelectingDeparture: widget.isSelectingDeparture,
-            selectedStation: null,
-          ),
+          builder: (ctx) =>
+              SubwayMapScreen(
+                searchQuery: displayQuery,
+                isSelectingDeparture: widget.isSelectingDeparture,
+                selectedStation: null,
+              ),
         ),
       );
     } else {
@@ -114,7 +119,10 @@ class _SearchScreenState extends State<SearchScreen> {
           // 검색창
           Padding(
             padding: EdgeInsets.only(
-              top: MediaQuery.of(context).padding.top + 10,
+              top: MediaQuery
+                  .of(context)
+                  .padding
+                  .top + 10,
               left: 15,
               right: 15,
             ),
@@ -129,96 +137,139 @@ class _SearchScreenState extends State<SearchScreen> {
 
                 // 검색 입력창
                 Expanded(
-                  child: TextField(
-                    controller: searchController,
-                    focusNode: searchFocusNode, // 포커스 노드를 설정
-                    onChanged: (text) {
-                      final cleaned = text.replaceAll('역', '');
-                      setState(() {
-                        searchQuery = cleaned;
-                        final lowerText = cleaned.toLowerCase();
-                        suggestions = stationList
-                            .map((s) => s['station_nm'].toString())
-                            .where((name) => name.toLowerCase().contains(lowerText))
-                            .toSet()
-                            .toList();
-                      });
-                    },
-
-
-                    onSubmitted: _searchAndNavigate, // 키보드 검색 버튼 클릭 시 실행
-                    decoration: InputDecoration(
-                      hintText: "지하철 역 검색",
-                      border: InputBorder.none,
-                      filled: true,
-                      fillColor: Colors.grey[200],
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE7E7E7),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: searchController,
+                            focusNode: searchFocusNode,
+                            onChanged: (text) {
+                              final cleaned = text.replaceAll('역', '');
+                              setState(() {
+                                searchQuery = cleaned;
+                                final lowerText = cleaned.toLowerCase();
+                                suggestions = stationList
+                                    .map((s) => s['station_nm'].toString())
+                                    .where((name) =>
+                                    name.toLowerCase().contains(lowerText))
+                                    .toSet()
+                                    .toList();
+                              });
+                            },
+                            onSubmitted: _searchAndNavigate,
+                            decoration: InputDecoration(
+                              hintText: "지하철 역 검색",
+                              hintStyle: TextStyle(
+                                color: Colors.grey[500],
+                                fontSize: 17,
+                                fontWeight: FontWeight.w500, // 필요시 두께 조정
+                              ),
+                              border: InputBorder.none,
+                              contentPadding: EdgeInsets.symmetric(vertical: 14),
+                            ),
+                            style: TextStyle(fontSize: 17,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () => _searchAndNavigate(searchQuery),
+                          child: Icon(Icons.search, color: Colors.black54,
+                              size: 24),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-
-                // 돋보기 아이콘 (검색 실행)
-                GestureDetector(
-                  onTap: () => _searchAndNavigate(searchQuery),
-                  child: Icon(Icons.search, color: Colors.black54, size: 24),
                 ),
               ],
             ),
           ),
 
           // 최근 검색어 목록
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "최근 검색",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                GestureDetector(
-                  onTap: () => setState(() => recentSearches.clear()),
-                  child: Text(
-                    "삭제",
-                    style: TextStyle(fontSize: 14, color: Colors.red),
+          if (recentSearches.isNotEmpty) ...[
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "최근 검색",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
-                ),
-              ],
+                  GestureDetector(
+                    onTap: () => setState(() => recentSearches.clear()),
+                    child: Text(
+                      "전체 삭제",
+                      style: TextStyle(fontSize: 14, color: Colors.red),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
+            SizedBox(
+              height: 48,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                padding: EdgeInsets.symmetric(horizontal: 15),
+                itemCount: recentSearches.length,
+                separatorBuilder: (_, __) => SizedBox(width: 10),
+                itemBuilder: (context, index) {
+                  final query = recentSearches[index];
+                  return Chip(
+                    label: Text(query),
+                    deleteIcon: Icon(Icons.close, size: 18),
+                    onDeleted: () => _deleteSearch(query),
+                    backgroundColor: Colors.grey[200],
+                  );
+                },
+              ),
+            ),
+          ],
 
-          // 최근 검색어 리스트
+          // 검색 결과 목록
           Expanded(
             child: suggestions.isNotEmpty
-                ? ListView.builder(
+                ? ListView.separated(
+              padding: EdgeInsets.only(top: 10),
               itemCount: suggestions.length,
+              separatorBuilder: (_, __) =>
+                  Divider(height: 1, color: Colors.grey[300]),
               itemBuilder: (context, index) {
                 final suggestion = suggestions[index];
                 return ListTile(
-                  title: Text(suggestion),
+                  leading: Icon(Icons.subway, color: Colors.blue),
+                  title: Text(
+                    suggestion,
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                  ),
+                  trailing: Icon(
+                      Icons.arrow_forward_ios, size: 16, color: Colors.grey),
                   onTap: () => _searchAndNavigate(suggestion),
                 );
               },
             )
-                : ListView.builder(
-              itemCount: recentSearches.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(recentSearches[index]),
-                  leading: Icon(Icons.history, color: Colors.grey),
-                  trailing: GestureDetector(
-                    onTap: () => _deleteSearch(recentSearches[index]),
-                    child: Icon(Icons.close, color: Colors.black54),
-                  ),
-                  onTap: () => _searchAndNavigate(recentSearches[index]),
-                );
-              },
+                : Center(
+              child: Padding(
+                padding: EdgeInsets.all(20),
+                child: Text(
+                  recentSearches.isEmpty
+                      ? "검색어를 입력해주세요"
+                      : "검색 결과가 없습니다.",
+                  style: TextStyle(color: Colors.grey, fontSize: 15),
+                ),
+              ),
             ),
           ),
-
         ],
       ),
     );
   }
+
 }
-
-
