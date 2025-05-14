@@ -9,15 +9,16 @@ import 'package:rushcutter/data/station_data.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:rushcutter/screen/home_screen.dart';
 import 'bottom_category_bar.dart';
+import 'package:rushcutter/layout/main_layout.dart';
+import 'package:flutter/cupertino.dart';
 
 class SubwayMapScreen extends StatefulWidget {
   final String? searchQuery;
   final bool isSelectingDeparture;
   final dynamic selectedStation;
-  final Matrix4? initialTransformation; // 필수 파라미터로 변경
+  final Matrix4? initialTransformation;
   final String? selectedStationId;
-  // 출발역 도착역 빈칸 선택 여부, T = 출발역 빈칸, F = 도착역 빈칸
-  // final Station selectedStation;
+  final String selectedCategory;
 
 
   const SubwayMapScreen({
@@ -27,6 +28,7 @@ class SubwayMapScreen extends StatefulWidget {
     required this.selectedStation,
     this.initialTransformation,
     this.selectedStationId,
+    this.selectedCategory = 'HOME',
     super.key,
   });
 
@@ -47,13 +49,15 @@ class _SubwayMapScreenState extends State<SubwayMapScreen> {
   late TextEditingController _departureController;
   late TextEditingController _arrivalController;
   String? selectedStationId;
+
   bool showButtons = false; // 선택 후 버튼 사라지게
   Station? _lastStationForButton; // 상태변수 (위치 기억하려고)
-
+  String selectedCategory = 'HOME';
 
   @override
   void initState() {
     super.initState();
+    selectedCategory = widget.selectedCategory;
     _transformationController = TransformationController(
       widget.initialTransformation ?? Matrix4.identity(), // 시점 유지
     );
@@ -196,9 +200,10 @@ class _SubwayMapScreenState extends State<SubwayMapScreen> {
 
   // 출발역 설정 (빈칸 클릭 시)
   void _setDeparture() async {
-    final result = await Navigator.push<String>(
+    final result = await Navigator.push(
       context,
       MaterialPageRoute(
+
         builder: (context) =>
             SearchScreen(
               isSelectingDeparture: false,
@@ -206,6 +211,7 @@ class _SubwayMapScreenState extends State<SubwayMapScreen> {
             ),
       ),
     );
+
     if (result != null) {
       setState(() {
         departureStation = result; // 검색 결과를 출발역에 반영
@@ -269,6 +275,24 @@ class _SubwayMapScreenState extends State<SubwayMapScreen> {
       ),
     );
   }
+  void onCategorySelected(String category) {
+    if (category == 'HOME') {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const MainLayout(initialCategory: 'HOME')),
+      );
+    } else if (category == '시간표') {
+      Navigator.pushReplacementNamed(context, '/timetable');
+    } else if (category == '저장') {
+      Navigator.pushReplacementNamed(context, '/saved');
+    } else if (category == '소식') {
+      Navigator.pushReplacementNamed(context, '/news');
+    } else if (category == 'MY') {
+      Navigator.pushReplacementNamed(context, '/mypage');
+    }
+  }
+
+
 
   void _hideButtons() {
     if (!showButtons) return; // 이미 숨김 상태면 무시
@@ -342,7 +366,7 @@ class _SubwayMapScreenState extends State<SubwayMapScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // 상단바 + 출발/도착역: 인스타그램/애플 느낌, 고정 높이
+            // 상단바 + 출발/도착역
             Container(
               color: Colors.white,
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
@@ -501,78 +525,91 @@ class _SubwayMapScreenState extends State<SubwayMapScreen> {
                         StationComponent(
                           stations: stationData,
                           selectedId: selectedStationId,
-                          onStationTap: _handleStationTap,
+                          onStationTap: (id) {
+                            if (id == null) {
+                              setState(() {
+                                showButtons = false;
+                                selectedStation = null;
+                                selectedStationId = null;
+                              });
+                            } else {
+                              final found = stationData.firstWhere((s) => s.id == id);
+                              setState(() {
+                                selectedStation = found;
+                                selectedStationId = found.id;
+                                _lastStationForButton = found;
+                                showButtons = true;
+                              });
+                            }
+                          },
                           transformationController: _transformationController,
                         ),
-                        if (buttonStation != null && buttonStation.id.isNotEmpty)
-                          Positioned(
-                            left: (buttonStation.cx) - 40,
-                            top: (buttonStation.cy) - 120,
-                            child: AnimatedSlide(
-                              offset: (showButtons)
-                                  ? Offset.zero
-                                  : const Offset(0, 0.2),
-                              duration: const Duration(milliseconds: 200),
-                              curve: Curves.easeInOutCubic,
-                              child: AnimatedOpacity(
-                                        opacity: showButtons ? 1.0 : 0.0,
-                                        duration: const Duration(milliseconds: 200),
-                                        curve: Curves.easeInOutCubic,
-                                        child: Column(
-                                          children: [
-                                            TextButton(
-                                              onPressed: _onSelectDeparture,
-                                              style: TextButton.styleFrom(
-                                                backgroundColor: Colors.white,
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.circular(30),
-                                                ),
-                                                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                                                elevation: 0,
-                                              ),
-                                              child: const Text(
-                                                "출발지",
-                                                style: TextStyle(
-                                                  color: Colors.black,
-                                                  fontWeight: FontWeight.w600,
-                                                  fontSize: 16,
-                                                ),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    TextButton(
-                                      onPressed: _onSelectArrival,
-                                      style: TextButton.styleFrom(
-                                        backgroundColor: Colors.white,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(30),
-                                        ),
-                                        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                                        elevation: 0,
-                                      ),
-                                      child: const Text(
-                                        "도착지",
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 16,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
+                      if (buttonStation != null && buttonStation.id.isNotEmpty)
+                    Positioned(
+                    left: (buttonStation.cx) - 40,
+                top: (buttonStation.cy) - 120,
+                child: AnimatedSlide(
+                  offset: (showButtons)
+                      ? Offset.zero
+                      : const Offset(0, 0.2),
+                  duration: const Duration(milliseconds: 200),
+                  curve: Curves.easeInOutCubic,
+                  child: AnimatedOpacity(
+                    opacity: showButtons ? 1.0 : 0.0,
+                    duration: const Duration(milliseconds: 200),
+                    curve: Curves.easeInOutCubic,
+                    onEnd: () {
+                      if (!showButtons) {
+                        setState(() {
+                          selectedStation = null;
+                          selectedStationId = null;
+                        });
+                      }
+                    },
+                    child: IgnorePointer(
+                      ignoring: !showButtons,
+                      child: Column(
+                        children: [
+                        ElevatedButton(
+                        onPressed: _onSelectDeparture,
+                        child: const Text("출발지"),
+                        style: ElevatedButton.styleFrom(
+                          shape: const StadiumBorder(),
+                          elevation: 4,
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.black,
+                          shadowColor: Colors.black26,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      ElevatedButton(
+                        onPressed: _onSelectArrival,
+                        child: const Text("도착지"),
+                        style: ElevatedButton.styleFrom(
+                          shape: const StadiumBorder(),
+                          elevation: 4,
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.black,
+                          shadowColor: Colors.black26,
+                        ),
                           ),
                       ],
                     ),
                   ),
                 ),
               ),
-            ),
-          ],
-        ),
+
+                    ),
+                      ],
       ),
+
+            ),
+    ),
+    ),
+            ),
+        ],
+      ),
+      )
     );
   }
 
@@ -604,6 +641,7 @@ class _SubwayMapScreenState extends State<SubwayMapScreen> {
             style: const TextStyle(fontSize: 12, color: Colors.grey),
           ),
         ],
+
       ),
     );
   }

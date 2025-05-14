@@ -79,9 +79,9 @@ class StationMapPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    //final paint = Paint()
-     // ..color = Colors.blue.withOpacity(0.4);
-    final paint = Paint()..color = Colors.transparent; // 추후 투명하게 하는 방법
+    final paint = Paint()
+      ..color = Colors.blue.withOpacity(0.4);
+    //final paint = Paint()..color = Colors.transparent; // 추후 투명하게 하는 방법
     for (final station in stations) {
       canvas.drawCircle(Offset(station.cx, station.cy), station.r, paint);
     }

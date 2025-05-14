@@ -32,8 +32,8 @@ final List<Station> stationData = [
   ),
   Station(
     id: "208",
-    cx: 822.85 * 3.8,
-    cy: 386.29 * 3.8,
+    cx: 3110.046+10,
+    cy: 1460.018+10,
     r: 10,
     stationNm: "왕십리",
     line: "2",
@@ -279,6 +279,14 @@ final List<Station> stationData = [
     line: "2",
   ),
   Station(
+    id: "208",
+    cx: 3114.046+10,
+    cy: 1460.018+10,
+    r: 10,
+    stationNm: "왕십리",
+    line: "2",
+  ),
+  Station(
     id: "207",
     cx: 3020.180+10,
     cy: 1420.118+10,
@@ -313,7 +321,7 @@ final List<Station> stationData = [
   Station(
     id: "205",
     cx: 2836.070+10,
-    cy: 1436.008,
+    cy: 1426.008+10,
     r: 10,
     stationNm: "동대문역사문화공원",
     line: "2",
@@ -449,6 +457,14 @@ final List<Station> stationData = [
     line: "１",
   ),
   Station(
+    id: "113",
+    cx: 3406.070+10,
+    cy: 476.008+10,
+    r: 10,
+    stationNm: "도봉산",
+    line: "１",
+  ),
+  Station(
     id: "114",
     cx: 3400.179+10,
     cy: 545.105+10,
@@ -457,11 +473,19 @@ final List<Station> stationData = [
     line: "１",
   ),
   Station(
-    id: "100-2",
+    id: "115",
     cx: 3400.179+10,
     cy: 620.130+10,
     r: 10,
     stationNm: "방학",
+    line: "１",
+  ),
+  Station(
+    id: "116",
+    cx: 3410.070+10,
+    cy: 709.996+10,
+    r: 10,
+    stationNm: "창동",
     line: "１",
   ),
   Station(
@@ -478,6 +502,14 @@ final List<Station> stationData = [
     cy: 840.140+10,
     r: 10,
     stationNm: "월계",
+    line: "１",
+  ),
+  Station(
+    id: "119",
+    cx: 3410.070+10,
+    cy: 920.028+10,
+    r: 10,
+    stationNm: "광운대",
     line: "１",
   ),
   Station(
@@ -876,6 +908,14 @@ final List<Station> stationData = [
     stationNm: "오류동",
     line: "１",
   ),
+  Station(
+    id: "145",
+    cx: 1456.028+10,
+    cy: 2016.040+10,
+    r: 10,
+    stationNm: "온수",
+    line: "１",
+  ),
       Station(
     id: "146",
     cx: 1371.149+10,
@@ -884,7 +924,14 @@ final List<Station> stationData = [
     stationNm: "역곡",
     line: "１",
   ),
-  
+  Station(
+    id: "147",
+    cx: 1316.032+10,
+    cy: 2016.040+10,
+    r: 10,
+    stationNm: "소사",
+    line: "１",
+  ),
 
   Station(
     id: "148",
@@ -1025,13 +1072,29 @@ final List<Station> stationData = [
     stationNm: "회기",
     line: "１",
   ),
+  Station(
+    id: "124",
+    cx: 3219.081+10,
+    cy: 1260.040+10,
+    r: 10,
+    stationNm: "청량리",
+    line: "１",
+  ),
     Station(
     id: "127",
-    cx: 777.88*3.8,
-    cy: 354.54*3.8,
+    cx: 2944.078+10,
+    cy: 1340.016+10,
     r: 10,
     stationNm: "동묘앞",
-    line: "２",
+    line: "1",
+  ),
+  Station(
+    id: "128",
+    cx: 2850.055+10,
+    cy: 1340.008+10,
+    r: 10,
+    stationNm: "동대문",
+    line: "1",
   ),
     Station(
     id: "157",
@@ -1043,16 +1106,16 @@ final List<Station> stationData = [
   ),
     Station(
     id: "421",
-    cx: 777.88*3.8,
-    cy: 378.35*3.8,
+    cx: 2836.077+10,
+    cy: 1336.008+10,
     r: 10,
     stationNm: "동대문",
     line: "４",
   ),
     Station(
     id: "128",
-    cx: 780.52*3.8,
-    cy: 378.35*3.8,
+    cx: 2854.055+10,
+    cy: 1340.008+10,
     r: 10,
     stationNm: "동대문",
     line: "１",
@@ -1076,8 +1139,8 @@ final List<Station> stationData = [
   ),
     Station(
     id: "422",
-    cx: 709.08*3.8,
-    cy: 349.25*3.8,
+    cx: 2821.065+10,
+    cy: 1461.007+10,
     r: 10,
     stationNm: "동대문역사문화공원",
     line: "５",
@@ -1890,7 +1953,7 @@ final List<Station> stationData = [
     line: "인천2호선",
   ),
     Station(
-    id: "I202",
+    id: "I203",
     cx: 610.146,
     cy: 1100.122,
     r: 10,
@@ -1898,7 +1961,7 @@ final List<Station> stationData = [
     line: "인천2호선",
   ),
     Station(
-    id: "I203",
+    id: "I204",
     cx: 660.112,
     cy: 1150.126,
     r: 10,
@@ -1906,7 +1969,7 @@ final List<Station> stationData = [
     line: "인천2호선",
   ),
     Station(
-    id: "I204",
+    id: "I205",
     cx: 712.116,
     cy: 1200.130,
     r: 10,
@@ -1914,7 +1977,7 @@ final List<Station> stationData = [
     line: "인천2호선",
   ),
     Station(
-    id: "I205",
+    id: "I206",
     cx: 700.116+10,
     cy: 1260.128+10,
     r: 10,
@@ -1922,7 +1985,7 @@ final List<Station> stationData = [
     line: "인천2호선",
   ),
     Station(
-    id: "I1206",
+    id: "I207",
     cx: 706.006,
     cy: 1346.032,
     r: 10,
@@ -1930,7 +1993,7 @@ final List<Station> stationData = [
     line: "인천2호선",
   ),
     Station(
-    id: "I207",
+    id: "I208",
     cx: 700.116+10,
     cy: 1425.145+10,
     r: 10,
@@ -1938,7 +2001,7 @@ final List<Station> stationData = [
     line: "인천2호선",
   ),
     Station(
-    id: "I208",
+    id: "I209",
     cx: 700.116+10,
     cy: 1515.137+10,
     r: 10,
@@ -1946,7 +2009,7 @@ final List<Station> stationData = [
     line: "인천2호선",
   ),
     Station(
-    id: "I209",
+    id: "I210",
     cx: 700.116+10,
     cy: 1595.151+10,
     r: 10,
@@ -1954,7 +2017,7 @@ final List<Station> stationData = [
     line: "인천2호선",
   ),
     Station(
-    id: "I210",
+    id: "I211",
     cx: 700.116+10,
     cy: 1685.143+10,
     r: 10,
@@ -1962,7 +2025,7 @@ final List<Station> stationData = [
     line: "인천2호선",
   ),
     Station(
-    id: "I211",
+    id: "I212",
     cx: 700.116+10,
     cy: 1770.146+10,
     r: 10,
@@ -1970,7 +2033,7 @@ final List<Station> stationData = [
     line: "인천2호선",
   ),
     Station(
-    id: "I212",
+    id: "I213",
     cx: 710.006+10,
     cy: 1856.012+10,
     r: 10,
@@ -1978,7 +2041,7 @@ final List<Station> stationData = [
     line: "인천2호선",
   ),
   Station(
-    id: "I211",
+    id: "I214",
     cx: 700.116+10,
     cy: 1925.147+10,
     r: 10,
@@ -1986,7 +2049,7 @@ final List<Station> stationData = [
     line: "인천2호선",
   ),
   Station(
-    id: "I212",
+    id: "I215",
     cx: 700.116+10,
     cy: 1990.156+10,
     r: 10,
@@ -1994,7 +2057,7 @@ final List<Station> stationData = [
     line: "인천2호선",
   ),
   Station(
-    id: "I213",
+    id: "I216",
     cx: 700.116+10,
     cy: 2060.154+10,
     r: 10,
@@ -2002,7 +2065,7 @@ final List<Station> stationData = [
     line: "인천2호선",
   ),
   Station(
-    id: "I214",
+    id: "I217",
     cx: 700.116+10,
     cy: 2130.152+10,
     r: 10,
@@ -2010,7 +2073,7 @@ final List<Station> stationData = [
     line: "인천2호선",
   ),
   Station(
-    id: "I215",
+    id: "I218",
     cx: 706.006+10,
     cy: 2196.024+10,
     r: 10,
@@ -2018,7 +2081,7 @@ final List<Station> stationData = [
     line: "인천2호선",
   ),
   Station(
-    id: "I216",
+    id: "I219",
     cx: 700.116+10,
     cy: 2270.148+10,
     r: 10,
@@ -2026,7 +2089,7 @@ final List<Station> stationData = [
     line: "인천2호선",
   ),
   Station(
-    id: "I217",
+    id: "I220",
     cx: 770.152+10,
     cy: 2270.148+10,
     r: 10,
@@ -2034,7 +2097,7 @@ final List<Station> stationData = [
     line: "인천2호선",
   ),
   Station(
-    id: "I218",
+    id: "I221",
     cx: 836.024+10,
     cy: 2276.038+10,
     r: 10,
@@ -2042,7 +2105,7 @@ final List<Station> stationData = [
     line: "인천2호선",
   ),
   Station(
-    id: "I219",
+    id: "I222",
     cx: 943.572+10,
     cy: 2269.576+10,
     r: 10,
@@ -2050,7 +2113,7 @@ final List<Station> stationData = [
     line: "인천2호선",
   ),
   Station(
-    id: "I220",
+    id: "I223",
     cx: 1020.134+10,
     cy: 2270.148+10,
     r: 10,
@@ -2058,7 +2121,7 @@ final List<Station> stationData = [
     line: "인천2호선",
   ),
     Station(
-    id: "I221",
+    id: "I224",
     cx: 1070.138+10,
     cy: 2320.152+10,
     r: 10,
@@ -2066,7 +2129,7 @@ final List<Station> stationData = [
     line: "인천2호선",
   ),
     Station(
-    id: "I222",
+    id: "I225",
     cx: 1136.083+10,
     cy: 2320.823+10,
     r: 10,
@@ -2074,7 +2137,7 @@ final List<Station> stationData = [
     line: "인천2호선",
   ),
     Station(
-    id: "I223",
+    id: "I226",
     cx: 1197.993+10,
     cy: 2320.152+10,
     r: 10,
@@ -2082,7 +2145,7 @@ final List<Station> stationData = [
     line: "인천2호선",
   ),
   Station(
-    id: "I224",
+    id: "I227",
     cx: 1258.615+10,
     cy: 2320.152+10,
     r: 10,
@@ -2223,7 +2286,7 @@ final List<Station> stationData = [
     id: "422",
     cx: 2836.070,
     cy: 1446.040,
-    r: 10,
+    r: 13,
     stationNm: "동대문역사문화공원",
     line: "4",
   ),
@@ -3672,8 +3735,8 @@ Station(
   ),
     Station(
     id: "710",
-    cx: 3416.048,
-    cy: 476.008,
+    cx: 3420.048+10,
+    cy: 480.008+10,
     r: 10,
     stationNm: "도봉산",
     line: "7",
@@ -4166,7 +4229,7 @@ Station(
   Station(
     id: "905",
     cx: 1551.047+10,
-    cy: 11266.018+10,
+    cy: 1266.018+10,
     r: 10,
     stationNm: "마곡나루",
     line: "9",

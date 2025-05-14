@@ -11,6 +11,7 @@ import 'package:rushcutter/widgets/station_component.dart';
 import 'package:rushcutter/models/station.dart';
 import 'package:rushcutter/screen/subway_map_screen.dart';
 import 'package:rushcutter/data/station_data.dart';
+import 'package:rushcutter/screen/real_time_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -255,7 +256,7 @@ class _HomeScreenState extends State<HomeScreen> {
           if (selectedCategory ==
               'HOME') // || selectedCategory == '실시간' 실시간일 때는 검색창 안뜨게
             Positioned(
-              top: statusBarHeight, // 상태바 바로 아래부터 시작
+              top: statusBarHeight+16,
               left: 0,
               right: 0,
               child: Container(
@@ -352,17 +353,21 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
         ],
       ),
-      bottomNavigationBar: BottomCategoryBar(
-        selectedCategory: selectedCategory,
-        onCategorySelected: onCategorySelected,
-      ),
     );
   }
 
   Widget _buildHomeContent() {
     final Station? buttonStation = selectedStation ?? _lastStationForButton;
 
-      return InteractiveViewer(
+      return Scaffold(
+          backgroundColor: Colors.white, // Scaffold도 흰색으로
+          body: Stack(
+              children: [
+          // 1. 맨 아래에 흰색 배경
+          Positioned.fill(child: Container(color: Colors.white)),
+
+    Positioned.fill(
+    child: InteractiveViewer(
         transformationController: _transformationController,
         minScale: 0.3,
         maxScale: 2.0,
@@ -385,7 +390,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 onStationTap: _handleStationTap,
                   transformationController: _transformationController
               ),
-              // 버튼은 buttonStation이 있을 때만 표시!
               if (buttonStation != null && buttonStation.id.isNotEmpty)
                 Positioned(
                   left: (buttonStation.cx) - 40,
@@ -444,6 +448,10 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
         ),
-      );
+      ),
+    ),
+        ]
+          ),
+        );
   }
 }

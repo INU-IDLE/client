@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
 import 'real_time_bottom_sheet.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:rushcutter/services/api_station_service.dart';
+import 'package:rushcutter/data/line_mapping.dart';
+
+
 
 
 // ✅ 위젯 클래스: 비워두기
@@ -24,8 +30,16 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
   late bool isFavorite;
   late TimeOfDay departureTime;
   late TimeOfDay arrivalTime;
+  late String actualArrival;
   bool _isInitialized = false;
+  Map<String, String> congestionData = {}; // ✅ 여기로 옮겨야 함
 
+  @override
+  void initState() {
+    super.initState();
+
+  }
+  late String originalStation;
 
   @override
   void didChangeDependencies() {
@@ -35,7 +49,11 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
     final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>? ?? {};
 
     line = args['line'];
-    station = args['station'];
+    originalStation = args['station'] as String;
+    station = originalStation
+        .replaceAll(RegExp(r'\s*승차$'), '')
+        .replaceAll(RegExp(r'\(.*?\)'), '')
+        .trim();
     destination = args['destination'];
     fastTransfer = args['fastTransfer'];
     duration = args['duration'];
@@ -47,8 +65,10 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
 
     departureTime = _parseTimeOfDay(args['departureTime'] ?? '00:00');
     arrivalTime = _parseTimeOfDay(args['arrivalTime'] ?? '00:00');
+    actualArrival = args['actualArrival'] ?? '도착역';
 
     _isInitialized = true;
+    fetchCongestionPrediction();
   }
 
 
@@ -79,6 +99,103 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
     // 파싱 실패 시 fallback
     return const TimeOfDay(hour: 0, minute: 0);
   }
+
+  Future<void> fetchCongestionPrediction() async {
+    print('✅ fetchCongestionPrediction() 호출됨');
+    print('🔍 line: $line');
+    print('🔍 station: $station');
+
+    final lineCode = _getLineCodeByName(line);
+    if (!(["2", "3", "4", "5", "6", "7", "8"].contains(lineCode))) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('혼잡도 예측 불가'),
+            content: const Text('해당 노선은 혼잡도 예측을 지원하지 않습니다.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Future.delayed(const Duration(milliseconds: 100), () {
+                    if (mounted) {
+                      Navigator.of(context).maybePop();
+                    }
+                  });
+                },
+                child: const Text('확인'),
+              ),
+            ],
+          ),
+        );
+      });
+      return;
+    }
+
+    final stationService = ApiStationService();
+    final stationCode = await stationService.getFrCodeByStationName(station);
+
+    print('➡️ lineCode: $lineCode');
+    print('➡️ stationCode: $stationCode');
+    print('➡️ hour: ${departureTime.hour}, minute: ${departureTime.minute}');
+    print('➡️ month: ${DateTime.now().month}');
+
+    if (lineCode == null || stationCode == null) {
+      print('❌ 혼잡도 예측: lineCode 또는 stationCode를 찾을 수 없습니다.');
+      return;
+    }
+
+    final uri = Uri.parse(
+        'http://43.200.50.230/api/v1/congestion/predict/$stationCode'
+            '?line=$lineCode'
+            '&updnLine=상행'
+            '&hour=${departureTime.hour}'
+            '&minute=${departureTime.minute}'
+            '&dayType=평일'
+            '&month=${DateTime.now().month}'
+    );
+    final response = await http.post(
+      uri,
+      headers: {'accept': '*/*'},
+      body: '', // ✅ 빈 body 필요
+    );
+
+    try {
+
+      if (response.statusCode == 200) {
+        final json = jsonDecode(utf8.decode(response.bodyBytes));
+        print('📦 혼잡도 응답 전체: $json');
+
+        final rawPredictions = json['result']['predictions'];
+        if (rawPredictions != null && rawPredictions is Map) {
+          final result = Map<String, String>.from(rawPredictions);
+          print('📦 result: $result');
+
+          setState(() {
+            congestionData = result;
+          });
+        } else {
+          print('❌ predictions가 null이거나 Map 타입이 아님: $rawPredictions');
+        }
+
+      } else {
+        print('❌ API 오류: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('❌ 예외 발생: $e');
+    }
+  }
+
+
+  String? _getLineCodeByName(String name) {
+    try {
+      final match = subwayLines.firstWhere((lineInfo) => lineInfo.name == name);
+      return match.lineCode;
+    } catch (e) {
+      return null;
+    }
+  }
+
 
 
   Future<void> _selectTime(BuildContext context) async {
@@ -117,8 +234,17 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
     if (picked != null) {
       setState(() {
         departureTime = picked;
+
+        final depDate = DateTime(0, 1, 1, picked.hour, picked.minute);
+        final durParts = duration.split(RegExp(r'[시간분\s]+')).where((e) => e.isNotEmpty).toList();
+        int durHour = durParts.length == 2 ? int.parse(durParts[0]) : 0;
+        int durMin = durParts.length == 2 ? int.parse(durParts[1]) : int.parse(durParts[0]);
+
+        final arrDate = depDate.add(Duration(hours: durHour, minutes: durMin));
+        arrivalTime = TimeOfDay(hour: arrDate.hour, minute: arrDate.minute);
       });
     }
+
   }
 
   String _getArrivalTimeFormatted24() {
@@ -166,7 +292,7 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
 
           setState(() {
             departureTime = now;
-            arrivalTime = updatedArrival;
+            //arrivalTime = updatedArrival;
           });
         },
         backgroundColor: const Color(0xFF4262C5),
@@ -253,7 +379,7 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
                       ),
                     ),
                     Text(
-                      '도착 ${_getArrivalTimeFormatted(context)}',
+                      '도착 ${arrivalTime.format(context)}',
 
                       style: const TextStyle(
                         fontSize: 16,
@@ -272,7 +398,7 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
               _buildRouteStep(
                 context: context,
                 time: _formatTime24(departureTime),
-                station: station,
+                station: originalStation,
                 line: line,
                 color: color,
                 fastTransfer: fastTransfer,
@@ -281,7 +407,7 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
 
               _buildArrivalOrTransferStep(
                 line: line,
-                station: _getArrivalStation(),
+                station: actualArrival,
                 time: _formatTime24(arrivalTime),
               ),
 
@@ -337,9 +463,9 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
       return _buildTransferStep(
         time: time,
         station: station,
-        distance: '도보 316m',
-        icon: Icons.directions_walk,
-        color: Colors.grey,
+        distance: '',
+        icon: Icons.location_on,
+        color: Colors.red,
       );
     }
   }
@@ -357,6 +483,9 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
         fastTransfer: fastTransfer,
         icon: icon,
         duration: duration,
+        arrivalStation: actualArrival,
+        arrivalTime: _getArrivalTimeFormatted24(),
+        sectionDurations: [14, 27],
       ),
     );
   }
@@ -384,11 +513,14 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      '$station 하차',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                    Padding(
+                      padding: const EdgeInsets.only(top: 6.0), // 원하는 만큼 조절 가능
+                      child: Text(
+                        '$station 하차',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ],
@@ -448,12 +580,15 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          line,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: color,
+                        Transform.translate(
+                          offset: const Offset(0, -6),
+                          child: Text(
+                            line,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: color,
+                            ),
                           ),
                         ),
                         TextButton(
@@ -474,25 +609,55 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
                             ),
                           ),
                         ),
-
                       ],
                     ),
 
-                    Text(station, style: const TextStyle(fontSize: 14)),
-                    Text(fastTransfer, style: const TextStyle(fontSize: 14)),
+                    // 👇 여기만 Transform으로 감쌈
+                    Transform.translate(
+                      offset: const Offset(0, -16.5),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '$station', // ✅ 이미 승차 제거된 상태로 station 변수에 저장됨
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            fastTransfer,
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                        ],
+                      ),
+                    ),
+
                     const SizedBox(height: 12),
                     _buildCongestionGraph(),
                   ],
-                ),
+                )
               ),
             ],
           ),
         ),
         Positioned(
           left: 10,
-          top: 14,
+          top: 8,
           child: Text(
             _formatTime24(departureTime),
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+          ),
+        ),
+        Positioned(
+          left: 32,
+          top: 160,
+          child: Text(
+            duration,
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -506,30 +671,36 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
 
   // 혼잡도 그래프 위젯
   Widget _buildCongestionGraph() {
+    final carKeys = congestionData.keys.toList()..sort(); // 🚉 응답 기반으로 동적으로 칸 구성
+
+
+    List<Color> getColors() {
+      return carKeys.map((key) {
+        print('🚈 $key: ${congestionData[key]}');
+        switch (congestionData[key]) {
+          case 'RELAXED': return const Color(0xFF4863EC); // 여유
+          case 'NORMAL': return const Color(0xFF52B93E); // 보통
+          case 'CROWDED': return const Color(0xFFEED906); // 주의
+          case 'CONGESTED': return const Color(0xFFF70505); // 혼잡
+          default: return Colors.grey.shade300; // 예측 안 된 경우
+        }
+      }).toList();
+    }
+
+    final seatColors = getColors();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 12),
-        _buildTrainRow(
-          label: '5분 후',
-          seatColors: [
-            Color(0xFFFFE619), Color(0xFFFB3030), Color(0xFFFB3030),
-            Color(0xFFFFE619), Color(0xFF51E817), Color(0xFF51E817),
-            Color(0xFF2E2FFB), Color(0xFF2E2FFB), Color(0xFFFFE619),
-          ],
-        ),
-        const SizedBox(height: 15),
-        _buildTrainRow(
-          label: '10분 후',
-          seatColors: [
-            Color(0xFFFFE619), Color(0xFFFFE619), Color(0xFFFB3030),
-            Color(0xFF51E817), Color(0xFF51E817), Color(0xFF51E817),
-            Color(0xFF2E2FFB), Color(0xFF2E2FFB), Color(0xFFFFE619),
-          ],
-        ),
+        const SizedBox(height: 12)
+
+
+
+        ,
+        _buildTrainRow(label: '예측', seatColors: seatColors),
       ],
     );
   }
+
 
   Widget _buildCongestionLegend() {
     return Padding(
@@ -544,13 +715,13 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildLegendCircle(color: Color(0xFFFB3030)), // 빨강
+              _buildLegendCircle(color: Color(0xFFF70505)), // 빨강
               const SizedBox(width: 8),
-              _buildLegendCircle(color: Color(0xFFFFE619)), // 노랑
+              _buildLegendCircle(color: Color(0xFFEED906)), // 노랑
               const SizedBox(width: 8),
-              _buildLegendCircle(color: Color(0xFF51E817)), // 초록
+              _buildLegendCircle(color: Color(0xFF52B93E)), // 초록
               const SizedBox(width: 8),
-              _buildLegendCircle(color: Color(0xFF2E2FFB)), // 파랑
+              _buildLegendCircle(color: Color(0xFF4863EC)), // 파랑
             ],
           ),
         ],
@@ -573,7 +744,12 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
   Widget _buildTrainRow({
     required String label,
     required List<Color> seatColors,
-  }) {
+  })
+  {
+
+    if (seatColors.isEmpty) {
+      return const SizedBox();
+    }
     return Padding(
       padding: const EdgeInsets.only(top: 18),
       child: Stack(
@@ -669,10 +845,6 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
 
 
 
-
-
-
-
   Widget _buildTransferStep({
     required String time,
     required String station,
@@ -697,13 +869,17 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      station,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                    Padding(
+                      padding: const EdgeInsets.only(top: 6.0), // 원하는 만큼 조절 가능
+                      child: Text(
+                        '$station 하차',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
+
                     Text(
                       distance,
                       style: const TextStyle(
@@ -719,9 +895,9 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
         ),
         Positioned(
           left: 10,
-          top: 14,
+          top: 6.5,
           child: Text(
-            _formatTime24(departureTime),
+            time,
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
