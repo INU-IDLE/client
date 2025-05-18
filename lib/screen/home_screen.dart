@@ -12,7 +12,6 @@ import 'package:rushcutter/models/station.dart';
 import 'package:rushcutter/screen/subway_map_screen.dart';
 import 'package:rushcutter/data/station_data.dart';
 import 'package:rushcutter/screen/real_time_screen.dart';
-import '../screen2/subway_line_select_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -49,7 +48,6 @@ class _HomeScreenState extends State<HomeScreen> {
       selectedCategory = category;
     });
   }
-
 
   // 검색 결과를 처리하는 메서드
   void _handleSearchResult(dynamic result, bool isSelectingDeparture) {
@@ -198,10 +196,10 @@ class _HomeScreenState extends State<HomeScreen> {
       MaterialPageRoute(
         builder: (context) =>
             SubwayMapScreen(
-              initialTransformation: _transformationController.value, // 추가
+              initialTransformation: _transformationController.value,
               isSelectingDeparture: false,
               searchQuery: selectedStation!.stationNm,
-              selectedStation: selectedStation, // ★ 현재 선택된 역 전달
+              selectedStation: selectedStation,
 
             ),
       ),
@@ -234,8 +232,8 @@ class _HomeScreenState extends State<HomeScreen> {
       case 'HOME':
         currentScreen = _buildHomeContent();
         break;
-      case '시간표':
-        currentScreen = const SubwayLineSelectScreen();
+      case '실시간':
+        currentScreen = const RealTimeScreen();
         break;
       case '저장':
         currentScreen = const SavedRoutesScreen();
@@ -251,25 +249,22 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     return Scaffold(
-      body: Stack(
-        children: [
-          Positioned.fill(child: currentScreen),
-          // 상단 검색창 및 알림 버튼
-          if (selectedCategory ==
-              'HOME') // || selectedCategory == '실시간' 실시간일 때는 검색창 안뜨게
-            Positioned(
-              top: statusBarHeight, // 상태바 바로 아래부터 시작
-              left: 0,
-              right: 0,
-              child: Container(
-                height: 60,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(color: Colors.black12, blurRadius: 10),
-                  ],
-                ),
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        top: true,
+        bottom: false,
+        child: Column(
+            children: [
+            // 검색창
+            Container(
+            height: 60,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(color: Colors.black12, blurRadius: 10),
+              ],
+            ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -324,36 +319,39 @@ class _HomeScreenState extends State<HomeScreen> {
                           const Icon(
                               Icons.notifications, size: 30,
                               color: Colors.black),
-
                           Positioned(
                             top: 5,
                             right: 5,
                             child: Container(
                               width: 15,
                               height: 15,
-
                               decoration: BoxDecoration(
                                 color: Colors.red,
                                 shape: BoxShape.circle,
                               ),
                               child: Center(
-
-                              decoration: const BoxDecoration(
-                                color: Colors.red,
-                                shape: BoxShape.circle,
+                                child: Text(
+                                  '99+',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
-                              child: const Center(
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
-              ),
             ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-        ],
+          Expanded(
+            child: currentScreen,
+          ),
+          ],
+        ),
       ),
 
     );
@@ -362,7 +360,11 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildHomeContent() {
     final Station? buttonStation = selectedStation ?? _lastStationForButton;
 
-      return InteractiveViewer(
+    return Stack(
+        children: [
+          Positioned.fill(child: Container(color: Colors.white)),
+          Positioned.fill(
+            child: InteractiveViewer(
         transformationController: _transformationController,
         minScale: 0.3,
         maxScale: 2.0,
@@ -373,11 +375,12 @@ class _HomeScreenState extends State<HomeScreen> {
           height: 3800,
           child: Stack(
             children: [
-              Image.asset(
+             Image.asset(
                 'assets/images/metropolitan.png',
                 width: 4500,
                 height: 3800,
                 fit: BoxFit.cover,
+
               ),
               StationComponent(
                 stations: stationData,
@@ -385,7 +388,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 onStationTap: _handleStationTap,
                   transformationController: _transformationController
               ),
-              // 버튼은 buttonStation이 있을 때만 표시!
               if (buttonStation != null && buttonStation.id.isNotEmpty)
                 Positioned(
                   left: (buttonStation.cx) - 40,
@@ -444,6 +446,9 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
         ),
-      );
+      ),
+    ),
+        ]
+          );
   }
 }
