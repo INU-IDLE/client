@@ -1,8 +1,5 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:rushcutter/screen/bottom_category_bar.dart';
-import 'package:rushcutter/screen/real_time_screen.dart';
 import 'package:rushcutter/screen/saved_routes_screen.dart';
 import 'package:rushcutter/screen/news_screen.dart';
 import 'package:rushcutter/screen/my_page_screen.dart';
@@ -11,8 +8,8 @@ import 'package:rushcutter/widgets/station_component.dart';
 import 'package:rushcutter/models/station.dart';
 import 'package:rushcutter/screen/subway_map_screen.dart';
 import 'package:rushcutter/data/station_data.dart';
-import 'package:rushcutter/screen/real_time_screen.dart';
 import '../screen2/subway_line_select_screen.dart';
+
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -255,8 +252,7 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           Positioned.fill(child: currentScreen),
           // 상단 검색창 및 알림 버튼
-          if (selectedCategory ==
-              'HOME') // || selectedCategory == '실시간' 실시간일 때는 검색창 안뜨게
+          if (selectedCategory == 'HOME') // 실시간일 때는 검색창 안 뜨게
             Positioned(
               top: statusBarHeight, // 상태바 바로 아래부터 시작
               left: 0,
@@ -293,9 +289,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                   final result = await Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) =>
-                                      const SearchScreen(
-                                        isSelectingDeparture: true, // 기본값 설정
+                                      builder: (context) => const SearchScreen(
+                                        isSelectingDeparture: true,
                                       ),
                                     ),
                                   );
@@ -321,41 +316,34 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Stack(
                         alignment: Alignment.center,
                         children: [
-                          const Icon(
-                              Icons.notifications, size: 30,
-                              color: Colors.black),
-
+                          const Icon(Icons.notifications, size: 30, color: Colors.black),
                           Positioned(
                             top: 5,
                             right: 5,
                             child: Container(
                               width: 15,
                               height: 15,
-
-                              decoration: BoxDecoration(
-                                color: Colors.red,
-                                shape: BoxShape.circle,
-                              ),
-                              child: Center(
-
                               decoration: const BoxDecoration(
                                 color: Colors.red,
                                 shape: BoxShape.circle,
                               ),
                               child: const Center(
+                                child: Text(
+                                  '', // 알림 개수 표시 가능
+                                  style: TextStyle(fontSize: 10, color: Colors.white),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
               ),
             ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
         ],
       ),
-
     );
   }
 

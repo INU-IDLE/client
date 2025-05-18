@@ -4,6 +4,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:rushcutter/services/api_station_service.dart';
 import 'package:rushcutter/data/line_mapping.dart';
+import 'package:rushcutter/services/path_service.dart';
+
 
 
 
@@ -31,9 +33,12 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
   late TimeOfDay departureTime;
   late TimeOfDay arrivalTime;
   late String actualArrival;
-  bool _isInitialized = false;
-  Map<String, String> congestionData = {}; // ✅ 여기로 옮겨야 함
+  int transferCount = 0;
 
+  bool _isInitialized = false;
+  Map<String, String> congestionData = {};
+  Map<String, String> congestionDataFuture = {};
+  String selectedDayType = '평일';
   @override
   void initState() {
     super.initState();
@@ -68,6 +73,7 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
     actualArrival = args['actualArrival'] ?? '도착역';
 
     _isInitialized = true;
+    transferCount = args['transferCount'] ?? 0;
     fetchCongestionPrediction();
   }
 
@@ -104,6 +110,166 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
     print('✅ fetchCongestionPrediction() 호출됨');
     print('🔍 line: $line');
     print('🔍 station: $station');
+    print('➡️ dayType: $selectedDayType');
+    final lineCode = _getLineCodeByName(line);
+    if (!(["2", "3", "4", "5", "6", "7", "8"].contains(lineCode))) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('혼잡도 예측 불가'),
+            content: const Text('해당 노선은 혼잡도 예측을 지원하지 않습니다.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Future.delayed(const Duration(milliseconds: 100), () {
+                    if (mounted) {
+                      Navigator.of(context).maybePop();
+                    }
+                  });
+                },
+                child: const Text('확인'),
+              ),
+            ],
+          ),
+        );
+      });
+      return;
+    }
+
+    final stationService = ApiStationService();
+    final startCode = (await stationService.getFrCodeByStationName(station))?.toString();
+    final endCode = (await stationService.getFrCodeByStationName(destination))?.toString();
+
+
+    if (startCode == null || endCode == null) {
+      print('❌ 혼잡도 예측: stationCode를 찾을 수 없습니다.');
+      return;
+    }
+
+    String? updnLine;
+
+    final pathService = PathService();
+    final pathData = await pathService.getShortestPath(startCode, endCode);
+
+    if (pathData != null && pathData['result'] != null) {
+      final result = pathData['result'];
+      final List<dynamic> stationsList = result['stations'] ?? [];
+      final List<dynamic> routeList = result['route'] ?? [];
+
+      // ✅ station이 포함된 구간 찾기
+      String? routeStartStation;
+
+      String _normalizeStationName(String name) {
+        return name.replaceAll(RegExp(r'\(.*?\)'), '').replaceAll(RegExp(r'\s*역$'), '').trim();
+      }
+
+      for (final stationItem in stationsList) {
+        final start = _normalizeStationName(stationItem['startName']);
+        final end = _normalizeStationName(stationItem['endName']);
+        final current = _normalizeStationName(station);
+
+        if (start == current || end == current) {
+          routeStartStation = stationItem['startName'];
+          break;
+        }
+      }
+
+      // ✅ 그 구간이 속한 route 찾기
+      if (routeStartStation != null) {
+        for (final route in routeList) {
+          final routeStart = route['startName'];
+          final dir = route['direction'];
+          if (dir != '상행' && dir != '하행') continue;
+          if (_normalizeStationName(routeStart) == _normalizeStationName(routeStartStation!)) {
+            updnLine = dir;
+            break;
+          }
+        }
+      }
+
+      // fallback: 그래도 못 찾으면 첫 번째 route 방향 사용
+      if (updnLine == null && routeList.isNotEmpty) {
+        final fallbackDir = routeList[0]['direction'];
+        if (fallbackDir == '상행' || fallbackDir == '하행') {
+          updnLine = fallbackDir;
+        }
+      }
+    }
+
+
+    if (updnLine == null) {
+      print('❌ 방향 판단 실패: 경로 API에서 direction을 찾을 수 없음');
+      return;
+    }
+    final validDirections = ['상행', '하행'];
+    if (!validDirections.contains(updnLine)) {
+      print('❌ 혼잡도 예측 중단: direction 값이 유효하지 않음 → $updnLine');
+      return;
+    }
+
+    print('➡️ lineCode: $lineCode');
+    print('➡️ stationCode: $startCode');
+    print('➡️ hour: ${departureTime.hour}, minute: ${departureTime.minute}');
+    print('➡️ month: ${DateTime.now().month}');
+
+    final uri = Uri.parse(
+        'http://43.200.50.230/api/v1/congestion/predict/$startCode'
+            '?line=${int.tryParse(lineCode ?? "0") ?? 0}'
+            '&updnLine=${["상행", "내선"].contains(updnLine) ? "0" : "1"}'
+            '&hour=${departureTime.hour}'
+            '&minute=${departureTime.minute}'
+            '&dayType=$selectedDayType'
+            '&month=${DateTime.now().month}'
+    );
+
+    final response = await http.post(
+      uri,
+      headers: {'accept': '*/*'},
+      body: '', // 빈 body 필요
+    );
+
+    try {
+      if (response.statusCode == 200) {
+        final json = jsonDecode(utf8.decode(response.bodyBytes));
+        print('📦 혼잡도 응답 전체: $json');
+
+        final rawPredictions = json['result']['predictions'];
+        if (rawPredictions != null && rawPredictions is Map) {
+          final result = <String, String>{};
+
+          rawPredictions.forEach((key, value) {
+            if (value is Map && value.containsKey('level')) {
+              result[key] = value['level'].toString(); // 안전하게 toString() 사용
+            }
+          });
+
+          print('📦 result: $result');
+
+          setState(() {
+            congestionDataFuture = result;
+          });
+          await fetchCongestionPredictionFuture();
+        } else {
+          print('❌ predictions가 null이거나 Map 타입이 아님: $rawPredictions');
+        }
+      } else {
+        print('❌ API 오류: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('❌ 예외 발생: $e');
+    }
+  }
+
+  Future<void> fetchCongestionPredictionFuture() async {
+    final futureTime = TimeOfDay(
+      hour: (departureTime.hour + ((departureTime.minute + 10) ~/ 60)) % 24,
+      minute: (departureTime.minute + 10) % 60,
+    );
+    print('✅ fetchCongestionPrediction() 호출됨');
+    print('🔍 line: $line');
+    print('🔍 station: $station');
 
     final lineCode = _getLineCodeByName(line);
     if (!(["2", "3", "4", "5", "6", "7", "8"].contains(lineCode))) {
@@ -133,42 +299,114 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
     }
 
     final stationService = ApiStationService();
-    final stationCode = await stationService.getFrCodeByStationName(station);
+    final startCode = (await stationService.getFrCodeByStationName(station))?.toString();
+    final endCode = (await stationService.getFrCodeByStationName(destination))?.toString();
 
-    print('➡️ lineCode: $lineCode');
-    print('➡️ stationCode: $stationCode');
-    print('➡️ hour: ${departureTime.hour}, minute: ${departureTime.minute}');
-    print('➡️ month: ${DateTime.now().month}');
 
-    if (lineCode == null || stationCode == null) {
-      print('❌ 혼잡도 예측: lineCode 또는 stationCode를 찾을 수 없습니다.');
+    if (startCode == null || endCode == null) {
+      print('❌ 혼잡도 예측: stationCode를 찾을 수 없습니다.');
       return;
     }
 
+    String? updnLine;
+
+    final pathService = PathService();
+    final pathData = await pathService.getShortestPath(startCode, endCode);
+
+    if (pathData != null && pathData['result'] != null) {
+      final result = pathData['result'];
+      final List<dynamic> stationsList = result['stations'] ?? [];
+      final List<dynamic> routeList = result['route'] ?? [];
+
+      // ✅ station이 포함된 구간 찾기
+      String? routeStartStation;
+
+      String _normalizeStationName(String name) {
+        return name.replaceAll(RegExp(r'\(.*?\)'), '').replaceAll(RegExp(r'\s*역$'), '').trim();
+      }
+
+      for (final stationItem in stationsList) {
+        final start = _normalizeStationName(stationItem['startName']);
+        final end = _normalizeStationName(stationItem['endName']);
+        final current = _normalizeStationName(station);
+
+        if (start == current || end == current) {
+          routeStartStation = stationItem['startName'];
+          break;
+        }
+      }
+
+
+      // ✅ 그 구간이 속한 route 찾기
+      if (routeStartStation != null) {
+        for (final route in routeList) {
+          final routeStart = route['startName'];
+          final dir = route['direction'];
+          if (dir != '상행' && dir != '하행') continue;
+          if (routeStart == routeStartStation) {
+            updnLine = dir;
+            break;
+          }
+
+        }
+      }
+
+      // fallback: 그래도 못 찾으면 첫 번째 route 방향 사용
+      if (updnLine == null && routeList.isNotEmpty) {
+        final fallbackDir = routeList[0]['direction'];
+        if (fallbackDir == '상행' || fallbackDir == '하행') {
+          updnLine = fallbackDir;
+        }
+      }
+    }
+
+
+    if (updnLine == null) {
+      print('❌ 방향 판단 실패: 경로 API에서 direction을 찾을 수 없음');
+      return;
+    }
+    final validDirections = ['상행', '하행'];
+    if (!validDirections.contains(updnLine)) {
+      print('❌ 혼잡도 예측 중단: direction 값이 유효하지 않음 → $updnLine');
+      return;
+    }
+
+    print('➡️ lineCode: $lineCode');
+    print('➡️ stationCode: $startCode');
+    print('➡️ hour: ${departureTime.hour}, minute: ${departureTime.minute}');
+    print('➡️ month: ${DateTime.now().month}');
+
     final uri = Uri.parse(
-        'http://43.200.50.230/api/v1/congestion/predict/$stationCode'
-            '?line=$lineCode'
-            '&updnLine=상행'
+        'http://43.200.50.230/api/v1/congestion/predict/$startCode'
+            '?line=${int.tryParse(lineCode ?? "0") ?? 0}'
+            '&updnLine=${["상행", "내선"].contains(updnLine) ? "0" : "1"}'
             '&hour=${departureTime.hour}'
             '&minute=${departureTime.minute}'
             '&dayType=평일'
             '&month=${DateTime.now().month}'
     );
+
     final response = await http.post(
       uri,
       headers: {'accept': '*/*'},
-      body: '', // ✅ 빈 body 필요
+      body: '', // 빈 body 필요
     );
 
     try {
-
       if (response.statusCode == 200) {
         final json = jsonDecode(utf8.decode(response.bodyBytes));
         print('📦 혼잡도 응답 전체: $json');
 
         final rawPredictions = json['result']['predictions'];
         if (rawPredictions != null && rawPredictions is Map) {
-          final result = Map<String, String>.from(rawPredictions);
+          final result = <String, String>{};
+
+          rawPredictions.forEach((key, value) {
+            if (value is Map && value.containsKey('level')) {
+              result[key] = value['level'].toString(); // 안전하게 toString() 사용
+            }
+          });
+
           print('📦 result: $result');
 
           setState(() {
@@ -177,7 +415,6 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
         } else {
           print('❌ predictions가 null이거나 Map 타입이 아님: $rawPredictions');
         }
-
       } else {
         print('❌ API 오류: ${response.statusCode}');
       }
@@ -185,7 +422,6 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
       print('❌ 예외 발생: $e');
     }
   }
-
 
   String? _getLineCodeByName(String name) {
     try {
@@ -206,29 +442,30 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
         return Theme(
           data: Theme.of(context).copyWith(
             timePickerTheme: TimePickerThemeData(
-              backgroundColor: Colors.white,
-              hourMinuteTextColor: Colors.blue[800],
-              dialHandColor: Colors.blue,
-              dialBackgroundColor: Colors.blue[50],
-              entryModeIconColor: Colors.blue[700],
-              dayPeriodColor: Colors.blue[100],
-              dayPeriodTextColor: Colors.blue[900],
-              hourMinuteColor: Colors.blue[100],
+              backgroundColor: Color(0xFFFFFFFF), // 배경
+              hourMinuteTextColor: Color(0xFF4262C5),
+              dialHandColor: Color(0xFF4262C5), // 시침/분침
+              dialBackgroundColor: Color(0xFFE0E7FF), // 다이얼 배경
+              entryModeIconColor: Color(0xFF4262C5),
+              dayPeriodColor: Color(0xFFDCE3FF), // AM/PM 배경
+              dayPeriodTextColor: Color(0xFF223B85), // AM/PM 글자
+              hourMinuteColor: Color(0xFFDCE3FF), // 시/분 배경
             ),
             colorScheme: ColorScheme.light(
-              primary: Colors.blue,
+              primary: Color(0xFF4262C5), // 주요 강조색
               onPrimary: Colors.white,
               onSurface: Colors.black,
             ),
             textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(
-                foregroundColor: Colors.blue,
+                foregroundColor: Color(0xFF4262C5),
               ),
             ),
           ),
           child: child!,
         );
       },
+
     );
 
     if (picked != null) {
@@ -243,6 +480,7 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
         final arrDate = depDate.add(Duration(hours: durHour, minutes: durMin));
         arrivalTime = TimeOfDay(hour: arrDate.hour, minute: arrDate.minute);
       });
+      fetchCongestionPrediction();
     }
 
   }
@@ -278,32 +516,36 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
         ),
       ),
 
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          final now = TimeOfDay.now();
-          final nowDateTime = DateTime.now();
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButton: Container(
+        margin: const EdgeInsets.only(bottom: 16, right: 8), // RouteResult와 동일한 위치
+        child: FloatingActionButton(
+          onPressed: () {
+            final now = TimeOfDay.now();
+            final nowDateTime = DateTime.now();
 
-          final durParts = duration.split(RegExp(r'[시간분\s]+')).where((e) => e.isNotEmpty).toList();
-          int durHour = durParts.length == 2 ? int.parse(durParts[0]) : 0;
-          int durMin = durParts.length == 2 ? int.parse(durParts[1]) : int.parse(durParts[0]);
+            final durParts = duration.split(RegExp(r'[시간분\s]+')).where((e) => e.isNotEmpty).toList();
+            int durHour = durParts.length == 2 ? int.parse(durParts[0]) : 0;
+            int durMin = durParts.length == 2 ? int.parse(durParts[1]) : int.parse(durParts[0]);
 
-          final arrivalDateTime = nowDateTime.add(Duration(hours: durHour, minutes: durMin));
-          final updatedArrival = TimeOfDay(hour: arrivalDateTime.hour, minute: arrivalDateTime.minute);
+            final arrivalDateTime = nowDateTime.add(Duration(hours: durHour, minutes: durMin));
+            final updatedArrival = TimeOfDay(hour: arrivalDateTime.hour, minute: arrivalDateTime.minute);
 
-          setState(() {
-            departureTime = now;
-            //arrivalTime = updatedArrival;
-          });
-        },
-        backgroundColor: const Color(0xFF4262C5),
-        shape: const CircleBorder(),
-        child: const Icon(
-          Icons.refresh,
-          color: Colors.white,
-          size: 28,
+            setState(() {
+              departureTime = now;
+              // arrivalTime = updatedArrival;
+            });
+          },
+          backgroundColor: const Color(0xFF4262C5),
+          shape: const CircleBorder(),
+          child: const Icon(
+            Icons.refresh,
+            color: Colors.white,
+            size: 28,
+          ),
         ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+
 
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -315,8 +557,12 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
 
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
                 children: [
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    textBaseline: TextBaseline.alphabetic,
                     children: [
                       Text(
                         duration,
@@ -326,29 +572,31 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
                           color: Colors.black,
                         ),
                       ),
-                      const SizedBox(width: 4),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 10, left: 6), // ← 여기 숫자로 살짝 내려줌
-                        child: Text(
-                          '환승 1회',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Colors.black,
-                            fontWeight: FontWeight.w400,
-                          ),
+                      const SizedBox(width: 6),
+                      Text(
+                        '환승 ${transferCount}회',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                          color: Colors.black,
                         ),
                       ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      _buildRadioOption('평일'),
+                      const SizedBox(width: 4),
+                      _buildRadioOption('토요일'),
+                      const SizedBox(width: 4),
+                      _buildRadioOption('일요일'),
                     ],
                   ),
                 ],
               ),
 
 
-
-
-              const SizedBox(height: 4),
-
-
+              const SizedBox(height: 6),
 // ✅ 2. 출발/도착 시간 박스
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -422,6 +670,27 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
 
     );
   }
+  Widget _buildRadioOption(String label) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Radio<String>(
+          value: label,
+          groupValue: selectedDayType,
+          onChanged: (value) {
+            setState(() {
+              selectedDayType = value!;
+              fetchCongestionPrediction(); // 요일 바꾸면 다시 예측
+            });
+          },
+          visualDensity: VisualDensity.compact,
+          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        ),
+        Text(label, style: const TextStyle(fontSize: 12)),
+      ],
+    );
+  }
+
   String _getArrivalStation() {
     if (line == '1호선') {
       return '구일역';
@@ -655,7 +924,7 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
         ),
         Positioned(
           left: 32,
-          top: 160,
+          top: 175,
           child: Text(
             duration,
             style: const TextStyle(
@@ -671,35 +940,33 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
 
   // 혼잡도 그래프 위젯
   Widget _buildCongestionGraph() {
-    final carKeys = congestionData.keys.toList()..sort(); // 🚉 응답 기반으로 동적으로 칸 구성
+    final currentColors = _getColors(congestionData);
+    final futureColors = _getColors(congestionDataFuture);
 
-
-    List<Color> getColors() {
-      return carKeys.map((key) {
-        print('🚈 $key: ${congestionData[key]}');
-        switch (congestionData[key]) {
-          case 'RELAXED': return const Color(0xFF4863EC); // 여유
-          case 'NORMAL': return const Color(0xFF52B93E); // 보통
-          case 'CROWDED': return const Color(0xFFEED906); // 주의
-          case 'CONGESTED': return const Color(0xFFF70505); // 혼잡
-          default: return Colors.grey.shade300; // 예측 안 된 경우
-        }
-      }).toList();
-    }
-
-    final seatColors = getColors();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 12)
-
-
-
-        ,
-        _buildTrainRow(label: '예측', seatColors: seatColors),
+        const SizedBox(height: 12),
+        _buildTrainRow(label: '현재 시간', seatColors: currentColors),
+        const SizedBox(height: 28),
+        _buildTrainRow(label: '10분 후', seatColors: futureColors),
       ],
     );
   }
+
+  List<Color> _getColors(Map<String, String> data) {
+    final keys = data.keys.toList()..sort();
+    return keys.map((key) {
+      switch (data[key]) {
+        case 'RELAXED': return const Color(0xFF4863EC);
+        case 'NORMAL': return const Color(0xFF52B93E);
+        case 'CROWDED': return const Color(0xFFEED906);
+        case 'WARNING': return const Color(0xFFF70505);
+        default: return Colors.grey.shade300;
+      }
+    }).toList();
+  }
+
 
 
   Widget _buildCongestionLegend() {
@@ -744,56 +1011,57 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
   Widget _buildTrainRow({
     required String label,
     required List<Color> seatColors,
-  })
-  {
+  }) {
+    if (seatColors.isEmpty) return const SizedBox();
 
-    if (seatColors.isEmpty) {
-      return const SizedBox();
-    }
     return Padding(
       padding: const EdgeInsets.only(top: 18),
-      child: Stack(
-        alignment: Alignment.topCenter,
-        children: [
-          // 🚋 그래프 부분
-          Padding(
-            padding: const EdgeInsets.only(top: 12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _buildLeftHalfCircle(seatColors.first),
-                ...seatColors
-                    .sublist(1, seatColors.length - 1)
-                    .map((color) => _buildSeatBox(color))
-                    .toList(),
-                _buildRightHalfCircle(seatColors.last),
-              ],
-            ),
-          ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final boxCount = seatColors.length;
+          final boxWidth = 22.0;
+          final spacing = 2.0;
 
-          // 🕒 텍스트를 위에 오른쪽 정렬로 띄우기
-          Positioned(
-            top: -6,
-            right: 30,
-            child: Container(
-              width: 60,
-              height: 15,
-              alignment: Alignment.centerRight,
-              child: Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w400,
-                  color: Color(0xFF111111),
-                ),
+          final totalWidth = boxCount * boxWidth + (boxCount - 1) * spacing;
+
+          return Align(
+            alignment: Alignment.center,
+            child: SizedBox(
+              width: totalWidth,
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Row(
+                    children: [
+                      _buildLeftHalfCircle(seatColors.first),
+                      ...seatColors
+                          .sublist(1, seatColors.length - 1)
+                          .map(_buildSeatBox)
+                          .toList(),
+                      _buildRightHalfCircle(seatColors.last),
+                    ],
+                  ),
+                  Positioned(
+                    right: 20,  // 그래프 오른쪽 기준 텍스트 위치
+                    top: -22,
+                    child: Text(
+                      label,
+                      textAlign: TextAlign.right,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w400,
+                        color: Color(0xFF111111),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
-
 
 
 

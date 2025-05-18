@@ -10,17 +10,16 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env"); // .env 파일 로드
+  await dotenv.load(fileName: ".env");
 
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
-      statusBarColor: Colors.white, // 상태바 배경 흰색
-      statusBarIconBrightness: Brightness.dark, // 안드로이드: 아이콘 검정
-      statusBarBrightness: Brightness.light,    // iOS: 아이콘 검정
+      statusBarColor: Colors.white,
+      statusBarIconBrightness: Brightness.dark,
+      statusBarBrightness: Brightness.light,
     ),
   );
 
-void main() {
   runApp(
     MultiProvider(
       providers: [
@@ -30,6 +29,7 @@ void main() {
     ),
   );
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

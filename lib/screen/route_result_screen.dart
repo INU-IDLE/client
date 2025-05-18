@@ -3,7 +3,6 @@ import 'package:rushcutter/screen/real_time_bottom_sheet.dart';
 import 'package:rushcutter/providers/saved_route_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:rushcutter/models/saved_route.dart';
-import 'package:rushcutter/services/station_service.dart';
 import 'package:rushcutter/services/path_service.dart';
 import 'package:rushcutter/services/api_station_service.dart';
 
@@ -483,6 +482,7 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
                       arrivalTime: arrivalTimeFormatted,
                       departureTime: stepTime,
                       sectionDurations: sectionDurations,
+                      exchangeList: exchangeList,
                     ));
                     if (route['endName'] == null) {
                       print('⚠️ 경고: route["endName"]가 null입니다. route: $route');
@@ -504,11 +504,17 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
                   } else {
                     if (endName.isEmpty) return const SizedBox.shrink();
                     final finalArrival = getCumulativeTime(departureTime, accumulatedMinutes);
-                    return _buildArrivalStep(
-                      time: formatWithoutAmPm(finalArrival),
-                      station: '$endName 하차',
+                    return Column(
+                      children: [
+                        _buildArrivalStep(
+                          time: formatWithoutAmPm(finalArrival),
+                          station: '$endName 하차',
+                        ),
+                        const SizedBox(height: 100),
+                      ],
                     );
                   }
+
                 },
               );
             }),
@@ -534,6 +540,7 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
     required String arrivalTime,
     required TimeOfDay departureTime,
     required List<int> sectionDurations,
+    required List<dynamic> exchangeList,
   }) {
     return GestureDetector(
       onTap: () {
@@ -627,6 +634,7 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
               'isFavorite': isFavorite,
               'actualArrival': endName,
               'sectionDurations': sectionDurations,
+              'transferCount': exchangeList.length,
 
             },
           );
@@ -715,6 +723,7 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
     required String arrivalTime,
     required TimeOfDay departureTime,
     required List<int> sectionDurations,
+    required List<dynamic> exchangeList,
   }) {
 
     return Stack(
@@ -823,6 +832,7 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
             arrivalTime: arrivalTime,
             departureTime: departureTime,
             sectionDurations: sectionDurations.toList(),
+            exchangeList: exchangeList,
           ),
         ),
       ],
