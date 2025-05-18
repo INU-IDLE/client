@@ -111,9 +111,9 @@ class _SubwayTimetableScreenState extends State<SubwayTimetableScreen> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(child: _buildTrainList(downTrains)),
-                    const SizedBox(width: 16),
                     Expanded(child: _buildTrainList(upTrains)),
+                    const SizedBox(width: 16),
+                    Expanded(child: _buildTrainList(downTrains)),
                   ],
                 ),
               ),
@@ -141,7 +141,7 @@ class _SubwayTimetableScreenState extends State<SubwayTimetableScreen> {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        '${widget.stationName}역 ${widget.lineName}',
+                        '${widget.stationName} ${widget.lineName}',
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,

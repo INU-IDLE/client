@@ -389,41 +389,36 @@ class _RealTimeBottomSheetState extends State<RealTimeBottomSheet> {
       padding: const EdgeInsets.only(top: 18),
       child: Stack(
         alignment: Alignment.topCenter,
+        clipBehavior: Clip.none,
         children: [
           Padding(
-            padding: const EdgeInsets.only(top: 12),
+            padding: const EdgeInsets.only(top: 16),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 _buildLeftHalfCircle(seatColors.first),
-                ...seatColors
-                    .sublist(1, seatColors.length - 1)
-                    .map(_buildSeatBox)
-                    .toList(),
+                ...seatColors.sublist(1, seatColors.length - 1).map(_buildSeatBox).toList(),
                 _buildRightHalfCircle(seatColors.last),
               ],
             ),
           ),
           Positioned(
-            top: -6,
+            top: -7.5,
             right: 30,
-            child: Container(
-              width: 60,
-              height: 15,
-              alignment: Alignment.centerRight,
-              child: Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w400,
-                  color: Color(0xFF111111),
-                ),
+            child: Text(
+              label,
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w400,
+                color: Color(0xFF111111),
               ),
             ),
           ),
+
         ],
       ),
     );
+
   }
 
   Widget _buildSeatBox(Color color) {
