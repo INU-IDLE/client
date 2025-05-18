@@ -122,7 +122,7 @@ class _SearchScreenState extends State<SearchScreen> {
               top: MediaQuery
                   .of(context)
                   .padding
-                  .top + 10,
+                  .top + 18,
               left: 15,
               right: 15,
             ),
@@ -142,7 +142,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       color: const Color(0xFFE7E7E7),
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    padding: EdgeInsets.symmetric(horizontal: 14),
                     child: Row(
                       children: [
                         Expanded(
@@ -167,13 +167,13 @@ class _SearchScreenState extends State<SearchScreen> {
                               hintText: "지하철 역 검색",
                               hintStyle: TextStyle(
                                 color: Colors.grey[500],
-                                fontSize: 17,
+                                fontSize: 14,
                                 fontWeight: FontWeight.w500, // 필요시 두께 조정
                               ),
                               border: InputBorder.none,
                               contentPadding: EdgeInsets.symmetric(vertical: 14),
                             ),
-                            style: TextStyle(fontSize: 17,
+                            style: TextStyle(fontSize: 14,
                               fontWeight: FontWeight.w500,
                               color: Colors.black,
                             ),
@@ -182,7 +182,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         GestureDetector(
                           onTap: () => _searchAndNavigate(searchQuery),
                           child: Icon(Icons.search, color: Colors.black54,
-                              size: 24),
+                              size: 16),
                         ),
                       ],
                     ),
