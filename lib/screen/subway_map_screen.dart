@@ -356,7 +356,14 @@ class _SubwayMapScreenState extends State<SubwayMapScreen> {
       ),
     );
   }
-
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    precacheImage(
+      const AssetImage('assets/images/metropolitan.png'),
+      context,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {

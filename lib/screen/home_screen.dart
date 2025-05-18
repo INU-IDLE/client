@@ -196,10 +196,10 @@ class _HomeScreenState extends State<HomeScreen> {
       MaterialPageRoute(
         builder: (context) =>
             SubwayMapScreen(
-              initialTransformation: _transformationController.value, // 추가
+              initialTransformation: _transformationController.value,
               isSelectingDeparture: false,
               searchQuery: selectedStation!.stationNm,
-              selectedStation: selectedStation, // ★ 현재 선택된 역 전달
+              selectedStation: selectedStation,
 
             ),
       ),
@@ -249,25 +249,22 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     return Scaffold(
-      body: Stack(
-        children: [
-          Positioned.fill(child: currentScreen),
-          // 상단 검색창 및 알림 버튼
-          if (selectedCategory ==
-              'HOME') // || selectedCategory == '실시간' 실시간일 때는 검색창 안뜨게
-            Positioned(
-              top: statusBarHeight+16,
-              left: 0,
-              right: 0,
-              child: Container(
-                height: 60,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(color: Colors.black12, blurRadius: 10),
-                  ],
-                ),
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        top: true,
+        bottom: false,
+        child: Column(
+            children: [
+            // 검색창
+            Container(
+            height: 60,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(color: Colors.black12, blurRadius: 10),
+              ],
+            ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -349,25 +346,25 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ],
                 ),
-              ),
             ),
-        ],
+          Expanded(
+            child: currentScreen,
+          ),
+          ],
+        ),
       ),
+
     );
   }
 
   Widget _buildHomeContent() {
     final Station? buttonStation = selectedStation ?? _lastStationForButton;
 
-      return Scaffold(
-          backgroundColor: Colors.white, // Scaffold도 흰색으로
-          body: Stack(
-              children: [
-          // 1. 맨 아래에 흰색 배경
+    return Stack(
+        children: [
           Positioned.fill(child: Container(color: Colors.white)),
-
-    Positioned.fill(
-    child: InteractiveViewer(
+          Positioned.fill(
+            child: InteractiveViewer(
         transformationController: _transformationController,
         minScale: 0.3,
         maxScale: 2.0,
@@ -378,11 +375,12 @@ class _HomeScreenState extends State<HomeScreen> {
           height: 3800,
           child: Stack(
             children: [
-              Image.asset(
+             Image.asset(
                 'assets/images/metropolitan.png',
                 width: 4500,
                 height: 3800,
                 fit: BoxFit.cover,
+
               ),
               StationComponent(
                 stations: stationData,
@@ -451,7 +449,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     ),
         ]
-          ),
-        );
+          );
   }
 }
