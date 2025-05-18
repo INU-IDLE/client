@@ -317,28 +317,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         const Icon(
                             Icons.notifications, size: 30,
                             color: Colors.black),
-                        Positioned(
-                          top: 5,
-                          right: 5,
-                          child: Container(
-                            width: 15,
-                            height: 15,
-                            decoration: BoxDecoration(
-                              color: Colors.red,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Center(
-                              child: Text(
-                                '99+',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
+
                       ],
                     ),
                   ),
