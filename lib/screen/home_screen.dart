@@ -231,10 +231,10 @@ class _HomeScreenState extends State<HomeScreen> {
         currentScreen = _buildHomeContent();
         break;
       case '시간표':
-        currentScreen = const SubwayLineSelectScreen();
+        currentScreen = const RealTimeScreen();
         break;
       case '저장':
-        currentScreen = const SavedRoutesScreen();
+        currentScreen = const SubwayLineSelectScreen();
         break;
       case '소식':
         currentScreen = const NewsScreen();
@@ -289,6 +289,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     builder: (context) =>
                                     const SearchScreen(
                                       isSelectingDeparture: true, // 기본값 설정
+
                                     ),
                                   ),
                                 );

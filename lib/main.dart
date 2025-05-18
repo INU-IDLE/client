@@ -7,7 +7,6 @@ import 'package:rushcutter/screen/congestion_prediction_screen.dart';
 import 'package:rushcutter/providers/saved_route_provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
@@ -38,10 +37,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Rushcutter',
-        theme: ThemeData(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
         scaffoldBackgroundColor: Colors.white,
-        ),
-      home: const MainLayout(), // 🔁 여기서 MainLayout 사용
+      ),
+      home: const MainLayout(),
       routes: {
         '/timetable': (context) => const MainLayout(initialCategory: '시간표'),
         '/news': (context) => const MainLayout(initialCategory: '소식'),
