@@ -1,2 +1,0 @@
-C:/rushcutter/android/app/.cxx/Debug/4c683z42/x86_64/CMakeFiles/edit_cache.dir
-C:/rushcutter/android/app/.cxx/Debug/4c683z42/x86_64/CMakeFiles/rebuild_cache.dir
