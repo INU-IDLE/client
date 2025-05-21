@@ -61,7 +61,6 @@ build/**
 # APK 등 바이너리
 *.apk
 *.ap_
-*.lock
 *.bin
 *.probe
 
@@ -76,7 +75,3 @@ android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java
 .gradle/
 android/local.properties
 **/GeneratedPluginRegistrant.java
-
-
-
-.env
