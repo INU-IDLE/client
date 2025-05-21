@@ -76,3 +76,9 @@ android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java
 .gradle/
 android/local.properties
 **/GeneratedPluginRegistrant.java
+
+macos/
+web/
+windows/
+FETCH_HEAD
+.metadata
