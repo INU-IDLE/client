@@ -82,3 +82,5 @@ web/
 windows/
 FETCH_HEAD
 .metadata
+
+backend-server/
