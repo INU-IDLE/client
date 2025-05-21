@@ -61,12 +61,12 @@ build/**
 # APK 등 바이너리
 *.apk
 *.ap_
-*.lock
 *.bin
 *.probe
 
 .vscode/  # VSCode 설정 무시하고 싶다면 이 줄도 주석 해제
 
+**/.cxx/
 
 # DevTools, extension 등
 .dart_tool/extension_discovery/
@@ -77,6 +77,11 @@ android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java
 android/local.properties
 **/GeneratedPluginRegistrant.java
 
+macos/
+web/
+windows/
+FETCH_HEAD
+.metadata
 
-
-.env
+backend-server/
+linux/
