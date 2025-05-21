@@ -231,7 +231,7 @@ class _HomeScreenState extends State<HomeScreen> {
         currentScreen = _buildHomeContent();
         break;
       case '시간표':
-        currentScreen = const RealTimeScreen();
+        currentScreen = const SubwayLineSelectScreen();
         break;
       case '저장':
         currentScreen = const SubwayLineSelectScreen();
