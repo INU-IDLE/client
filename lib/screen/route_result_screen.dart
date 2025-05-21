@@ -622,7 +622,7 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
             arguments: {
               'line': line,
               'station': station,
-              'destination': destination,
+              'destination': endName,
               'fastTransfer': fastTransfer,
               'time': time,
               'duration': duration,
