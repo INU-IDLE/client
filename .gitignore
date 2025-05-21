@@ -66,8 +66,7 @@ build/**
 
 .vscode/  # VSCode 설정 무시하고 싶다면 이 줄도 주석 해제
 
-# Android NDK & CMake 관련 중간 산출물 무시
-android/app/.cxx/
+**/.cxx/
 
 # DevTools, extension 등
 .dart_tool/extension_discovery/
