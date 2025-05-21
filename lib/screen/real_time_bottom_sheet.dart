@@ -12,6 +12,8 @@ class RealTimeBottomSheet extends StatefulWidget {
   final String arrivalStation;
   final String arrivalTime;
   final List<int> sectionDurations;
+  final List<Map<String, dynamic>> carsList;
+  final List<String> arrivalTimes;
 
   final String nowTime = DateFormat('HH:mm').format(DateTime.now());
 
@@ -27,6 +29,8 @@ class RealTimeBottomSheet extends StatefulWidget {
     required this.arrivalStation,
     required this.arrivalTime,
     required this.sectionDurations,
+    required this.carsList,
+    required this.arrivalTimes,
   }) : super(key: key);
 
   @override
@@ -105,8 +109,6 @@ class _RealTimeBottomSheetState extends State<RealTimeBottomSheet> {
               // 도보 정보
 
               _buildArrivalOrTransferStep(),
-
-
               const SizedBox(height: 75),
               _buildCongestionLegend(),
             ],
@@ -149,7 +151,7 @@ class _RealTimeBottomSheetState extends State<RealTimeBottomSheet> {
                       ),
                     ),
                     Text(
-                      '${widget.station} 승차',
+                      '${widget.station}',
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -358,27 +360,41 @@ class _RealTimeBottomSheetState extends State<RealTimeBottomSheet> {
   Widget _buildCongestionGraph() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(height: 12),
-        _buildTrainRow(
-          label: '5분 후',
-          seatColors: [
-            Color(0xFFF70505), Color(0xFFEED906), Color(0xFF52B93E),
-            Color(0xFF4863EC), Color(0xFF4863EC), Color(0xFFEED906),
-            Color(0xFF52B93E), Color(0xFFF70505), Color(0xFFEED906),
-          ],
-        ),
-        const SizedBox(height: 15),
-        _buildTrainRow(
-          label: '10분 후',
-          seatColors: [
-            Color(0xFFF70505), Color(0xFFEED906), Color(0xFF52B93E),
-            Color(0xFF4863EC), Color(0xFF52B93E), Color(0xFF52B93E),
-            Color(0xFF4863EC), Color(0xFF4863EC), Color(0xFFEED906),
-          ],
-        ),
-      ],
+
+        children: List.generate(widget.carsList.length, (idx) {
+          final cars = widget.carsList[idx];
+          final sortedKeys = cars.keys.toList()..sort();
+          final seatColors = sortedKeys.map((carKey) {
+            final car = cars[carKey];
+            return _getColor(car['level']);
+          }).toList();
+        // arrivalTime (예: '5분 후', '10분 후' 등)
+        final label = (widget.arrivalTimes.length > idx) ? widget.arrivalTimes[idx] : '';
+
+        return Padding(
+              padding: EdgeInsets.only(bottom: idx == widget.carsList.length - 1 ? 0 : 40), // 간격 넓게!
+          child: _buildTrainRow(
+          label: label,
+          seatColors: seatColors,
+          ),
+        );
+      }).toList(),
     );
+  }
+
+  Color _getColor(String level) {
+    switch (level) {
+      case 'WARNING':
+        return const Color(0xFFF70505);
+      case 'CROWDED':
+        return const Color(0xFFEED906);
+      case 'NORMAL':
+        return const Color(0xFF52B93E);
+      case 'RELAXED':
+        return const Color(0xFF4863EC);
+      default:
+        return Colors.grey.shade300;
+    }
   }
 
   Widget _buildTrainRow({
@@ -387,41 +403,46 @@ class _RealTimeBottomSheetState extends State<RealTimeBottomSheet> {
   }) {
     return Padding(
       padding: const EdgeInsets.only(top: 18),
-      child: Stack(
-        alignment: Alignment.topCenter,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _buildLeftHalfCircle(seatColors.first),
-                ...seatColors
-                    .sublist(1, seatColors.length - 1)
-                    .map(_buildSeatBox)
-                    .toList(),
-                _buildRightHalfCircle(seatColors.last),
-              ],
-            ),
-          ),
-          Positioned(
-            top: -6,
-            right: 30,
-            child: Container(
-              width: 60,
-              height: 15,
-              alignment: Alignment.centerRight,
-              child: Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w400,
-                  color: Color(0xFF111111),
-                ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final boxCount = seatColors.length;
+          final boxWidth = 22.0;
+          final spacing = 2.0;
+
+          final totalWidth = boxCount * boxWidth + (boxCount - 1) * spacing;
+
+          return Align(
+            alignment: Alignment.center,
+            child: SizedBox(
+              width: totalWidth,
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Row(
+                    children: [
+                      _buildLeftHalfCircle(seatColors.first),
+                      ...seatColors.sublist(1, seatColors.length - 1).map(_buildSeatBox).toList(),
+                      _buildRightHalfCircle(seatColors.last),
+                    ],
+                  ),
+                  Positioned(
+                    right: 20, // 그래프 오른쪽 기준 텍스트 위치
+                    top: -22,
+                    child: Text(
+                      label,
+                      textAlign: TextAlign.right,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w400,
+                        color: Color(0xFF111111),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
@@ -472,6 +493,7 @@ class _RealTimeBottomSheetState extends State<RealTimeBottomSheet> {
     );
   }
 
+
   Widget _buildCongestionLegend() {
     return Column(
       children: [
@@ -482,14 +504,14 @@ class _RealTimeBottomSheetState extends State<RealTimeBottomSheet> {
         const SizedBox(height: 8),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            _LegendDot(color: Color(0xFFF70505)),
-            SizedBox(width: 8),
-            _LegendDot(color: Color(0xFFEED906)),
-            SizedBox(width: 8),
-            _LegendDot(color: Color(0xFF52B93E)),
-            SizedBox(width: 8),
-            _LegendDot(color: Color(0xFF4863EC)),
+          children: [
+            _LegendDot(color: const Color(0xFFF70505)), // 빨강
+            const SizedBox(width: 8),
+            _LegendDot(color: const Color(0xFFEED906)), // 노랑
+            const SizedBox(width: 8),
+            _LegendDot(color: const Color(0xFF52B93E)), // 초록
+            const SizedBox(width: 8),
+            _LegendDot(color: const Color(0xFF4863EC)), // 파랑
           ],
         ),
       ],

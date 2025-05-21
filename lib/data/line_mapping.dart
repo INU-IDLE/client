@@ -24,21 +24,21 @@ const List<LineInfo> subwayLines = [
   LineInfo(lineNum: '07호선', lineCode: '7', name: '7호선', color: Color(0xFF747F00)),
   LineInfo(lineNum: '08호선', lineCode: '8', name: '8호선', color: Color(0xFFE6186C)),
   LineInfo(lineNum: '09호선', lineCode: '9', name: '9호선', color: Color(0xFFBDB092)),
-  LineInfo(lineNum: '경의선', lineCode: 'K', name: '경의중앙선', color: Color(0xFF77C4A3)),
-  LineInfo(lineNum: '경춘선', lineCode: 'G', name: '경춘선', color: Color(0xFF178C72)),
-  LineInfo(lineNum: '수인분당선', lineCode: 'B', name: '수인·분당선', color: Color(0xFFFABD00)),
-  LineInfo(lineNum: '신분당선', lineCode: 'S', name: '신분당선', color: Color(0xFFD31145)),
-  LineInfo(lineNum: '공항철도', lineCode: 'A', name: '공항철도', color: Color(0xFF0090D2)),
-  LineInfo(lineNum: '서해선', lineCode: 'W', name: '서해선', color: Color(0xFF8FC31F)),
+  LineInfo(lineNum: '경의선', lineCode: 'K4', name: '경의중앙선', color: Color(0xFF77C4A3)),
+  LineInfo(lineNum: '경춘선', lineCode: 'K2', name: '경춘선', color: Color(0xFF178C72)),
+  LineInfo(lineNum: '수인분당선', lineCode: 'K1', name: '수인·분당선', color: Color(0xFFFABD00)),
+  LineInfo(lineNum: '신분당선', lineCode: 'D1', name: '신분당선', color: Color(0xFFD31145)),
+  LineInfo(lineNum: '공항철도', lineCode: 'A1', name: '공항철도', color: Color(0xFF0090D2)),
+  LineInfo(lineNum: '서해선', lineCode: 'WS', name: '서해선', color: Color(0xFF8FC31F)),
   LineInfo(lineNum: '인천선', lineCode: 'I1', name: '인천1호선', color: Color(0xFF79A0D4)),
   LineInfo(lineNum: '인천2호선', lineCode: 'I2', name: '인천2호선', color: Color(0xFFF5A251)),
-  LineInfo(lineNum: '용인경전철', lineCode: 'E', name: '에버라인(용인)', color: Color(0xFF56AD2D)),
-  LineInfo(lineNum: '의정부경전철', lineCode: 'U', name: '의정부경전철', color: Color(0xFFFD8100)),
-  LineInfo(lineNum: '우이신설경전철', lineCode: 'M', name: '우이신설경전철', color: Color(0xFFB7C450)),
-  LineInfo(lineNum: '김포도시철도', lineCode: 'GML', name: '김포골드라인', color: Color(0xFFAD8605)),
-  LineInfo(lineNum: '신림선', lineCode: 'SL', name: '신림선', color: Color(0xFF000000)),
-  LineInfo(lineNum: '경강선', lineCode: 'GG', name: '경강선', color: Color(0xFF000000)),
-  LineInfo(lineNum: 'GTX-A', lineCode: 'GX', name: 'GTX-A', color: Colors.black),
+  LineInfo(lineNum: '용인경전철', lineCode: 'E1', name: '에버라인(용인)', color: Color(0xFF56AD2D)),
+  LineInfo(lineNum: '의정부경전철', lineCode: 'U1', name: '의정부경전철', color: Color(0xFFFD8100)),
+  LineInfo(lineNum: '우이신설경전철', lineCode: 'UI', name: '우이신설경전철', color: Color(0xFFB7C450)),
+  LineInfo(lineNum: '김포도시철도', lineCode: 'G1', name: '김포골드라인', color: Color(0xFFAD8605)),
+  LineInfo(lineNum: '신림선', lineCode: 'L1', name: '신림선', color: Color(0xFF000000)),
+  LineInfo(lineNum: '경강선', lineCode: 'K5', name: '경강선', color: Color(0xFF000000)),
+  LineInfo(lineNum: 'GTX-A', lineCode: 'A', name: 'GTX-A', color: Colors.black),
 ];
 
 const Map<String, String> lineNumToName = {
@@ -67,3 +67,15 @@ const Map<String, String> lineNumToName = {
   '경강선': '경강선',
   'GTX-A': 'GTX-A',
 };
+
+String? getApiLineName(String codeOrName) {
+  try {
+    // codeOrName이 '6호선'이면 그대로 반환, '6'이면 name 반환
+    final match = subwayLines.firstWhere((lineInfo) =>
+    lineInfo.name == codeOrName || lineInfo.lineCode == codeOrName
+    );
+    return match.name;
+  } catch (e) {
+    return null;
+  }
+}

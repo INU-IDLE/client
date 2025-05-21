@@ -3,7 +3,6 @@ import 'package:rushcutter/screen/real_time_bottom_sheet.dart';
 import 'package:rushcutter/providers/saved_route_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:rushcutter/models/saved_route.dart';
-import 'package:rushcutter/services/station_service.dart';
 import 'package:rushcutter/services/path_service.dart';
 import 'package:rushcutter/services/api_station_service.dart';
 
@@ -39,6 +38,7 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
   String? minTransferEndName;
   int? minTransferTravelTime;
 
+
   int getTravelTimeTo(String untilStationName) {
     final target = stations.firstWhere(
           (s) => s['endName'] == untilStationName,
@@ -67,6 +67,7 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
     final startFrCode = await stationService.getFrCodeByStationName(widget.departure);
     final endFrCode = await stationService.getFrCodeByStationName(widget.arrival);
     final pathService = PathService();
+    final List<Map<String, dynamic>> carsList;
 
     if (startFrCode == null || endFrCode == null) {
       print("❌ 출발역 또는 도착역의 fr_code를 찾을 수 없습니다.");
@@ -184,7 +185,7 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
     return DefaultTabController(
         length: 2,
         child:Scaffold(
-        backgroundColor: Colors.white, // ✅ 페이지 전체 배경 흰색 적용
+          backgroundColor: Colors.white, // ✅ 페이지 전체 배경 흰색 적용
           appBar: AppBar(
             backgroundColor: Colors.white,
             elevation: 0,
@@ -209,29 +210,29 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
 
 
           floatingActionButton: Container(
-          width: 56,
-          height: 56,
-          margin: const EdgeInsets.only(bottom: 16, right: 8),
-          child: FloatingActionButton(
-            onPressed: () {
-              final now = TimeOfDay.now();
-              setState(() {
-                departureTime = now;
-                // arrivalTime 제거!
-              });
-            },
-            backgroundColor: const Color(0xFF4262C5),
-            shape: const CircleBorder(),
-            child: const Icon(
-              Icons.refresh,
-              color: Colors.white,
-              size: 28,
+            width: 56,
+            height: 56,
+            margin: const EdgeInsets.only(bottom: 16, right: 8),
+            child: FloatingActionButton(
+              onPressed: () {
+                final now = TimeOfDay.now();
+                setState(() {
+                  departureTime = now;
+                  // arrivalTime 제거!
+                });
+              },
+              backgroundColor: const Color(0xFF4262C5),
+              shape: const CircleBorder(),
+              child: const Icon(
+                Icons.refresh,
+                color: Colors.white,
+                size: 28,
+              ),
             ),
           ),
-        ),
 
 
-        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+          floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
 
           body: TabBarView(
             children: [
@@ -483,6 +484,7 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
                       arrivalTime: arrivalTimeFormatted,
                       departureTime: stepTime,
                       sectionDurations: sectionDurations,
+                      exchangeList: exchangeList,
                     ));
                     if (route['endName'] == null) {
                       print('⚠️ 경고: route["endName"]가 null입니다. route: $route');
@@ -504,11 +506,17 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
                   } else {
                     if (endName.isEmpty) return const SizedBox.shrink();
                     final finalArrival = getCumulativeTime(departureTime, accumulatedMinutes);
-                    return _buildArrivalStep(
-                      time: formatWithoutAmPm(finalArrival),
-                      station: '$endName 하차',
+                    return Column(
+                      children: [
+                        _buildArrivalStep(
+                          time: formatWithoutAmPm(finalArrival),
+                          station: '$endName 하차',
+                        ),
+                        const SizedBox(height: 100),
+                      ],
                     );
                   }
+
                 },
               );
             }),
@@ -534,6 +542,7 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
     required String arrivalTime,
     required TimeOfDay departureTime,
     required List<int> sectionDurations,
+    required List<dynamic> exchangeList,
   }) {
     return GestureDetector(
       onTap: () {
@@ -579,6 +588,8 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
                         arrivalStation: endName,
                         arrivalTime: arrivalTime,
                         sectionDurations: sectionDurations.toList(),
+                        carsList: [],
+                        arrivalTimes: [],
                       ),
                     );
                   },
@@ -627,6 +638,7 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
               'isFavorite': isFavorite,
               'actualArrival': endName,
               'sectionDurations': sectionDurations,
+              'transferCount': exchangeList.length,
 
             },
           );
@@ -715,6 +727,7 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
     required String arrivalTime,
     required TimeOfDay departureTime,
     required List<int> sectionDurations,
+    required List<dynamic> exchangeList,
   }) {
 
     return Stack(
@@ -823,6 +836,7 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
             arrivalTime: arrivalTime,
             departureTime: departureTime,
             sectionDurations: sectionDurations.toList(),
+            exchangeList: exchangeList,
           ),
         ),
       ],

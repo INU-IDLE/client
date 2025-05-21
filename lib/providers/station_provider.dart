@@ -20,7 +20,7 @@ class StationProvider with ChangeNotifier {
   void applySearchedToDeparture() {
     if (_searchedStation?.isNotEmpty ?? false) {
       _departureStation = _searchedStation;
-      _searchedStation = null;
+      // _searchedStation = null;
       notifyListeners();
     }
   }
@@ -28,7 +28,7 @@ class StationProvider with ChangeNotifier {
   void applySearchedToArrival() {
     if (_searchedStation?.isNotEmpty ?? false) {
       _arrivalStation = _searchedStation;
-      _searchedStation = null;
+      // _searchedStation = null;
       notifyListeners();
     }
   }

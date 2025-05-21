@@ -391,7 +391,7 @@ class _HomeScreenState extends State<HomeScreen> {
               if (buttonStation != null && buttonStation.id.isNotEmpty)
                 Positioned(
                   left: (buttonStation.cx) - 40,
-                  top: (buttonStation.cy) - 120,
+                  top: (buttonStation.cy) - 115,
                   child: AnimatedSlide(
                     offset: (showButtons)
                         ? Offset.zero

@@ -6,25 +6,25 @@ import 'dart:math';
 import 'dart:ui';
 
 /*
-station_service.dart
-│
-├─ class StationService {
-│    ├─ searchStations()     // 이름 포함 검색
-│    ├─ findByName()         // 정확 이름 검색
-│    ├─ findStationByTap()   // 좌표 기준 검색
-│    └─ getStationByFrCode() // frCode 기준 검색
-│
-└─ Future<List<Station>> loadStations()
+  station_service.dart
+  │
+  ├─ class StationService {
+  │    ├─ searchStations()     // 이름 포함 검색
+  │    ├─ findByName()         // 정확 이름 검색
+  │    ├─ findStationByTap()   // 좌표 기준 검색
+  │    └─ getStationByFrCode() // frCode 기준 검색
+  │
+  └─ Future<List<Station>> loadStations()
 
-_subway_map_screen.dart
-│
-├─ initState()
-│    └─ loadAndInitStations() ← 외부 loadStations() 호출
-│
-├─ _stationService ← StationService 인스턴스
-└─ _stations ← 역 전체 리스트
+  _subway_map_screen.dart
+  │
+  ├─ initState()
+  │    └─ loadAndInitStations() ← 외부 loadStations() 호출
+  │
+  ├─ _stationService ← StationService 인스턴스
+  └─ _stations ← 역 전체 리스트
 
- */
+   */
 
 
 // 이름 일치하는 역 찾는 service 의미
@@ -76,11 +76,11 @@ class StationService {
 
   // 이름 정확히 일치하는 역 찾기
   Station? findByName(String name) {
-  try {
-    return _stations.firstWhere((station) => station.stationNm == name);
-  } catch (_) {
-    return null;
-  }
+    try {
+      return _stations.firstWhere((station) => station.stationNm == name);
+    } catch (_) {
+      return null;
+    }
   }
 
   // 클릭 위치와 가까운 역 찾기

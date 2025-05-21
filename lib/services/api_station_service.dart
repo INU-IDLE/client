@@ -2,6 +2,7 @@ import 'package:flutter/services.dart';
 import 'dart:convert';
 import 'package:rushcutter/models/station_api.dart'; // ✅ ApiStation 클래스 경로
 
+
 class ApiStationService {
   Future<List<ApiStation>> loadStationData(String jsonPath) async {
     String jsonString = await rootBundle.loadString(jsonPath);

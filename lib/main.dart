@@ -1,16 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'screen/home_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:rushcutter/layout/main_layout.dart';
 import 'package:rushcutter/screen/congestion_prediction_screen.dart';
 import 'package:rushcutter/providers/saved_route_provider.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:rushcutter/providers/station_provider.dart';
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env");
-
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.white,
@@ -23,6 +19,7 @@ Future<void> main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => SavedRouteProvider()),
+        ChangeNotifierProvider(create: (_) => StationProvider()),
       ],
       child: const MyApp(),
     ),
