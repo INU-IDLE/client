@@ -11,6 +11,7 @@ import 'package:rushcutter/widgets/station_component.dart';
 import 'package:rushcutter/models/station.dart';
 import 'package:rushcutter/screen/subway_map_screen.dart';
 import 'package:rushcutter/data/station_data.dart';
+import 'package:rushcutter/screen2/subway_timetable_screen.dart';
 import 'package:rushcutter/screen/real_time_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -135,7 +136,6 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     }
   }
-
   void _hideButtons() {
     if (!showButtons) return; // 이미 숨김 상태면 무시
     setState(() {
@@ -232,7 +232,7 @@ class _HomeScreenState extends State<HomeScreen> {
       case 'HOME':
         currentScreen = _buildHomeContent();
         break;
-      case '실시간':
+      case '시간표':
         currentScreen = const RealTimeScreen();
         break;
       case '저장':
@@ -356,6 +356,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
     );
   }
+  
+
 
   Widget _buildHomeContent() {
     final Station? buttonStation = selectedStation ?? _lastStationForButton;
@@ -390,8 +392,10 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               if (buttonStation != null && buttonStation.id.isNotEmpty)
                 Positioned(
-                  left: (buttonStation.cx) - 40,
-                  top: (buttonStation.cy) - 115,
+                  // left: (buttonStation.cx) - 40,
+                  // top: (buttonStation.cy) - 115,
+                  left: (buttonStation.cx) - 80,
+                  top: (buttonStation.cy) - 90,
                   child: AnimatedSlide(
                     offset: (showButtons)
                         ? Offset.zero
@@ -412,8 +416,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       },
                       child: IgnorePointer(
                         ignoring: !showButtons,
-                        child: Column(
-                          children: [
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [/*
                             ElevatedButton(
                               onPressed: _onSelectDeparture,
                               child: const Text("출발지"),
@@ -424,8 +429,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                 foregroundColor: Colors.black,
                                 shadowColor: Colors.black26,
                               ),
-                            ),
-                            const SizedBox(height: 8),
+                            ),*/
+                        /*
+                        const SizedBox(height: 8),
                             ElevatedButton(
                               onPressed: _onSelectArrival,
                               child: const Text("도착지"),
@@ -437,8 +443,46 @@ class _HomeScreenState extends State<HomeScreen> {
                                 shadowColor: Colors.black26,
                               ),
                             ),
+
                           ],
-                        ),
+                        ),*/
+
+// 출발지 버튼
+                            _CircleIconButton(
+                              icon: Icons.arrow_upward,
+                              label: '출발',
+                              onTap: _onSelectDeparture,
+                            ),
+                            const SizedBox(width: 8),
+                            // 도착지 버튼
+                            _CircleIconButton(
+                            icon: Icons.arrow_downward,
+                            label: '도착',
+                            onTap: _onSelectArrival,
+                            ),
+                            const SizedBox(width: 8),
+                            // Info 버튼
+                            _CircleIconButton(
+                            icon: Icons.info_outline,
+                            label: 'Info',
+                            onTap: () {
+                            Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                            builder: (context) => SubwayTimetableScreen(
+                              lineCode: buttonStation.line,      // 예: '6'
+                              lineName: getLineNameForTimetable(buttonStation.line),  // 예: '6호선'
+                              stationCode: buttonStation.id,     // 역 코드
+                              stationName: buttonStation.stationNm, // 역 이름),
+                            ),
+                            ),
+                            );
+    },
+    ),
+    ],
+    ),
+
+
                       ),
                     ),
                   ),
@@ -450,5 +494,86 @@ class _HomeScreenState extends State<HomeScreen> {
     ),
         ]
           );
+  }
+}
+String getLineNameForTimetable(String line) {
+  // 그대로 쓰는 노선 (호선/선 붙이지 않음)
+  const keepAsIs = [
+    '공항철도', '인천1호선', '인천2호선', 'GTX-A', '에버라인', '김포골드'
+  ];
+
+  // "선"을 붙여야 하는 노선
+  const addSeon = [
+    '서해', '의정부', '경의중앙', '신분당', '경강', '우이신설', '경춘', '신림', '수인분당'
+  ];
+
+  // 1~9는 "호선" 붙이기
+  if (RegExp(r'^[1-9]$').hasMatch(line)) {
+    return '$line호선';
+  }
+  // 그대로 쓰는 노선
+  if (keepAsIs.contains(line)) {
+    return line;
+  }
+  // "선" 붙이기
+  if (addSeon.contains(line)) {
+    return '$line선';
+  }
+  // 혹시나 위에 안 걸리면 그대로
+  return line;
+}
+
+class _CircleIconButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  const _CircleIconButton({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      elevation: 2, // 그림자 아주 연하게
+      shape: const CircleBorder(),
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        onTap: onTap,
+        child: Container(
+          width: 48,
+          height: 48,
+          decoration: BoxDecoration(
+            color: Colors.white, // ✅ 완전히 흰 배경
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: Colors.black, // ✅ 검은색 테두리
+              width: 1.2,
+            ),
+
+          ),
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(icon, color: Colors.black, size: 18),
+                const SizedBox(height: 2),
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    color: Colors.black,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
