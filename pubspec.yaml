@@ -45,7 +45,6 @@ flutter:
     - assets/images/metropolitan.png
     - assets/images/line1.png
     - assets/images/line2.png
-    - .env
 
 flutter_launcher_icons:
   android: true
