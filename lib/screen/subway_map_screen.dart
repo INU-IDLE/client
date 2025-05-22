@@ -3,7 +3,6 @@ import '../models/station.dart';
 import 'search_screen.dart';
 import 'route_result_screen.dart';
 import 'dart:ui';
-import 'home_screen.dart';
 import 'package:rushcutter/widgets/station_component.dart';
 import 'package:rushcutter/data/station_data.dart';
 import 'package:flutter/cupertino.dart';
@@ -11,6 +10,54 @@ import 'package:rushcutter/screen/home_screen.dart';
 import 'bottom_category_bar.dart';
 import 'package:rushcutter/layout/main_layout.dart';
 import 'package:flutter/cupertino.dart';
+
+class _CircleIconButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  const _CircleIconButton({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      elevation: 2,
+      shape: const CircleBorder(),
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        onTap: onTap,
+        child: Container(
+          width: 48,
+          height: 48,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+            border: Border.all(color: Colors.black, width: 1.2),
+            boxShadow: const [
+              BoxShadow(color: Colors.black12, blurRadius: 3, offset: Offset(0, 2)),
+            ],
+          ),
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(icon, color: Colors.black, size: 18),
+                const SizedBox(height: 2),
+                Text(label, style: const TextStyle(fontSize: 10, color: Colors.black, fontWeight: FontWeight.w500)),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 
 class SubwayMapScreen extends StatefulWidget {
@@ -554,8 +601,8 @@ class _SubwayMapScreenState extends State<SubwayMapScreen> {
                         ),
                       if (buttonStation != null && buttonStation.id.isNotEmpty)
                     Positioned(
-                    left: (buttonStation.cx) - 40,
-                top: (buttonStation.cy) - 120,
+                    left: (buttonStation.cx) - 60,
+                top: (buttonStation.cy) - 90,
                 child: AnimatedSlide(
                   offset: (showButtons)
                       ? Offset.zero
@@ -576,38 +623,28 @@ class _SubwayMapScreenState extends State<SubwayMapScreen> {
                     },
                     child: IgnorePointer(
                       ignoring: !showButtons,
-                      child: Column(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                        ElevatedButton(
-                        onPressed: _onSelectDeparture,
-                        child: const Text("출발지"),
-                        style: ElevatedButton.styleFrom(
-                          shape: const StadiumBorder(),
-                          elevation: 4,
-                          backgroundColor: Colors.white,
-                          foregroundColor: Colors.black,
-                          shadowColor: Colors.black26,
-                        ),
+                        _CircleIconButton(
+                        icon: Icons.arrow_upward,
+                        label: '출발',
+                        onTap: _onSelectDeparture,
                       ),
-                      const SizedBox(height: 8),
-                      ElevatedButton(
-                        onPressed: _onSelectArrival,
-                        child: const Text("도착지"),
-                        style: ElevatedButton.styleFrom(
-                          shape: const StadiumBorder(),
-                          elevation: 4,
-                          backgroundColor: Colors.white,
-                          foregroundColor: Colors.black,
-                          shadowColor: Colors.black26,
-                        ),
-                          ),
-                      ],
+                      const SizedBox(width: 8),
+                      // 도착지 버튼
+                      _CircleIconButton(
+                        icon: Icons.arrow_downward,
+                        label: '도착',
+                        onTap: _onSelectArrival,
+                      ),
+                      const SizedBox(width: 8),
+                          ],
+                    ),
                     ),
                   ),
                 ),
               ),
-
-                    ),
                       ],
       ),
 
