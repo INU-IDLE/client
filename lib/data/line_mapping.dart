@@ -15,11 +15,11 @@ class LineInfo {
 }
 
 const List<LineInfo> subwayLines = [
-  LineInfo(lineNum: '01호선', lineCode: '1', name: '1호선', color: Color(0xFF0052A4)),
+  LineInfo(lineNum: '01호선', lineCode: '1', name: '1호선', color: Color(0xFF344CB7)),
   LineInfo(lineNum: '02호선', lineCode: '2', name: '2호선', color: Color(0xFF00A84D)),
   LineInfo(lineNum: '03호선', lineCode: '3', name: '3호선', color: Color(0xFFEF7C1C)),
   LineInfo(lineNum: '04호선', lineCode: '4', name: '4호선', color: Color(0xFF00A4E3)),
-  LineInfo(lineNum: '05호선', lineCode: '5', name: '5호선', color: Color(0xFF996CAC)),
+  LineInfo(lineNum: '05호선', lineCode: '5', name: '5호선', color: Color(0xFF9A6EAD)),
   LineInfo(lineNum: '06호선', lineCode: '6', name: '6호선', color: Color(0xFFCD7C2F)),
   LineInfo(lineNum: '07호선', lineCode: '7', name: '7호선', color: Color(0xFF747F00)),
   LineInfo(lineNum: '08호선', lineCode: '8', name: '8호선', color: Color(0xFFE6186C)),
@@ -30,15 +30,15 @@ const List<LineInfo> subwayLines = [
   LineInfo(lineNum: '신분당선', lineCode: 'D1', name: '신분당선', color: Color(0xFFD31145)),
   LineInfo(lineNum: '공항철도', lineCode: 'A1', name: '공항철도', color: Color(0xFF0090D2)),
   LineInfo(lineNum: '서해선', lineCode: 'WS', name: '서해선', color: Color(0xFF8FC31F)),
-  LineInfo(lineNum: '인천선', lineCode: 'I1', name: '인천1호선', color: Color(0xFF79A0D4)),
+  LineInfo(lineNum: '인천선', lineCode: 'I1', name: '인천1호선', color: Color(0xFF759CCE)),
   LineInfo(lineNum: '인천2호선', lineCode: 'I2', name: '인천2호선', color: Color(0xFFF5A251)),
   LineInfo(lineNum: '용인경전철', lineCode: 'E1', name: '에버라인(용인)', color: Color(0xFF56AD2D)),
   LineInfo(lineNum: '의정부경전철', lineCode: 'U1', name: '의정부경전철', color: Color(0xFFFD8100)),
   LineInfo(lineNum: '우이신설경전철', lineCode: 'UI', name: '우이신설경전철', color: Color(0xFFB7C450)),
   LineInfo(lineNum: '김포도시철도', lineCode: 'G1', name: '김포골드라인', color: Color(0xFFAD8605)),
-  LineInfo(lineNum: '신림선', lineCode: 'L1', name: '신림선', color: Color(0xFF000000)),
-  LineInfo(lineNum: '경강선', lineCode: 'K5', name: '경강선', color: Color(0xFF000000)),
-  LineInfo(lineNum: 'GTX-A', lineCode: 'A', name: 'GTX-A', color: Colors.black),
+  LineInfo(lineNum: '신림선', lineCode: 'L1', name: '신림선', color: Color(0xFF6789CA)),
+  LineInfo(lineNum: '경강선', lineCode: 'K5', name: '경강선', color: Color(0xFF344CB7)),
+  LineInfo(lineNum: 'GTX-A', lineCode: 'A', name: 'GTX-A', color: Color(0xFF9A6292)),
 ];
 
 const Map<String, String> lineNumToName = {
