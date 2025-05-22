@@ -30,6 +30,15 @@ class _SubwayTimetableScreenState extends State<SubwayTimetableScreen> {
   @override
   void initState() {
     super.initState();
+
+    final weekday = DateTime.now().weekday;
+    if (weekday == DateTime.saturday) {
+      selectedDay = 'SATURDAY';
+    } else if (weekday == DateTime.sunday) {
+      selectedDay = 'HOLIDAY';
+    } else {
+      selectedDay = 'WEEKDAY';
+    }
     fetchTimetable();
   }
 
@@ -160,11 +169,11 @@ class _SubwayTimetableScreenState extends State<SubwayTimetableScreen> {
                   color: Colors.white,
                   child: Row(
                     children: [
-                      _buildDayRadio('평일'),
+                      _buildDayRadio('평일', 'WEEKDAY'),
                       const SizedBox(width: 8),
-                      _buildDayRadio('토요일'),
+                      _buildDayRadio('토요일', 'SATURDAY'),
                       const SizedBox(width: 8),
-                      _buildDayRadio('공휴일'),
+                      _buildDayRadio('일요일', 'HOLIDAY'),
                       const Spacer(),
                       Transform.translate(
                         offset: const Offset(0, -8),
@@ -227,21 +236,22 @@ class _SubwayTimetableScreenState extends State<SubwayTimetableScreen> {
     );
   }
 
-  Widget _buildDayRadio(String day) {
+  Widget _buildDayRadio(String label, String value) {
     return Row(
       children: [
         Radio<String>(
-          value: day.toUpperCase(),
+          value: value,
           groupValue: selectedDay,
-          onChanged: (value) {
+          onChanged: (val) {
             setState(() {
-              selectedDay = value!;
+              selectedDay = val!;
               fetchTimetable();
             });
           },
         ),
-        Text(day, style: const TextStyle(fontSize: 14)),
+        Text(label, style: const TextStyle(fontSize: 14)),
       ],
     );
   }
+
 }

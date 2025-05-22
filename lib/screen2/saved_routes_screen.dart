@@ -63,6 +63,8 @@ class _SavedRoutesScreenState extends State<SavedRoutesScreen> with TickerProvid
               builder: (_) => RouteResultScreen(
                 departure: route.from,
                 arrival: route.to,
+                departureLine: route.departureLine,
+                arrivalLine: route.arrivalLine,
               ),
             ),
           );
