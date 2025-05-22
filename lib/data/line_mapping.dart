@@ -67,3 +67,15 @@ const Map<String, String> lineNumToName = {
   '경강선': '경강선',
   'GTX-A': 'GTX-A',
 };
+
+String? getApiLineName(String codeOrName) {
+  try {
+    // codeOrName이 '6호선'이면 그대로 반환, '6'이면 name 반환
+    final match = subwayLines.firstWhere((lineInfo) =>
+    lineInfo.name == codeOrName || lineInfo.lineCode == codeOrName
+    );
+    return match.name;
+  } catch (e) {
+    return null;
+  }
+}

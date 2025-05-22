@@ -1,7 +1,3 @@
-import 'dart:convert';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
-
 // 역 정보 관리 Station class
 class Station {
   final String id; // station_positions.json id

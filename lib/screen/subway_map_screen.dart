@@ -12,6 +12,7 @@ import 'bottom_category_bar.dart';
 import 'package:rushcutter/layout/main_layout.dart';
 import 'package:flutter/cupertino.dart';
 
+
 class SubwayMapScreen extends StatefulWidget {
   final String? searchQuery;
   final bool isSelectingDeparture;
@@ -405,7 +406,7 @@ class _SubwayMapScreenState extends State<SubwayMapScreen> {
                       const SizedBox(width: 8),
                       // 검색 버튼을 swap 아이콘 오른쪽에 배치
                       CupertinoButton.filled(
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(16),
                         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
                         onPressed: navigateToResult,
                         child: const Text(
@@ -441,7 +442,7 @@ class _SubwayMapScreenState extends State<SubwayMapScreen> {
                                   departureStation ?? "출발역",
                                   style: TextStyle(
                                     color: departureStation == null ? Colors.grey[500] : Colors.black,
-                                    fontSize: 17,
+                                    fontSize: (departureStation == "동대문역사문화공원") ? 16 : 17,
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
@@ -475,7 +476,7 @@ class _SubwayMapScreenState extends State<SubwayMapScreen> {
                                   arrivalStation ?? "도착역",
                                   style: TextStyle(
                                     color: arrivalStation == null ? Colors.grey[500] : Colors.black,
-                                    fontSize: 17,
+                                    fontSize: (arrivalStation == "동대문역사문화공원") ? 16 : 17,
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
