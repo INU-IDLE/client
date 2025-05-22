@@ -1,2 +1,0 @@
-C:/Users/heeyeon/rushcutter/android/app/.cxx/Debug/k2e695km/arm64-v8a/CMakeFiles/edit_cache.dir
-C:/Users/heeyeon/rushcutter/android/app/.cxx/Debug/k2e695km/arm64-v8a/CMakeFiles/rebuild_cache.dir

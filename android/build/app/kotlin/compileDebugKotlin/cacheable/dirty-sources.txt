@@ -1,1 +1,0 @@
-C:\Users\heeyeon\rushcutter\android\app\src\main\kotlin\com\rushcutter\rushcutter\MainActivity.kt
