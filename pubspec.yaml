@@ -43,8 +43,7 @@ flutter:
   assets:
     - assets/station_info.json
     - assets/images/metropolitan.png
-    - assets/images/line1.png
-    - assets/images/line2.png
+
 
 flutter_launcher_icons:
   android: true
