@@ -38,12 +38,14 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
   String selectedDayType = '평일';
   String? updnLine;
   String? lineName;
-
   Future<List<Map<String, String>>> printRealTimeTrainNos() async {
     String? direction = updnLine;
-    if (direction == null) {
-      print('❌ 방향 정보가 없습니다. 경로를 먼저 검색하세요.');
-      return [];
+    String? apiDirection = direction;
+
+    // 2호선은 direction을 '내선'/'외선'으로 변환
+    if (line == '2호선') {
+      if (direction == '상행') apiDirection = '내선';
+      if (direction == '하행') apiDirection = '외선';
     }
 
     final lineName = getApiLineName(line) ?? line;
@@ -66,8 +68,13 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
     final arrivalsData = jsonDecode(utf8.decode(arrivalsRes.bodyBytes));
     final arrivals = arrivalsData['arrivals'] as List;
 
+    if (apiDirection == null) {
+      print('❌ 방향 정보가 없습니다. 경로를 먼저 검색하세요.');
+      return [];
+    }
+
     final trains = arrivals
-        .where((e) => e['direction'] == direction)
+        .where((e) => e['direction'] == apiDirection)
         .take(2)
         .toList();
     final trainInfoList = trains.map((e) => {
@@ -75,7 +82,7 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
       'arrivalTime': e['arrivalTime'].toString(),
     }).toList();
 
-    print('✅ $direction 방향 열차 번호 1~2개: $trainInfoList');
+    print('✅ $apiDirection 방향 열차 번호 1~2개: $trainInfoList');
     return trainInfoList;
   }
 
