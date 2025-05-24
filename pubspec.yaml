@@ -46,6 +46,7 @@ flutter:
     - assets/images/line1.png
     - assets/images/line2.png
 
+
 flutter_launcher_icons:
   android: true
   ios: true

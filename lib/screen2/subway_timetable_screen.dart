@@ -52,9 +52,16 @@ class _SubwayTimetableScreenState extends State<SubwayTimetableScreen> {
       final data = jsonDecode(utf8.decode(response.bodyBytes));
       final result = data['result'];
       setState(() {
-        upTrains = result['up'];
-        downTrains = result['down'];
+        final scheduleKey = selectedDay == 'WEEKDAY'
+            ? 'weekdaySchedule'
+            : selectedDay == 'SATURDAY'
+            ? 'saturdaySchedule'
+            : 'holidaySchedule';
+
+        upTrains = result[scheduleKey]?['up'] ?? [];
+        downTrains = result[scheduleKey]?['down'] ?? [];
       });
+
     } else {
       print('API 호출 실패: ${response.statusCode}');
     }

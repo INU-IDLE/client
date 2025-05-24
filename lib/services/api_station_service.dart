@@ -1,6 +1,6 @@
 import 'package:flutter/services.dart';
 import 'dart:convert';
-import 'package:rushcutter/models/station_api.dart'; // ✅ ApiStation 클래스 경로
+import 'package:rushcutter/models/station_api.dart';
 
 class ApiStationService {
   Future<List<ApiStation>> loadStationData(String jsonPath) async {
