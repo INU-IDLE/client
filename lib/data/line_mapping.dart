@@ -53,6 +53,7 @@ const Map<String, String> lineNumToName = {
   '09호선': '9호선',
   '경의선': '경의중앙선',
   '경춘선': '경춘선',
+  '수인분당': '수인분당선',
   '수인분당선': '수인·분당선',
   '신분당선': '신분당선',
   '공항철도': '공항철도',
@@ -78,4 +79,52 @@ String? getApiLineName(String codeOrName) {
   } catch (e) {
     return null;
   }
+}
+
+LineInfo getMatchedLineInfo(String rawLine) {
+  // 전각 숫자 → 반각 숫자
+  rawLine = rawLine.replaceAllMapped(RegExp(r'[０-９]'), (m) {
+    return String.fromCharCode(m[0]!.codeUnitAt(0) - 0xFF10 + 0x30);
+  });
+
+  // 공백 제거
+  rawLine = rawLine.replaceAll(' ', '');
+
+  // 숫자 한 자리일 경우 → '0X호선'
+  if (RegExp(r'^[1-9]$').hasMatch(rawLine)) {
+    rawLine = '0$rawLine호선';
+  } else if (RegExp(r'^\d{2}$').hasMatch(rawLine)) {
+    rawLine = '$rawLine호선';
+  }
+
+  // 별도 매핑 처리
+  const manualMap = {
+    '수인분당': '수인분당선',
+    '수인': '수인분당선',
+    '분당': '수인분당선',
+    '경의중앙': '경의선',
+    '에버라인': '용인경전철',
+    '인천1호선': '인천선',
+    '신림': '신림선',
+    '김포골드': '김포도시철도',
+    '우이신설': '우이신설경전철',
+    '의정부': '의정부경전철',
+    '경춘': '경춘선',
+    '신분당': '신분당선',
+  };
+
+  rawLine = manualMap[rawLine] ?? rawLine;
+
+  return subwayLines.firstWhere(
+        (line) => line.lineNum == rawLine,
+    orElse: () {
+      print('! 일치하는 노선 없음: $rawLine');
+      return LineInfo(
+        lineNum: rawLine,
+        lineCode: rawLine,
+        name: rawLine,
+        color: Colors.grey,
+      );
+    },
+  );
 }

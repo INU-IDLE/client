@@ -13,6 +13,8 @@ import 'package:rushcutter/screen/subway_map_screen.dart';
 import 'package:rushcutter/data/station_data.dart';
 import 'package:rushcutter/screen2/subway_timetable_screen.dart';
 import 'package:rushcutter/screen/real_time_screen.dart';
+import 'package:rushcutter/data/line_mapping.dart';
+
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -462,24 +464,75 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             const SizedBox(width: 8),
                             // Info 버튼
+                            // ✅ Info 버튼
                             _CircleIconButton(
-                            icon: Icons.info_outline,
-                            label: 'Info',
-                            onTap: () {
-                            Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                            builder: (context) => SubwayTimetableScreen(
-                              lineCode: buttonStation.line,      // 예: '6'
-                              lineName: getLineNameForTimetable(buttonStation.line),  // 예: '6호선'
-                              stationCode: buttonStation.id,     // 역 코드
-                              stationName: buttonStation.stationNm, // 역 이름),
+                              icon: Icons.info_outline,
+                              label: 'Info',
+                              onTap: () async {
+                                if (buttonStation == null) return;
+
+                                // ✅ 숫자일 경우 2자리로 보정 ('1' -> '01호선')
+                                String normalizedLineNum = buttonStation.line;
+
+                                if (RegExp(r'^\d$').hasMatch(normalizedLineNum)) {
+                                  normalizedLineNum = '0$normalizedLineNum호선';
+                                } else if (RegExp(r'^\d{2}$').hasMatch(normalizedLineNum)) {
+                                  normalizedLineNum = '$normalizedLineNum호선';
+                                }
+
+                                // 숫자일 경우 앞에 '0' 붙이기
+                                if (RegExp(r'^\d$').hasMatch(normalizedLineNum)) {
+                                  normalizedLineNum = '0$normalizedLineNum호선';
+                                } else if (RegExp(r'^\d{2}$').hasMatch(normalizedLineNum)) {
+                                  normalizedLineNum = '$normalizedLineNum호선';
+                                }
+
+                                final matchedLine = getMatchedLineInfo(buttonStation.line);
+
+                                final jsonStr = await rootBundle.loadString('assets/station_info.json');
+                                final Map<String, dynamic> json = jsonDecode(jsonStr);
+                                final List<dynamic> data = json['DATA'];
+
+
+                                final match = data.firstWhere(
+                                      (e) =>
+                                  e['station_nm'] == buttonStation.stationNm &&
+                                      e['line_num'] == lineNumToName.entries
+                                          .firstWhere((entry) => entry.value == matchedLine.name,
+                                          orElse: () => const MapEntry('', ''))
+                                          .key,
+                                  orElse: () => null,
+                                );
+
+
+                                final frCode = match != null ? match['fr_code'] : null;
+
+                                if (frCode == null) {
+                                  print('❌ fr_code 못 찾음: ${buttonStation.stationNm}, ${matchedLine.lineNum}');
+                                  return;
+                                }
+
+                                print('[INFO 버튼 클릭]');
+                                print('역 이름: ${buttonStation.stationNm}');
+                                print('역 코드: ${buttonStation.id}');
+                                print('lineCode (API용): ${matchedLine.lineCode}');
+                                print('lineName (UI표시용): ${matchedLine.name}');
+
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => SubwayTimetableScreen(
+                                      lineCode: matchedLine.lineCode,
+                                      lineName: matchedLine.name,
+                                      stationCode: buttonStation.id,
+                                      stationName: buttonStation.stationNm,
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
-                            ),
-                            );
-    },
-    ),
-    ],
+
+                          ],
     ),
 
 
