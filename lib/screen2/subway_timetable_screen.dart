@@ -23,6 +23,9 @@ class SubwayTimetableScreen extends StatefulWidget {
 class _SubwayTimetableScreenState extends State<SubwayTimetableScreen> {
   List<dynamic> upTrains = [];
   List<dynamic> downTrains = [];
+  Map<String, List<dynamic>> cachedUpTrains = {};
+  Map<String, List<dynamic>> cachedDownTrains = {};
+  bool isLoading = true;
 
   String selectedDay = 'WEEKDAY';
   bool expressOnly = false;
@@ -39,10 +42,50 @@ class _SubwayTimetableScreenState extends State<SubwayTimetableScreen> {
     } else {
       selectedDay = 'WEEKDAY';
     }
-    fetchTimetable();
+    fetchAllTimetables();
+  }
+  Future<void> fetchAllTimetables() async {
+    final dayTypes = ['WEEKDAY', 'SATURDAY', 'HOLIDAY'];
+
+    for (final day in dayTypes) {
+      final url = Uri.parse(
+        'http://43.200.50.230/api/v1/stations/${widget.stationCode}/timetable?lineCode=${widget.lineCode}&type=$day',
+      );
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final data = jsonDecode(utf8.decode(response.bodyBytes));
+        final result = data['result'];
+        final scheduleKey = day == 'WEEKDAY'
+            ? 'weekdaySchedule'
+            : day == 'SATURDAY'
+            ? 'saturdaySchedule'
+            : 'holidaySchedule';
+
+        cachedUpTrains[day] = result[scheduleKey]?['up'] ?? [];
+        cachedDownTrains[day] = result[scheduleKey]?['down'] ?? [];
+      } else {
+        print('❌ 요일 $day 실패: ${response.statusCode}');
+        cachedUpTrains[day] = [];
+        cachedDownTrains[day] = [];
+      }
+    }
+
+    setState(() {
+      isLoading = false;
+      upTrains = cachedUpTrains[selectedDay] ?? [];
+      downTrains = cachedDownTrains[selectedDay] ?? [];
+    });
   }
 
   Future<void> fetchTimetable() async {
+    if (cachedUpTrains.containsKey(selectedDay)) {
+      setState(() {
+        upTrains = cachedUpTrains[selectedDay]!;
+        downTrains = cachedDownTrains[selectedDay]!;
+      });
+      return;
+    }
+
     final url = Uri.parse(
       'http://43.200.50.230/api/v1/stations/${widget.stationCode}/timetable?lineCode=${widget.lineCode}&type=$selectedDay',
     );
@@ -51,26 +94,33 @@ class _SubwayTimetableScreenState extends State<SubwayTimetableScreen> {
     if (response.statusCode == 200) {
       final data = jsonDecode(utf8.decode(response.bodyBytes));
       final result = data['result'];
+      final scheduleKey = selectedDay == 'WEEKDAY'
+          ? 'weekdaySchedule'
+          : selectedDay == 'SATURDAY'
+          ? 'saturdaySchedule'
+          : 'holidaySchedule';
+
+      final up = result[scheduleKey]?['up'] ?? [];
+      final down = result[scheduleKey]?['down'] ?? [];
+
       setState(() {
-        final scheduleKey = selectedDay == 'WEEKDAY'
-            ? 'weekdaySchedule'
-            : selectedDay == 'SATURDAY'
-            ? 'saturdaySchedule'
-            : 'holidaySchedule';
-
-        upTrains = result[scheduleKey]?['up'] ?? [];
-        downTrains = result[scheduleKey]?['down'] ?? [];
+        upTrains = up;
+        downTrains = down;
+        cachedUpTrains[selectedDay] = up;
+        cachedDownTrains[selectedDay] = down;
       });
-
     } else {
       print('API 호출 실패: ${response.statusCode}');
     }
   }
 
+
   Widget _buildTrainList(List<dynamic> trains) {
     final filtered = expressOnly
-        ? trains.where((t) => t['trainType'] == 'EXPRESS').toList()
+        ? trains.where((t) =>
+    t['trainType'] == 'EXPRESS' || t['trainType'] == 'RAPID').toList()
         : trains;
+
 
     return ListView.builder(
       shrinkWrap: true,
@@ -78,7 +128,15 @@ class _SubwayTimetableScreenState extends State<SubwayTimetableScreen> {
       itemCount: filtered.length,
       itemBuilder: (context, index) {
         final train = filtered[index];
-        final isExpress = train['trainType'] == 'EXPRESS';
+        final trainType = train['trainType'];
+        String? label;
+
+        if (trainType == 'EXPRESS') {
+          label = '특급';
+        } else if (trainType == 'RAPID') {
+          label = '급행';
+        }
+
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8),
           child: Column(
@@ -90,16 +148,17 @@ class _SubwayTimetableScreenState extends State<SubwayTimetableScreen> {
                     train['departureTime'] ?? '',
                     style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
-                  if (isExpress)
-                    const Padding(
-                      padding: EdgeInsets.only(left: 12),
+                  if (label != null)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 12),
                       child: Text(
-                        '급행',
-                        style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                        label,
+                        style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
                       ),
                     ),
                 ],
               ),
+
               Text(
                 '${train['startStationName']} > ${train['endStationName']}',
                 style: const TextStyle(color: Colors.grey),
@@ -192,9 +251,12 @@ class _SubwayTimetableScreenState extends State<SubwayTimetableScreen> {
                               onChanged: (val) {
                                 setState(() {
                                   expressOnly = val ?? false;
+                                  upTrains = cachedUpTrains[selectedDay] ?? [];
+                                  downTrains = cachedDownTrains[selectedDay] ?? [];
                                 });
                               },
                             ),
+
                           ],
                         ),
                       ),
