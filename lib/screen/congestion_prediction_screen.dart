@@ -103,6 +103,14 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
   void initState() {
     super.initState();
 
+    final weekday = DateTime.now().weekday;
+    if (weekday == DateTime.saturday) {
+      selectedDayType = '토요일';
+    } else if (weekday == DateTime.sunday) {
+      selectedDayType = '일요일';
+    } else {
+      selectedDayType = '평일';
+    }
   }
 
   @override
