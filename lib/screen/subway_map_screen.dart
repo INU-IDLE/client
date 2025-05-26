@@ -11,6 +11,7 @@ import 'package:rushcutter/screen/home_screen.dart';
 import 'bottom_category_bar.dart';
 import 'package:rushcutter/layout/main_layout.dart';
 import 'package:flutter/cupertino.dart';
+import 'dart:math';
 
 class _CircleIconButton extends StatelessWidget {
   final IconData icon;
@@ -546,15 +547,100 @@ class _SubwayMapScreenState extends State<SubwayMapScreen> {
                   ],
                 ),
               ),
-              // 노선도+버튼 (남은 공간만 차지, 아래로 스크롤 없음)
-              Expanded(
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () {
-                    setState(() {
-                      showButtons = false;
-                    });
-                    Future.delayed(const Duration(milliseconds: 350), () {
+
+            ),
+            // 노선도+버튼 (남은 공간만 차지, 아래로 스크롤 없음)
+        Expanded(
+              child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTapDown: (details) {
+                final RenderBox box = context.findRenderObject() as RenderBox;
+                final Offset tapPos = box.globalToLocal(details.globalPosition);
+
+                double minDist = double.infinity;
+                Station? nearestStation;
+                for (final station in stationData) {
+                  final dx = tapPos.dx - station.cx;
+                  final dy = tapPos.dy - station.cy;
+                  final dist = sqrt(dx * dx + dy * dy);
+                  if (dist < minDist) {
+                    minDist = dist;
+                    nearestStation = station;
+                  }
+                }
+
+                // threshold: 120px 이내면 해당 역 선택
+                if (nearestStation != null && minDist <= 150) {
+                  setState(() {
+                    selectedStation = nearestStation;
+                    selectedStationId = nearestStation!.id;
+                    _lastStationForButton = nearestStation;
+                    showButtons = true;
+                  });
+                } else {
+                  // 너무 멀면 선택 해제
+                  setState(() {
+                    showButtons = false;
+                    selectedStation = null;
+                    selectedStationId = null;
+                  });
+                }
+              },
+                child: InteractiveViewer(
+                  transformationController: _transformationController,
+                  minScale: 0.3,
+                  maxScale: 2.0,
+                  boundaryMargin: const EdgeInsets.all(500),
+                  constrained: false,
+                  child: SizedBox(
+                    width: 4500,
+                    height: 3800,
+                    child: Stack(
+                      children: [
+                        Image.asset(
+                          'assets/images/metropolitan.png',
+                          width: 4500,
+                          height: 3800,
+                          fit: BoxFit.cover,
+                        ),
+                        StationComponent(
+                          stations: stationData,
+                          selectedId: selectedStationId,
+                          onStationTap: (id) {
+                            if (id == null) {
+                              setState(() {
+                                showButtons = false;
+                                selectedStation = null;
+                                selectedStationId = null;
+                              });
+                            } else {
+                              final found = stationData.firstWhere((s) => s.id == id);
+                              setState(() {
+                                selectedStation = found;
+                                selectedStationId = found.id;
+                                _lastStationForButton = found;
+                                showButtons = true;
+                              });
+                            }
+                          },
+                          transformationController: _transformationController,
+                        ),
+                      if (buttonStation != null && buttonStation.id.isNotEmpty)
+                    Positioned(
+                    left: (buttonStation.cx) - 60,
+                top: (buttonStation.cy) - 90,
+                child: AnimatedSlide(
+                  offset: (showButtons)
+                      ? Offset.zero
+                      : const Offset(0, 0.2),
+                  duration: const Duration(milliseconds: 200),
+                  curve: Curves.easeInOutCubic,
+                  child: AnimatedOpacity(
+                    opacity: showButtons ? 1.0 : 0.0,
+                    duration: const Duration(milliseconds: 200),
+                    curve: Curves.easeInOutCubic,
+                    onEnd: () {
+
                       if (!showButtons) {
                         setState(() {
                           selectedStation = null;

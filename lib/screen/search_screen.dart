@@ -171,7 +171,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                 fontWeight: FontWeight.w500, // 필요시 두께 조정
                               ),
                               border: InputBorder.none,
-                              contentPadding: EdgeInsets.symmetric(vertical: 14),
+                              contentPadding: EdgeInsets.symmetric(vertical: 10),
                             ),
                             style: TextStyle(fontSize: 14,
                               fontWeight: FontWeight.w500,
