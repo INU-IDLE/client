@@ -546,7 +546,6 @@ class _SubwayMapScreenState extends State<SubwayMapScreen> {
               ),
             ),
             // 노선도+버튼 (남은 공간만 차지, 아래로 스크롤 없음)
-        //Positioned.fill(
         Expanded(
               child: GestureDetector(
               behavior: HitTestBehavior.opaque,

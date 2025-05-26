@@ -128,3 +128,4 @@ LineInfo getMatchedLineInfo(String rawLine) {
     },
   );
 }
+

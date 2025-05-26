@@ -357,7 +357,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     );
   }
-  
+
 
 
   Widget _buildHomeContent() {
@@ -431,7 +431,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 shadowColor: Colors.black26,
                               ),
                             ),*/
-                        /*
+                                  /*
                         const SizedBox(height: 8),
                             ElevatedButton(
                               onPressed: _onSelectArrival,
@@ -530,7 +530,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                       );
                                     },
                                   ),
-
                                 ],
                               ),
 
