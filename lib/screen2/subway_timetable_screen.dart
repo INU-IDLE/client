@@ -322,5 +322,4 @@ class _SubwayTimetableScreenState extends State<SubwayTimetableScreen> {
       ],
     );
   }
-
 }

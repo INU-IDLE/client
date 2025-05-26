@@ -2,11 +2,15 @@ class SavedRoute {
   final String from;
   final String to;
   final String details;
+  final String departureLine;
+  final String arrivalLine;
 
   SavedRoute({
     required this.from,
     required this.to,
     required this.details,
+    required this.departureLine,
+    required this.arrivalLine,
   });
 
   @override
@@ -20,3 +24,4 @@ class SavedRoute {
   @override
   int get hashCode => Object.hash(from, to, details);
 }
+
