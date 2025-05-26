@@ -18,7 +18,7 @@ class _SavedRoutesScreenState extends State<SavedRoutesScreen> with TickerProvid
   bool isSearching = false;
   String searchQuery = '';
   late List<SavedRoute> localRoutes;
-  bool _initialized = false;
+
   Widget _buildRouteTile(SavedRoute route, int index) {
     return Container(
       key: ValueKey(route),
@@ -64,6 +64,8 @@ class _SavedRoutesScreenState extends State<SavedRoutesScreen> with TickerProvid
               builder: (_) => RouteResultScreen(
                 departure: route.from,
                 arrival: route.to,
+                departureLine: route.departureLine,
+                arrivalLine: route.arrivalLine,
               ),
             ),
           );
@@ -219,3 +221,4 @@ class _SavedRoutesScreenState extends State<SavedRoutesScreen> with TickerProvid
     );
   }
 }
+

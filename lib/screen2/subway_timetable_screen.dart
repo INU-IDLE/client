@@ -266,34 +266,34 @@ class _SubwayTimetableScreenState extends State<SubwayTimetableScreen> {
 
                 // ⬇ 방향 바
                 Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    color: Colors.white,
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              downTrains.isNotEmpty && downTrains[0].containsKey('prevStationName')
-                                  ? downTrains[0]['prevStationName']
-                                  : '시청 방향',
-                              style: const TextStyle(fontWeight: FontWeight.bold),
-                            ),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  color: Colors.white,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            downTrains.isNotEmpty && downTrains[0].containsKey('prevStationName')
+                                ? downTrains[0]['prevStationName']
+                                : '시청 방향',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ),
-                        Expanded(
-                          child: Align(
-                            alignment: Alignment.centerLeft, // ⬅ 여기 중요
-                            child: Text(
-                              upTrains.isNotEmpty && upTrains[0].containsKey('nextStationName')
-                                  ? upTrains[0]['nextStationName']
-                                  : '남영 방향',
-                              style: const TextStyle(fontWeight: FontWeight.bold),
-                            ),
+                      ),
+                      Expanded(
+                        child: Align(
+                          alignment: Alignment.centerLeft, // ⬅ 여기 중요
+                          child: Text(
+                            upTrains.isNotEmpty && upTrains[0].containsKey('nextStationName')
+                                ? upTrains[0]['nextStationName']
+                                : '남영 방향',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ),
-                      ],
-                    )
+                      ),
+                    ],
+                  )
                 ),
 
                 const Divider(height: 1, thickness: 1, color: Color(0xFFE0E0E0)),

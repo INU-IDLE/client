@@ -11,11 +11,15 @@ import 'package:rushcutter/services/api_station_service.dart';
 class RouteResultScreen extends StatefulWidget {
   final String departure;
   final String arrival;
+  final String departureLine; // ✅ 추가
+  final String arrivalLine;
 
   const RouteResultScreen({
     super.key,
     required this.departure,
     required this.arrival,
+    required this.departureLine,
+    required this.arrivalLine,
   });
 
   @override
@@ -37,7 +41,6 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
   String? minTransferStartName;
   String? minTransferEndName;
   int? minTransferTravelTime;
-
 
   int getTravelTimeTo(String untilStationName) {
     final target = stations.firstWhere(
@@ -64,8 +67,19 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
 
 
     final stationService = ApiStationService();
-    final startFrCode = await stationService.getFrCodeByStationName(widget.departure);
-    final endFrCode = await stationService.getFrCodeByStationName(widget.arrival);
+    String normalizeStationName(String name, String lineName) {
+      if (name == '신촌' && (lineName.contains('경의') || lineName.contains('중앙'))) {
+        return '신촌(경의중앙)';
+      }
+
+      return name;
+    }
+
+    final startStationName = normalizeStationName(widget.departure, widget.departureLine);
+    final endStationName = normalizeStationName(widget.arrival, widget.arrivalLine);
+    final startFrCode = await stationService.getFrCodeByStationName(startStationName);
+    final endFrCode = await stationService.getFrCodeByStationName(endStationName);
+
     final pathService = PathService();
     final List<Map<String, dynamic>> carsList;
 
@@ -179,13 +193,15 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
       from: widget.departure,
       to: widget.arrival,
       details: '인천1호선, 1호선 (환승 1회)',
+      departureLine: widget.departureLine, // ✅ 추가
+      arrivalLine: widget.arrivalLine,
     );
     final provider = Provider.of<SavedRouteProvider>(context);
     final isSaved = provider.isSaved(route);
     return DefaultTabController(
         length: 2,
         child:Scaffold(
-          backgroundColor: Colors.white, // ✅ 페이지 전체 배경 흰색 적용
+          backgroundColor: Colors.white,
           appBar: AppBar(
             backgroundColor: Colors.white,
             elevation: 0,
@@ -546,104 +562,30 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
   }) {
     return GestureDetector(
       onTap: () {
-        if (line == '인천1호선') {
-          // ✅ 인천1호선은 팝업 띄우기
-          showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              contentPadding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: const [
-                  Icon(Icons.error_outline, size: 40, color: Colors.black),
-                  SizedBox(height: 16),
-                  Text(
-                    '혼잡도를 지원하지 않는 경로입니다.\n지하철 2~9호선의 혼잡도만 제공됩니다.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 14, color: Colors.black),
-                  ),
-                ],
-              ),
-              actionsPadding: const EdgeInsets.only(bottom: 12),
-              actionsAlignment: MainAxisAlignment.spaceEvenly,
-              actions: [
-                // ✅ 실시간 버튼 → 모달 띄움
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context); // 먼저 다이얼로그 닫고
-                    showModalBottomSheet(
-                      context: context,
-                      isScrollControlled: true,
-                      backgroundColor: Colors.transparent,
-                      builder: (context) => RealTimeBottomSheet(
-                        color: color,
-                        line: line,
-                        station: station,
-                        fastTransfer: fastTransfer,
-                        icon: icon,
-                        duration: duration,
-                        arrivalStation: endName,
-                        arrivalTime: arrivalTime,
-                        sectionDurations: sectionDurations.toList(),
-                        carsList: [],
-                        arrivalTimes: [],
-                      ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF4262C5),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(100),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-                  ),
-                  child: const Text('실시간', style: TextStyle(color: Colors.white)),
-                ),
 
-                // ✅ 확인 버튼 → 그냥 닫기
-                ElevatedButton(
-                  onPressed: () => Navigator.pop(context),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey[400],
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(100),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-                  ),
-                  child: const Text('확인', style: TextStyle(color: Colors.white)),
-                ),
-              ],
-            ),
-          );
-        } else {
-          // ✅ 2~9호선은 바로 혼잡도 예측 화면으로 이동
-          Navigator.pushNamed(
-            context,
-            '/congestion',
-            arguments: {
-              'line': line,
-              'station': station,
-              'destination': endName,
-              'fastTransfer': fastTransfer,
-              'time': time,
-              'duration': duration,
-              'stationCount': stationCount,
-              'iconCodePoint': icon.codePoint,
-              'colorValue': color.value,
-              'departureTime': departureTime.format(context),
-              'arrivalTime': arrivalTime,
-              'isFavorite': isFavorite,
-              'actualArrival': endName,
-              'sectionDurations': sectionDurations,
-              'transferCount': exchangeList.length,
+        Navigator.pushNamed(
+          context,
+          '/congestion',
+          arguments: {
+            'line': line,
+            'station': station,
+            'destination': endName,
+            'fastTransfer': fastTransfer,
+            'time': time,
+            'duration': duration,
+            'stationCount': stationCount,
+            'iconCodePoint': icon.codePoint,
+            'colorValue': color.value,
+            'departureTime': departureTime.format(context),
+            'arrivalTime': arrivalTime,
+            'isFavorite': isFavorite,
+            'actualArrival': endName,
+            'sectionDurations': sectionDurations,
+            'transferCount': exchangeList.length,
 
-            },
-          );
+          },
+        );
 
-        }
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -983,21 +925,33 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
 
 Color getLineColor(String line) {
   switch (line) {
-    case '1호선': return Color(0xFF0052A4);
+    case '1호선': return Color(0xFF344CB7);
     case '2호선': return Color(0xFF00A84D);
     case '3호선': return Color(0xFFEF7C1C);
     case '4호선': return Color(0xFF00A4E3);
-    case '5호선': return Color(0xFF996CAC);
+    case '5호선': return Color(0xFF9A6EAD);
     case '6호선': return Color(0xFFCD7C2F);
     case '7호선': return Color(0xFF747F00);
     case '8호선': return Color(0xFFE6186C);
     case '9호선': return Color(0xFFBDB092);
-    case '인천1호선': return Color(0xFF79A0D4);
+    case '인천1호선': return Color(0xFF759CCE);
     case '인천2호선': return Color(0xFFF5A251);
     case '수인.분당선': return Color(0xFFFABD00);
     case '신분당선': return Color(0xFFD31145);
     case '경의중앙선': return Color(0xFF77C4A3);
-    case '서해선': return Color(0xFF8FC31F14);
+    case '서해선(대곡-원시)': return Color(0xFF8FC31F);
+    case '경춘선': return Color(0xFF178C72);
+    case '공항철도': return Color(0xFF0090D2);
+    case '에버라인': return Color(0xFF56AD2D);
+    case '의정부경전철': return Color(0xFFFD8100);
+    case '우이신설경전철': return Color(0xFFB7C450);
+    case '김포골드라인': return Color(0xFFAD8605);
+    case '신림선': return Color(0xFF6789CA);
+    case '경강선': return Color(0xFF344CB7);
+    case 'GTX-A': return  Color(0xFF9A6292);
+
     default: return Colors.grey;
   }
 }
+
+

@@ -3,6 +3,7 @@ import '../models/station.dart';
 import 'search_screen.dart';
 import 'route_result_screen.dart';
 import 'dart:ui';
+import 'home_screen.dart';
 import 'package:rushcutter/widgets/station_component.dart';
 import 'package:rushcutter/data/station_data.dart';
 import 'package:flutter/cupertino.dart';
@@ -670,13 +671,13 @@ class _SubwayMapScreenState extends State<SubwayMapScreen> {
                       ],
       ),
 
-            ),
-    ),
-    ),
-            ),
-        ],
-      ),
-      )
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        )
     );
   }
 
