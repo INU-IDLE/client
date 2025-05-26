@@ -12,7 +12,8 @@ import 'package:rushcutter/models/station.dart';
 import 'package:rushcutter/screen/subway_map_screen.dart';
 import 'package:rushcutter/data/station_data.dart';
 import 'package:rushcutter/screen2/subway_timetable_screen.dart';
-import 'package:rushcutter/screen/real_time_screen.dart';
+import 'package:rushcutter/data/line_mapping.dart';
+
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -254,109 +255,109 @@ class _HomeScreenState extends State<HomeScreen> {
         top: true,
         bottom: false,
         child: Column(
-            children: [
+          children: [
             // 검색창
             Container(
-            height: 60,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(color: Colors.black12, blurRadius: 10),
-              ],
-            ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // 검색창
-                    Expanded(
-                      child: Container(
-                        height: 40,
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFE7E7E7),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.search, color: Colors.grey),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: GestureDetector(
-                                onTap: () async {
-                                  // 검색창 클릭 시 SearchScreen으로 이동
-                                  final result = await Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                      const SearchScreen(
-                                        isSelectingDeparture: true, // 기본값 설정
-                                      ),
-                                    ),
-                                  );
-                                  // 검색 결과 처리
-                                  _handleSearchResult(result, true);
-                                },
-                                child: Text(
-                                  departureStation ?? '지하철 역 검색',
-                                  style: const TextStyle(color: Colors.black),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+              height: 60,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(color: Colors.black12, blurRadius: 10),
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // 검색창
+                  Expanded(
+                    child: Container(
+                      height: 40,
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE7E7E7),
+                        borderRadius: BorderRadius.circular(20),
                       ),
-                    ),
-                    const SizedBox(width: 16),
-                    // 알림 버튼
-                    GestureDetector(
-                      onTap: () {
-                        print('알림 클릭');
-                      },
-                      child: Stack(
-                        alignment: Alignment.center,
+                      child: Row(
                         children: [
-                          const Icon(
-                              Icons.notifications, size: 30,
-                              color: Colors.black),
-                          Positioned(
-                            top: 5,
-                            right: 5,
-                            child: Container(
-                              width: 15,
-                              height: 15,
-                              decoration: BoxDecoration(
-                                color: Colors.red,
-                                shape: BoxShape.circle,
-                              ),
-                              child: Center(
-                                child: Text(
-                                  '99+',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold,
+                          const Icon(Icons.search, color: Colors.grey),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () async {
+                                // 검색창 클릭 시 SearchScreen으로 이동
+                                final result = await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                    const SearchScreen(
+                                      isSelectingDeparture: true, // 기본값 설정
+                                    ),
                                   ),
-                                ),
+                                );
+                                // 검색 결과 처리
+                                _handleSearchResult(result, true);
+                              },
+                              child: Text(
+                                departureStation ?? '지하철 역 검색',
+                                style: const TextStyle(color: Colors.black),
                               ),
                             ),
                           ),
                         ],
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(width: 16),
+                  // 알림 버튼
+                  GestureDetector(
+                    onTap: () {
+                      print('알림 클릭');
+                    },
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        const Icon(
+                            Icons.notifications, size: 30,
+                            color: Colors.black),
+                        Positioned(
+                          top: 5,
+                          right: 5,
+                          child: Container(
+                            width: 15,
+                            height: 15,
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Center(
+                              child: Text(
+                                '99+',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-          Expanded(
-            child: currentScreen,
-          ),
+            Expanded(
+              child: currentScreen,
+            ),
           ],
         ),
       ),
 
     );
   }
-  
+
 
 
   Widget _buildHomeContent() {
@@ -367,58 +368,58 @@ class _HomeScreenState extends State<HomeScreen> {
           Positioned.fill(child: Container(color: Colors.white)),
           Positioned.fill(
             child: InteractiveViewer(
-        transformationController: _transformationController,
-        minScale: 0.3,
-        maxScale: 2.0,
-        boundaryMargin: const EdgeInsets.all(500),
-        constrained: false,
-        child: SizedBox(
-          width: 4500,
-          height: 3800,
-          child: Stack(
-            children: [
-             Image.asset(
-                'assets/images/metropolitan.png',
+              transformationController: _transformationController,
+              minScale: 0.3,
+              maxScale: 2.0,
+              boundaryMargin: const EdgeInsets.all(500),
+              constrained: false,
+              child: SizedBox(
                 width: 4500,
                 height: 3800,
-                fit: BoxFit.cover,
+                child: Stack(
+                  children: [
+                    Image.asset(
+                      'assets/images/metropolitan.png',
+                      width: 4500,
+                      height: 3800,
+                      fit: BoxFit.cover,
 
-              ),
-              StationComponent(
-                stations: stationData,
-                selectedId: selectedStationId,
-                onStationTap: _handleStationTap,
-                  transformationController: _transformationController
-              ),
-              if (buttonStation != null && buttonStation.id.isNotEmpty)
-                Positioned(
-                  // left: (buttonStation.cx) - 40,
-                  // top: (buttonStation.cy) - 115,
-                  left: (buttonStation.cx) - 80,
-                  top: (buttonStation.cy) - 90,
-                  child: AnimatedSlide(
-                    offset: (showButtons)
-                        ? Offset.zero
-                        : const Offset(0, 0.2),
-                    duration: const Duration(milliseconds: 200),
-                    curve: Curves.easeInOutCubic,
-                    child: AnimatedOpacity(
-                      opacity: showButtons ? 1.0 : 0.0,
-                      duration: const Duration(milliseconds: 200),
-                      curve: Curves.easeInOutCubic,
-                      onEnd: () {
-                        if (!showButtons) {
-                          setState(() {
-                            selectedStation = null;
-                            selectedStationId = null;
-                          });
-                        }
-                      },
-                      child: IgnorePointer(
-                        ignoring: !showButtons,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [/*
+                    ),
+                    StationComponent(
+                        stations: stationData,
+                        selectedId: selectedStationId,
+                        onStationTap: _handleStationTap,
+                        transformationController: _transformationController
+                    ),
+                    if (buttonStation != null && buttonStation.id.isNotEmpty)
+                      Positioned(
+                        // left: (buttonStation.cx) - 40,
+                        // top: (buttonStation.cy) - 115,
+                        left: (buttonStation.cx) - 80,
+                        top: (buttonStation.cy) - 90,
+                        child: AnimatedSlide(
+                          offset: (showButtons)
+                              ? Offset.zero
+                              : const Offset(0, 0.2),
+                          duration: const Duration(milliseconds: 200),
+                          curve: Curves.easeInOutCubic,
+                          child: AnimatedOpacity(
+                            opacity: showButtons ? 1.0 : 0.0,
+                            duration: const Duration(milliseconds: 200),
+                            curve: Curves.easeInOutCubic,
+                            onEnd: () {
+                              if (!showButtons) {
+                                setState(() {
+                                  selectedStation = null;
+                                  selectedStationId = null;
+                                });
+                              }
+                            },
+                            child: IgnorePointer(
+                              ignoring: !showButtons,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [/*
                             ElevatedButton(
                               onPressed: _onSelectDeparture,
                               child: const Text("출발지"),
@@ -430,7 +431,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 shadowColor: Colors.black26,
                               ),
                             ),*/
-                        /*
+                                  /*
                         const SizedBox(height: 8),
                             ElevatedButton(
                               onPressed: _onSelectArrival,
@@ -448,52 +449,103 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),*/
 
 // 출발지 버튼
-                            _CircleIconButton(
-                              icon: Icons.arrow_upward,
-                              label: '출발',
-                              onTap: _onSelectDeparture,
-                            ),
-                            const SizedBox(width: 8),
-                            // 도착지 버튼
-                            _CircleIconButton(
-                            icon: Icons.arrow_downward,
-                            label: '도착',
-                            onTap: _onSelectArrival,
-                            ),
-                            const SizedBox(width: 8),
-                            // Info 버튼
-                            _CircleIconButton(
-                            icon: Icons.info_outline,
-                            label: 'Info',
-                            onTap: () {
-                            Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                            builder: (context) => SubwayTimetableScreen(
-                              lineCode: buttonStation.line,      // 예: '6'
-                              lineName: getLineNameForTimetable(buttonStation.line),  // 예: '6호선'
-                              stationCode: buttonStation.id,     // 역 코드
-                              stationName: buttonStation.stationNm, // 역 이름),
-                            ),
-                            ),
-                            );
-    },
-    ),
-    ],
-    ),
+                                  _CircleIconButton(
+                                    icon: Icons.arrow_upward,
+                                    label: '출발',
+                                    onTap: _onSelectDeparture,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  // 도착지 버튼
+                                  _CircleIconButton(
+                                    icon: Icons.arrow_downward,
+                                    label: '도착',
+                                    onTap: _onSelectArrival,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  // Info 버튼
+                                  // ✅ Info 버튼
+                                  _CircleIconButton(
+                                    icon: Icons.info_outline,
+                                    label: 'Info',
+                                    onTap: () async {
+                                      if (buttonStation == null) return;
+
+                                      // ✅ 숫자일 경우 2자리로 보정 ('1' -> '01호선')
+                                      String normalizedLineNum = buttonStation.line;
+
+                                      if (RegExp(r'^\d$').hasMatch(normalizedLineNum)) {
+                                        normalizedLineNum = '0$normalizedLineNum호선';
+                                      } else if (RegExp(r'^\d{2}$').hasMatch(normalizedLineNum)) {
+                                        normalizedLineNum = '$normalizedLineNum호선';
+                                      }
+
+                                      // 숫자일 경우 앞에 '0' 붙이기
+                                      if (RegExp(r'^\d$').hasMatch(normalizedLineNum)) {
+                                        normalizedLineNum = '0$normalizedLineNum호선';
+                                      } else if (RegExp(r'^\d{2}$').hasMatch(normalizedLineNum)) {
+                                        normalizedLineNum = '$normalizedLineNum호선';
+                                      }
+
+                                      final matchedLine = getMatchedLineInfo(buttonStation.line);
+
+                                      final jsonStr = await rootBundle.loadString('assets/station_info.json');
+                                      final Map<String, dynamic> json = jsonDecode(jsonStr);
+                                      final List<dynamic> data = json['DATA'];
 
 
-                      ),
-                    ),
-                  ),
-                )
-            ],
+                                      final match = data.firstWhere(
+                                            (e) =>
+                                        e['station_nm'] == buttonStation.stationNm &&
+                                            e['line_num'] == lineNumToName.entries
+                                                .firstWhere((entry) => entry.value == matchedLine.name,
+                                                orElse: () => const MapEntry('', ''))
+                                                .key,
+                                        orElse: () => null,
+                                      );
+
+
+                                      final frCode = match != null ? match['fr_code'] : null;
+
+                                      if (frCode == null) {
+                                        print('❌ fr_code 못 찾음: ${buttonStation.stationNm}, ${matchedLine.lineNum}');
+                                        return;
+                                      }
+
+                                      print('[INFO 버튼 클릭]');
+                                      print('역 이름: ${buttonStation.stationNm}');
+                                      print('역 코드: ${buttonStation.id}');
+                                      print('lineCode (API용): ${matchedLine.lineCode}');
+                                      print('lineName (UI표시용): ${matchedLine.name}');
+
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => SubwayTimetableScreen(
+                                            lineCode: matchedLine.lineCode,
+                                            lineName: matchedLine.name,
+                                            stationCode: buttonStation.id,
+                                            stationName: buttonStation.stationNm,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+
+                                ],
+                              ),
+
+
+                            ),
+                          ),
+                        ),
+                      )
+                  ],
+                ),
+              ),
+            ),
           ),
-        ),
-      ),
-    ),
         ]
-          );
+    );
   }
 }
 String getLineNameForTimetable(String line) {

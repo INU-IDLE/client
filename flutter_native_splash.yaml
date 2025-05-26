@@ -1,0 +1,6 @@
+flutter_native_splash:
+  background_image: assets/images/subway_run.png      # 스플래시에 띄울 이미지 경로
+  fullscreen: true                # (선택) 전체화면
+  android_12:
+    background_image: assets/images/subway_run.png
+    fullscreen: true

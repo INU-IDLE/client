@@ -1,7 +1,6 @@
 import 'package:flutter/services.dart';
 import 'dart:convert';
-import 'package:rushcutter/models/station_api.dart'; // ✅ ApiStation 클래스 경로
-
+import 'package:rushcutter/models/station_api.dart';
 
 class ApiStationService {
   Future<List<ApiStation>> loadStationData(String jsonPath) async {
@@ -18,9 +17,11 @@ class ApiStationService {
 
 
     String cleaned = name
-        .replaceAll(RegExp(r'역$'), '')           // '역' 제거
-        .replaceAll(RegExp(r'승차$'), '')         // '승차' 제거
-        .replaceAll(RegExp(r'\(.*?\)'), '')       // 괄호 안 정보 제거
+        .replaceAll(RegExp(r'역$'), '')
+        .replaceAll(RegExp(r'승차$'), '')
+        .replaceAllMapped(RegExp(r'\(.*?\)'), (match) {
+      return name == '신촌(경의중앙선)' ? match.group(0)! : '';
+    })
         .trim();
 
     final match = stations.firstWhere(
@@ -33,3 +34,4 @@ class ApiStationService {
   }
 
 }
+

@@ -10,6 +10,7 @@ import 'package:rushcutter/screen/home_screen.dart';
 import 'bottom_category_bar.dart';
 import 'package:rushcutter/layout/main_layout.dart';
 import 'package:flutter/cupertino.dart';
+import 'dart:math';
 
 class _CircleIconButton extends StatelessWidget {
   final IconData icon;
@@ -544,22 +545,43 @@ class _SubwayMapScreenState extends State<SubwayMapScreen> {
               ),
             ),
             // 노선도+버튼 (남은 공간만 차지, 아래로 스크롤 없음)
-            Expanded(
+        //Positioned.fill(
+        Expanded(
               child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () {
+              behavior: HitTestBehavior.opaque,
+              onTapDown: (details) {
+                final RenderBox box = context.findRenderObject() as RenderBox;
+                final Offset tapPos = box.globalToLocal(details.globalPosition);
+
+                double minDist = double.infinity;
+                Station? nearestStation;
+                for (final station in stationData) {
+                  final dx = tapPos.dx - station.cx;
+                  final dy = tapPos.dy - station.cy;
+                  final dist = sqrt(dx * dx + dy * dy);
+                  if (dist < minDist) {
+                    minDist = dist;
+                    nearestStation = station;
+                  }
+                }
+
+                // threshold: 120px 이내면 해당 역 선택
+                if (nearestStation != null && minDist <= 150) {
+                  setState(() {
+                    selectedStation = nearestStation;
+                    selectedStationId = nearestStation!.id;
+                    _lastStationForButton = nearestStation;
+                    showButtons = true;
+                  });
+                } else {
+                  // 너무 멀면 선택 해제
                   setState(() {
                     showButtons = false;
+                    selectedStation = null;
+                    selectedStationId = null;
                   });
-                  Future.delayed(const Duration(milliseconds: 350), () {
-                    if (!showButtons) {
-                      setState(() {
-                        selectedStation = null;
-                        selectedStationId = null;
-                      });
-                    }
-                  });
-                },
+                }
+              },
                 child: InteractiveViewer(
                   transformationController: _transformationController,
                   minScale: 0.3,

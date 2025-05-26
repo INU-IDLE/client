@@ -38,6 +38,42 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
   String selectedDayType = '평일';
   String? updnLine;
   String? lineName;
+  String _getApiStationName(String station) {
+    return _stationNameExceptions[station] ?? station;
+  }
+  static const Map<String, String> _stationNameExceptions = {
+    // 1호선
+    '쌍용': '쌍용(나사렛대)',
+    // 4호선
+    '총신대입구': '총신대입구(이수)', // 7호선
+    // 5호선
+    '신정': '신정(은행정)',
+    '오목교': '오목교(목동운동장앞)',
+    '군자': '군자(능동)', // 7호선
+    '아차산': '아차산(어린이대공원후문)',
+    '광나루': '광나루(장신대)',
+    '천호': '천호(풍납토성)', // 8호선
+    '굽은다리': '굽은다리(강동구민회관앞)',
+    '올림픽공원': '올림픽공원(한국체대)',
+    // 6호선
+    '새절': '새절(신사)',
+    '증산': '증산(명지대앞)',
+    '월드컵경기장' : '월드컵경기장(성산)',
+    '대흥': '대흥(서강대앞)',
+    '안암': '안암(고대병원앞)',
+    '월곡': '월곡(동덕여대)',
+    '상월곡': '상월곡(한국과학기술연구원)',
+    '화랑대': '화랑대(서울여대입구)',
+    // 7호선
+    '공릉': '공릉(서울산업대입구)',
+    '어린이대공원': '어린이대공원(세종대)',
+    '숭실대입구': '숭실대입구(살피재)',
+    '상도': '상도(중앙대앞)',
+
+    // 8호선
+    '몽촌토성': '몽촌토성(평화의문)',
+    '남한산성입구': '남한산성입구(성남법원,검찰청)',
+  };
   Future<List<Map<String, String>>> printRealTimeTrainNos() async {
     String? direction = updnLine;
     String? apiDirection = direction;
@@ -53,10 +89,12 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
       print('❌ 지원하지 않는 노선입니다: $line');
       return [];
     }
-    print('➡️ 도착정보 API 요청: $lineName, 역: $station');
+
+    final apiStation = _getApiStationName(station);
+    print('➡️ 도착정보 API 요청: $lineName, 역: $apiStation');
     final arrivalsRes = await http.get(
       Uri.parse(
-          'http://43.200.50.230/api/v1/lines/$lineName/trains/$station/arrivals'),
+          'http://43.200.50.230/api/v1/lines/$lineName/trains/$apiStation/arrivals'),
       headers: {'accept': '*/*'},
     );
     if (arrivalsRes.statusCode != 200) {
@@ -109,6 +147,14 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
   @override
   void initState() {
     super.initState();
+    final weekday = DateTime.now().weekday;
+    if (weekday == DateTime.saturday) {
+      selectedDayType = '토요일';
+    } else if (weekday == DateTime.sunday) {
+      selectedDayType = '일요일';
+    } else {
+      selectedDayType = '평일';
+    }
 
   }
 
