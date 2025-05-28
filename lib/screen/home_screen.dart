@@ -12,7 +12,6 @@ import 'package:rushcutter/models/station.dart';
 import 'package:rushcutter/screen/subway_map_screen.dart';
 import 'package:rushcutter/data/station_data.dart';
 import 'package:rushcutter/screen2/subway_timetable_screen.dart';
-import 'package:rushcutter/screen/real_time_screen.dart';
 import 'package:rushcutter/data/line_mapping.dart';
 
 
@@ -531,8 +530,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                       );
                                     },
                                   ),
-
-
                                 ],
                               ),
 

@@ -32,5 +32,3 @@ class ApiStationService {
     print('🔍 정제 후 역 이름: $cleaned');
     return match?['fr_code'];
   }
-
-}
