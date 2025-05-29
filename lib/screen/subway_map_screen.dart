@@ -3,14 +3,10 @@ import '../models/station.dart';
 import 'search_screen.dart';
 import 'route_result_screen.dart';
 import 'dart:ui';
-import 'home_screen.dart';
 import 'package:rushcutter/widgets/station_component.dart';
 import 'package:rushcutter/data/station_data.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:rushcutter/screen/home_screen.dart';
-import 'bottom_category_bar.dart';
 import 'package:rushcutter/layout/main_layout.dart';
-import 'package:flutter/cupertino.dart';
 import 'dart:math';
 
 class _CircleIconButton extends StatelessWidget {
@@ -321,7 +317,10 @@ class _SubwayMapScreenState extends State<SubwayMapScreen> {
             RouteResultScreen(
               departure: departureStation!,
               arrival: arrivalStation!,
+              departureLine: selectedStation?.line ?? '',
+              arrivalLine: selectedStation?.line ?? '',
             ),
+
       ),
     );
   }

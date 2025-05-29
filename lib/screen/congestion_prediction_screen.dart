@@ -155,15 +155,6 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
     } else {
       selectedDayType = '평일';
     }
-
-    final weekday = DateTime.now().weekday;
-    if (weekday == DateTime.saturday) {
-      selectedDayType = '토요일';
-    } else if (weekday == DateTime.sunday) {
-      selectedDayType = '일요일';
-    } else {
-      selectedDayType = '평일';
-    }
   }
 
   @override
@@ -1063,18 +1054,35 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.only(top: 6.0), // 원하는 만큼 조절 가능
-                      child: Text(
-                        '$station 하차',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      padding: const EdgeInsets.only(top: 6.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row( // ✅ 하차 텍스트와 아이콘을 하나의 그룹으로 묶기
+                            children: [
+                              Text(
+                                '$station 하차',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(width: 4), // 간격
+                              Icon(
+                                Icons.help_outline,
+                                size: 18,
+                                color: Colors.black54,
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
+
                   ],
                 ),
               ),
+
             ],
           ),
         ),
@@ -1292,8 +1300,8 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
       switch (data[key]) {
         case 'RELAXED': return const Color(0xFF4863EC);
         case 'NORMAL': return const Color(0xFF52B93E);
-        case 'CROWDED': return const Color(0xFFEED906);
-        case 'WARNING': return const Color(0xFFF70505);
+        case 'WARNING': return const Color(0xFFEED906);
+        case 'CROWDED': return const Color(0xFFF70505);
         default: return Colors.grey.shade300;
       }
     }).toList();
@@ -1323,8 +1331,8 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
       switch (level) {
         case 'RELAXED': return const Color(0xFF4863EC);
         case 'NORMAL': return const Color(0xFF52B93E);
-        case 'CROWDED': return const Color(0xFFEED906);
-        case 'WARNING': return const Color(0xFFF70505);
+        case 'WARNING': return const Color(0xFFEED906);
+        case 'CROWDED': return const Color(0xFFF70505);
         default: return Colors.grey.shade300;
       }
     }).toList();
@@ -1334,28 +1342,27 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
       'recommendations': recommendedIndexes,
     };
   }
-
-
   Widget _buildCongestionLegend() {
     return Padding(
-      padding: const EdgeInsets.only(top: 24),
-      child: Column(
+      padding: const EdgeInsets.only(top: 24, left:29),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text(
-            '혼잡도는 다음과 같이 4단계로 분류했습니다.',
-            style: TextStyle(fontSize: 12, color: Colors.black),
-          ),
-          const SizedBox(height: 8),
           Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              _buildLegendCircle(color: Color(0xFFF70505)), // 빨강
+              _buildLegendItem(color: Color(0xFF4863EC), label: '여유'),
               const SizedBox(width: 8),
-              _buildLegendCircle(color: Color(0xFFEED906)), // 노랑
+              _buildLegendItem(color: Color(0xFF52B93E), label: '보통'),
               const SizedBox(width: 8),
-              _buildLegendCircle(color: Color(0xFF52B93E)), // 초록
+              _buildLegendItem(color: Color(0xFFEED906), label: '주의'),
               const SizedBox(width: 8),
-              _buildLegendCircle(color: Color(0xFF4863EC)), // 파랑
+              _buildLegendItem(color: Color(0xFFF70505), label: '혼잡'),
+              const SizedBox(width: 6),
+              Transform.translate(
+                offset: Offset(10, 0), // ← 왼쪽으로 4px 이동
+                child: Icon(Icons.help_outline, size: 23, color: Colors.black54),
+              ),
             ],
           ),
         ],
@@ -1363,16 +1370,39 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
     );
   }
 
+
+  Widget _buildLegendItem({required Color color, required String label}) {
+    return Column(
+      children: [
+        Container(
+          width: 36,
+          height: 20,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(100),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: const TextStyle(color: Colors.black, fontSize: 12),
+        ),
+      ],
+    );
+  }
+
+
   Widget _buildLegendCircle({required Color color}) {
     return Container(
-      width: 24,
-      height: 24,
+      width: 36,
+      height: 20,
       decoration: BoxDecoration(
         color: color,
-        shape: BoxShape.circle,
+        borderRadius: BorderRadius.circular(100),
       ),
     );
   }
+
 
 
   Widget _buildTrainRow({
@@ -1396,7 +1426,7 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
           child: Align(
             alignment: Alignment.centerRight,
             child: Padding(
-              padding: const EdgeInsets.only(right: 10), // 👈 살짝 왼쪽으로 이동
+              padding: const EdgeInsets.only(right: 4), // 👈 살짝 왼쪽으로 이동
               child: GestureDetector(
                 onTap: onLabelTap,
                 behavior: HitTestBehavior.translucent,
@@ -1415,18 +1445,17 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
 
         const SizedBox(height: 4),
         Center(
-          child: SizedBox(
-            width: totalWidth,
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
             child: Row(
-              mainAxisSize: MainAxisSize.min,
               children: List.generate(seatColors.length, (index) {
                 final isFirst = index == 0;
                 final isLast = index == seatColors.length - 1;
                 final box = isFirst
-                    ? _buildLeftHalfCircle(seatColors[index])
+                    ? _buildLeftHalfCircle(seatColors[index], index)
                     : isLast
-                    ? _buildRightHalfCircle(seatColors[index])
-                    : _buildSeatBox(seatColors[index]);
+                    ? _buildRightHalfCircle(seatColors[index], index)
+                    : _buildSeatBox(seatColors[index], index);
 
                 return Column(
                   children: [
@@ -1448,6 +1477,7 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
             ),
           ),
         ),
+
       ],
     );
 
@@ -1456,52 +1486,79 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
 
 
 
-  Widget _buildSeatBox(Color color) {
-    return Container(
-      width: 20,
-      height: 30,
-      margin: const EdgeInsets.symmetric(horizontal: 1),
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(5), // 👈 모든 모서리 5
-      ),
-    );
-  }
-
-
-  Widget _buildLeftHalfCircle(Color color) {
+  Widget _buildSeatBox(Color color, int index) {
     return Container(
       width: 22,
       height: 30,
       margin: const EdgeInsets.symmetric(horizontal: 1),
       decoration: BoxDecoration(
         color: color,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(15),
-          bottomLeft: Radius.circular(15),
+        borderRadius: BorderRadius.circular(5),
+      ),
+      child: Center(
+        child: Text(
+          '${index + 1}', // 1부터 시작
+          style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+        ),
+      ),
+    );
+  }
+
+
+  Widget _buildLeftHalfCircle(Color color, int index) {
+    return Container(
+      width: 25,
+      height: 30,
+      margin: const EdgeInsets.symmetric(horizontal: 1),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(40),
+          bottomLeft: Radius.circular(12),
+          topRight: Radius.circular(7),
+          bottomRight: Radius.circular(5),
+        ),
+      ),
+      child: Center(
+        child: index == 0
+            ? Transform.translate(
+          offset: const Offset(1.5, 0), // 1mm ≒ 1px 정도
+          child: Text(
+            '${index + 1}',
+            style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+          ),
+        )
+            : Text(
+          '${index + 1}',
+          style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+        ),
+      ),
+
+    );
+  }
+
+  Widget _buildRightHalfCircle(Color color, int index) {
+    return Container(
+      width: 22,
+      height: 30,
+      margin: const EdgeInsets.symmetric(horizontal: 1),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(5),
+          bottomLeft: Radius.circular(5),
           topRight: Radius.circular(5),
           bottomRight: Radius.circular(5),
         ),
       ),
-    );
-  }
-  Widget _buildRightHalfCircle(Color color) {
-    return Container(
-      width: 22,
-      height: 30,
-      margin: const EdgeInsets.symmetric(horizontal: 1),
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(5),
-          bottomLeft: Radius.circular(5),
-          topRight: Radius.circular(15),
-          bottomRight: Radius.circular(15),
+      child: Center(
+        child: Text(
+          '${index + 1}',
+          style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
         ),
       ),
     );
   }
-
 
 
   Widget _buildTransferStep({
