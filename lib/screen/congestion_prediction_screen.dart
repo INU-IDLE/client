@@ -1344,7 +1344,7 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
   }
   Widget _buildCongestionLegend() {
     return Padding(
-      padding: const EdgeInsets.only(top: 24, left:29),
+      padding: const EdgeInsets.only(top: 24, left:52),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -1359,10 +1359,69 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
               const SizedBox(width: 8),
               _buildLegendItem(color: Color(0xFFF70505), label: '혼잡'),
               const SizedBox(width: 6),
-              Transform.translate(
-                offset: Offset(10, 0), // ← 왼쪽으로 4px 이동
-                child: Icon(Icons.help_outline, size: 23, color: Colors.black54),
+              IconButton(
+                icon: const Icon(Icons.help_outline, size: 20, color: Colors.black54),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (_) => Dialog(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      backgroundColor: const Color(0xFFF7F6FA),
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(minWidth: 320), // ⬅️ 팝업 너비 확대
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 24),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                '안내',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF222222),
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              const Text(
+                                '◼︎ "10분 후"는 기본값이며 텍스트를 탭하면 \n  예측 시점을 10분 단위로 변경할 수 있습니다.',
+                                style: TextStyle(fontSize: 14, height: 1.6),
+                              ),
+                              const SizedBox(height: 12),
+                              const Text(
+                                '◼︎ "▲"는 예측 혼잡도 퍼센트(%)가 가장 낮은 \n  두 칸을 표시합니다.',
+                                style: TextStyle(fontSize: 14, height: 1.6),
+                              ),
+                              const SizedBox(height: 20),
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child: TextButton(
+                                  style: TextButton.styleFrom(
+                                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                    minimumSize: Size(0, 30),
+                                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                  ),
+                                  onPressed: () => Navigator.of(context).pop(),
+                                  child: const Text(
+                                    '닫기',
+                                    style: TextStyle(
+                                      color: Color(0xFF3A45B7),
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
               ),
+
             ],
           ),
         ],
@@ -1495,9 +1554,10 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
         color: color,
         borderRadius: BorderRadius.circular(5),
       ),
-      child: Center(
+      child: Align(
+        alignment: Alignment(0, 0.3), // 👈 y축 기준으로 아래로 2픽셀 정도 내림
         child: Text(
-          '${index + 1}', // 1부터 시작
+          '${index + 1}',
           style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
         ),
       ),
@@ -1519,16 +1579,17 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
           bottomRight: Radius.circular(5),
         ),
       ),
-      child: Center(
-        child: index == 0
-            ? Transform.translate(
-          offset: const Offset(1.5, 0), // 1mm ≒ 1px 정도
-          child: Text(
-            '${index + 1}',
-            style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
-          ),
-        )
-            : Text(
+      child: index == 0
+          ? Align(
+        alignment: const Alignment(0.05, 0.3), // 살짝 오른쪽 + 아래
+        child: Text(
+          '${index + 1}',
+          style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+        ),
+      )
+          : Align(
+        alignment: const Alignment(0, 0.3), // 가운데 정렬에서 아래로
+        child: Text(
           '${index + 1}',
           style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
         ),
@@ -1551,12 +1612,14 @@ class _CongestionPredictionScreenState extends State<CongestionPredictionScreen>
           bottomRight: Radius.circular(5),
         ),
       ),
-      child: Center(
+      child: Align(
+        alignment: Alignment(0, 0.3), // 👈 y축 기준으로 아래로 2픽셀 정도 내림
         child: Text(
           '${index + 1}',
           style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
         ),
       ),
+
     );
   }
 
