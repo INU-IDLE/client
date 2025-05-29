@@ -614,29 +614,30 @@ class _RouteResultScreenState extends State<RouteResultScreen> {
         return Theme(
           data: Theme.of(context).copyWith(
             timePickerTheme: TimePickerThemeData(
-              backgroundColor: Colors.white,
-              hourMinuteTextColor: Colors.blue[800],
-              dialHandColor: Colors.blue,
-              dialBackgroundColor: Colors.blue[50],
-              entryModeIconColor: Colors.blue[700],
-              dayPeriodColor: Colors.blue[100],
-              dayPeriodTextColor: Colors.blue[900],
-              hourMinuteColor: Colors.blue[100],
+              backgroundColor: Color(0xFFFFFFFF),
+              hourMinuteTextColor: Color(0xFF4262C5),
+              dialHandColor: Color(0xFF4262C5),
+              dialBackgroundColor: Color(0xFFE0E7FF),
+              entryModeIconColor: Color(0xFF4262C5),
+              dayPeriodColor: Color(0xFFDCE3FF),
+              dayPeriodTextColor: Color(0xFF223B85),
+              hourMinuteColor: Color(0xFFDCE3FF),
             ),
             colorScheme: ColorScheme.light(
-              primary: Colors.blue,
+              primary: Color(0xFF4262C5),
               onPrimary: Colors.white,
               onSurface: Colors.black,
             ),
             textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(
-                foregroundColor: Colors.blue,
+                foregroundColor: Color(0xFF4262C5),
               ),
             ),
           ),
           child: child!,
         );
       },
+
     );
 
     if (picked != null) {

@@ -117,9 +117,12 @@ class _SubwayTimetableScreenState extends State<SubwayTimetableScreen> {
 
   Widget _buildTrainList(List<dynamic> trains) {
     final filtered = expressOnly
-        ? trains.where((t) =>
-    t['trainType'] == 'EXPRESS' || t['trainType'] == 'RAPID').toList()
+        ? trains.where((t) {
+      final type = t['trainType'];
+      return type == 'EXPRESS' || type == 'RAPID';
+    }).toList()
         : trains;
+
 
 
     return ListView.builder(
